@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - '.github/labels.yml' # Trigger only when the labels file changes
+      - '.github/labels.yaml' # Trigger only when the labels file changes
   workflow_dispatch: # Allows manual triggering
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         with:
-          manifest: .github/labels.yml
+          manifest: .github/labels.yaml
           # Specify target repositories (replace with your repos)
           repository: |
             RedHotChiliBots/CODE_2026_Rebuilt,
