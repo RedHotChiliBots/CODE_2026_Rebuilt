@@ -1,0 +1,29 @@
+name: Sync Labels
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/labels.yaml' # Trigger only when the labels file changes
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  sync_labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Sync Labels across Repositories
+        uses: micnncim/action-label-syncer@v1 # Or another action like EndBug/label-sync
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        with:
+          manifest: .github/labels.yaml
+          # Specify target repositories (replace with your repos)
+          repository: |
+            RedHotChiliBots/CODE_2026_Rebuilt,
+            RedHotChiliBots/CAD_2026_Rebuilt
+          # Optional: set prune to true to delete labels not in the YAML file (use with caution)
+          prune: false 
