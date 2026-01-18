@@ -1,6 +1,7 @@
 package frc.robot;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.ClosedLoopConfig; //.FeedBackSensor
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import frc.robot.Constants.ModuleConstants;
@@ -9,7 +10,7 @@ public final class Configs {
 	public static final class MAXSwerveModule {
 		public static final SparkMaxConfig drivingConfig = new SparkMaxConfig();
 		public static final SparkMaxConfig turningConfig = new SparkMaxConfig();
-		public static final ClosedLoopConfig FeedbackSensor = new ClosedLoopConfig();
+		public static final ClosedLoopConfig pidConfig = new ClosedLoopConfig();
 		static {
 			// Use module constants to calculate conversion factors and feed forward gain.
 			double drivingFactor = ModuleConstants.kWheelDiameterMeters * Math.PI
