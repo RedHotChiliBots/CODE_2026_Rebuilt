@@ -22,10 +22,13 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.Constants.OIConstants;
+//import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Chassis;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision.VisionIOPhotonVision;
 import frc.robot.subsystems.Vision.VisionConstants;
 import frc.robot.subsystems.Vision.Vision;
@@ -41,13 +44,13 @@ import java.util.Map;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-	// The robot's subsystems and commands are defined here...
 
+	// The robot's subsystems and commands are defined here...
 	private final Chassis chassis = new Chassis();
-	// private final Ladder ladder = new Ladder();
-	// private final Algae algae = new Algae(ladder);
-	// private final Coral coral = new Coral(chassis, ladder, algae);
-	// private final Climber climber = new Climber();
+	private final Intake intake = new Intake();
+	private final Hopper hopper = new Hopper();
+	private final Shooter shooter = new Shooter();
+	private final Climber climber = new Climber();
 	@SuppressWarnings("unused")
 	private final Vision vision = new Vision(
 			chassis::addVisionMeasurement,
