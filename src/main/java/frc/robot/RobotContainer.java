@@ -68,7 +68,7 @@ public class RobotContainer {
 			OIConstants.kOperatorControllerPort);
 
 	
-	private final Autos auton = new Autos();
+	private final Autos auton = new Autos(this, chassis, intake, hopper, shooter, climber);
 
 	private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
 
