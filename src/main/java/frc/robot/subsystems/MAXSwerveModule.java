@@ -12,8 +12,6 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
@@ -58,10 +56,10 @@ public class MAXSwerveModule {
 		// Apply the respective configurations to the SPARKS. Reset parameters before
 		// applying the configuration to bring the SPARK to a known good state. Persist
 		// the settings to the SPARK to avoid losing them on a power cycle.
-		m_drivingSpark.configure(Configs.MAXSwerveModule.drivingConfig, ResetMode.kResetSafeParameters,
-				PersistMode.kPersistParameters);
-		m_turningSpark.configure(Configs.MAXSwerveModule.turningConfig, ResetMode.kResetSafeParameters,
-				PersistMode.kPersistParameters);
+		m_drivingSpark.configure(Configs.MAXSwerveModule.drivingConfig, com.revrobotics.ResetMode.kResetSafeParameters,
+				com.revrobotics.PersistMode.kPersistParameters);
+		m_turningSpark.configure(Configs.MAXSwerveModule.turningConfig, com.revrobotics.ResetMode.kResetSafeParameters,
+				com.revrobotics.PersistMode.kPersistParameters);
 
 		m_chassisAngularOffset = chassisAngularOffset;
 		m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());

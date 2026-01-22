@@ -39,7 +39,6 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import frc.robot.Constants.CANId;
 import frc.robot.Constants.ChassisConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.utils.SwerveUtils;
