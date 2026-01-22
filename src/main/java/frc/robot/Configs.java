@@ -28,8 +28,8 @@ public final class Configs {
 					.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
 					// These are example gains you may need to them for your own robot!
 					.pid(0.045, 0, 0)
-					.velocityFF(drivingVelocityFeedForward)
-					.outputRange(-1, 1);
+					.outputRange(-1, 1)
+					.feedForward.kV(drivingVelocityFeedForward);
 			// drivingConfig.signals
 			// 		.appliedOutputPeriodMs(10);
 					// .primaryEncoderVelocityPeriodMs(20)
