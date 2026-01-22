@@ -10,13 +10,16 @@ Java robot code for the 2026 FRC game REBUILT
 **2. Intake**
 * Motors / Encoders
     * (2x) NEO - Tilt
+        * TBD Gearbox
         * Thru-Hole Abs Encoder
     * (1x) NEO - Intake
+        * TBD Gearbox
        * Closed Loop Velocity (RPMs)
 
 **4. Feeder**
 * Motors / Encoders
     * (1x) NEO - Feeder / Hopper
+        * TBD Gearbox
         * Closed Loop Velocity (RPMs)
 * Sensors
     * (1x) Beam Break
@@ -24,8 +27,10 @@ Java robot code for the 2026 FRC game REBUILT
 **5. Shooter**
 * Motors / Encoders
     * (2x) Vortex - Shooter
+        * TBD Gearbox
         * Closed Loop Velocity (RPMs)
     * (2x) 550 - Shroud
+        * TBD Gearbox
         * Amp limit for z
         Zero
         * Closed Loop Position (Degrees)
