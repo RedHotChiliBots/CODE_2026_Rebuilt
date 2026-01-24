@@ -18,39 +18,25 @@ public class LibraryTest {
     @Test
     @DisplayName("Test if encoder is moveing towards setpoint")
     void testIsMoving() {
-        // 1. Given (preconditions): Inputs 5 and 3
-        int num1 = 5;
-        int num2 = 3;
-        int expectedResult = 8;
+    
+        lib.isMoving(5.0, 3.0);
 
-        // 2. When (action): Call the method under test
-        int actualResult = 0;
-
-        // 3. Then (assertion): Verify the result
-        Assertions.assertEquals(expectedResult, actualResult, "The add method should return the sum of its arguments");
+        Assertions.assertEquals(true, lib.isMoving(4.0, 3.0), "The add method should return the sum of its arguments");
     }
 
     @Test
     @DisplayName("Test if encoder is not moving towards setpoint")
     void testIsNotMoving() {
-        int num1 = 5;
-        int num2 = 10;
-        int expectedResult = -5;
+         lib.isMoving(5.0, 3.0);
 
-        int actualResult = 0;
-
-        Assertions.assertEquals(expectedResult, actualResult, "The subtract method should return a negative result when the second number is larger");
+        Assertions.assertEquals(false, lib.isMoving(5.0, 3.0), "The add method should return the sum of its arguments");
     }
 
     @Test
     @DisplayName("Test if encoder is moving away from setpoint")
     void testIsMovingAway() {
-        int num1 = 5;
-        int num2 = 10;
-        int expectedResult = -5;
+         lib.isMoving(5.0, 3.0);
 
-        int actualResult = 0;
-
-        Assertions.assertEquals(expectedResult, actualResult, "The subtract method should return a negative result when the second number is larger");
-    }
+        Assertions.assertEquals(false, lib.isMoving(6.0, 3.0), "The add method should return the sum of its arguments");
+     }
 }
