@@ -96,15 +96,15 @@ public class Autos {
 
     // ********************************************
     // Initialize auto command chooser with auton commands
-    autoChooser = AutoBuilder.buildAutoChooser("BigKahuna");
-    autoChooser.addOption("AUTOLEAVE", autoLeave);
+    // autoChooser = AutoBuilder.buildAutoChooser("BigKahuna");
+    // autoChooser.addOption("AUTOLEAVE", autoLeave);
         
     // ********************************************
     // Add Auton Command chooser to Shuffleboard
-    compTab.add("Auto Command", autoChooser)
-        .withWidget("ComboBox Chooser")
-        .withPosition(0, 0)
-        .withSize(3, 1);
+    // compTab.add("Auto Command", autoChooser)
+    //     .withWidget("ComboBox Chooser")
+    //     .withPosition(0, 0)
+    //     .withSize(3, 1);
         
     System.out.println("----- Ending Autos Constructor -----");
   }
