@@ -2,10 +2,37 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Commands/Chassis/setX": "Command",
+      "/Shuffleboard/Competition/Chassis Current": "Subsystem",
+      "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/PathPlanner": "Alerts",
       "/SmartDashboard/PhotonAlerts": "Alerts"
     }
   },
+  "NetworkTables": {
+    "persistent": {
+      "Shuffleboard": {
+        "open": true
+      }
+    },
+    "transitory": {
+      "Pose2d##v_OrigPose": {
+        "open": true
+      },
+      "Shuffleboard": {
+        "Chassis": {
+          "open": true
+        },
+        "Commands": {
+          "open": true
+        }
+      }
+    }
+  },
   "NetworkTables Info": {
+    "Server": {
+      "open": true
+    },
     "visible": true
   }
 }

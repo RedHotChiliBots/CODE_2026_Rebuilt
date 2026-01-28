@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
+
 import java.util.Map;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -30,6 +31,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -81,34 +83,31 @@ public class Chassis extends SubsystemBase {
 	/**************************************************************
 	 * Initialize Shuffleboard entries
 	 **************************************************************/
-	// private final ShuffleboardTab chassisTab = Shuffleboard.getTab("Chassis");
+	private final ShuffleboardTab chassisTab = Shuffleboard.getTab("Chassis");
 	private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
 	private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
 
-	// private final GenericEntry sbAngle = chassisTab.addPersistent("Angle", 0)
-	// .withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
-	// private final GenericEntry sbFusedHeading =
-	// chassisTab.addPersistent("FusedHeading", 0)
-	// .withWidget("Text View").withPosition(3, 1).withSize(2, 1).getEntry();
-	// private final GenericEntry sbCompassHeading =
-	// chassisTab.addPersistent("CompassHeading", 0)
-	// .withWidget("Text View").withPosition(3, 2).withSize(2, 1).getEntry();
-	// private final GenericEntry sbRotDegree =
-	// chassisTab.addPersistent("Rotation2d", 0)
-	// .withWidget("Text View").withPosition(3, 3).withSize(2, 1).getEntry();
-	// private final GenericEntry sbPitch = chassisTab.addPersistent("Pitch", 0)
-	// .withWidget("Text View").withPosition(5, 0).withSize(2, 1).getEntry();
-	// private final GenericEntry sbRoll = chassisTab.addPersistent("Roll", 0)
-	// .withWidget("Text View").withPosition(5, 1).withSize(2, 1).getEntry();
-	// private final GenericEntry sbYaw = chassisTab.addPersistent("Yaw", 0)
-	// .withWidget("Text View").withPosition(5, 2).withSize(2, 1).getEntry();
+	private final GenericEntry sbAngle = chassisTab.addPersistent("Angle", 0)
+			.withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
+	private final GenericEntry sbFusedHeading = chassisTab.addPersistent("FusedHeading", 0)
+			.withWidget("Text View").withPosition(3, 1).withSize(2, 1).getEntry();
+	private final GenericEntry sbCompassHeading = chassisTab.addPersistent("CompassHeading", 0)
+			.withWidget("Text View").withPosition(3, 2).withSize(2, 1).getEntry();
+	private final GenericEntry sbRotDegree = chassisTab.addPersistent("Rotation2d", 0)
+			.withWidget("Text View").withPosition(3, 3).withSize(2, 1).getEntry();
+	private final GenericEntry sbPitch = chassisTab.addPersistent("Pitch", 0)
+			.withWidget("Text View").withPosition(5, 0).withSize(2, 1).getEntry();
+	private final GenericEntry sbRoll = chassisTab.addPersistent("Roll", 0)
+			.withWidget("Text View").withPosition(5, 1).withSize(2, 1).getEntry();
+	private final GenericEntry sbYaw = chassisTab.addPersistent("Yaw", 0)
+			.withWidget("Text View").withPosition(5, 2).withSize(2, 1).getEntry();
 
-	// private final GenericEntry sbXVel = chassisTab.addPersistent("X Vel", 0)
-	// .withWidget("Text View").withPosition(5, 2).withSize(2, 1).getEntry();
-	// private final GenericEntry sbYVel = chassisTab.addPersistent("Y Vel", 0)
-	// .withWidget("Text View").withPosition(5, 2).withSize(2, 1).getEntry();
-	// private final GenericEntry sbRVel = chassisTab.addPersistent("R Vel", 0)
-	// .withWidget("Text View").withPosition(5, 2).withSize(2, 1).getEntry();
+	private final GenericEntry sbXVel = chassisTab.addPersistent("X Vel", 0)
+			.withWidget("Text View").withPosition(5, 2).withSize(2, 1).getEntry();
+	private final GenericEntry sbYVel = chassisTab.addPersistent("Y Vel", 0)
+			.withWidget("Text View").withPosition(5, 2).withSize(2, 1).getEntry();
+	private final GenericEntry sbRVel = chassisTab.addPersistent("R Vel", 0)
+			.withWidget("Text View").withPosition(5, 2).withSize(2, 1).getEntry();
 
 	private final StructPublisher<Pose2d> origPose = NetworkTableInstance.getDefault()
 			.getStructTopic("OrigPose", Pose2d.struct).publish();
@@ -121,11 +120,11 @@ public class Chassis extends SubsystemBase {
 			.withPosition(13, 11)
 			.withProperties(Map.of("Label position", "Hidden"));
 
-	// private final ShuffleboardLayout chassisData = compTab
-	// .getLayout("Chassis", BuiltInLayouts.kList)
-	// .withSize(2, 5)
-	// .withPosition(12, 10)
-	// .withProperties(Map.of("Label position", "Top"));
+	private final ShuffleboardLayout chassisData = compTab
+			.getLayout("Chassis", BuiltInLayouts.kList)
+			.withSize(2, 5)
+			.withPosition(12, 10)
+			.withProperties(Map.of("Label position", "Top"));
 
 	private double pitchOffset = 0.0;
 	private double rollOffset = 0.0;
@@ -157,63 +156,69 @@ public class Chassis extends SubsystemBase {
 			DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
 		}
 
-		// // Odometry class for tracking robot pose
-		// m_odometry = new SwerveDriveOdometry(
-		// DriveConstants.kDriveKinematics,
-		// getRotation2d(),
-		// new SwerveModulePosition[] {
-		// m_frontLeft.getPosition(),
-		// m_frontRight.getPosition(),
-		// m_rearLeft.getPosition(),
-		// m_rearRight.getPosition()
-		// });
+		// Odometry class for tracking robot pose
+		m_odometry = new SwerveDriveOdometry(
+				DriveConstants.kDriveKinematics,
+				getRotation2d(),
+				new SwerveModulePosition[] {
+						m_frontLeft.getPosition(),
+						m_frontRight.getPosition(),
+						m_rearLeft.getPosition(),
+						m_rearRight.getPosition()
+				});
 
 		// Load the RobotConfig from the GUI settings. You should probably
 		// store this in your Constants file
-		// RobotConfig config = null;
-		// try {
-		// 	config = RobotConfig.fromGUISettings();
-		// } catch (Exception e) {
-		// 	// Handle exception as needed
-		// 	e.printStackTrace();
-		// }
+		RobotConfig config = null;
+		try {
+			config = RobotConfig.fromGUISettings();
 
-		// // Configure AutoBuilder last
-		// AutoBuilder.configure(
-		// 		this::getPose, // Robot pose supplier
-		// 		this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-		// 		this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-		// 		(speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT
-		// 																				// RELATIVE ChassisSpeeds. Also optionally outputs
-		// 																				// individual module feedforwards
-		// 		new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
-		// 													// holonomic drive trains
-		// 				new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-		// 				new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
-		// 		),
-		// 		config, // The robot configuration
-		// 		() -> {
-		// 			// Boolean supplier that controls when the path will be mirrored for the red
-		// 			// alliance
-		// 			// This will flip the path being followed to the red side of the field.
-		// 			// THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+			// Configure AutoBuilder last
+			AutoBuilder.configure(
+					this::getPose, // Robot pose supplier
+					this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+					this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+					(speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given
+																			// ROBOT
+																			// RELATIVE ChassisSpeeds. Also optionally
+																			// outputs
+																			// individual module feedforwards
+					new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller
+													// for
+													// holonomic drive trains
+							new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+							new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+					),
+					config, // The robot configuration
+					() -> {
+						// Boolean supplier that controls when the path will be mirrored for the red
+						// alliance
+						// This will flip the path being followed to the red side of the field.
+						// THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-		// 			var alliance = DriverStation.getAlliance();
-		// 			if (alliance.isPresent()) {
-		// 				return alliance.get() == DriverStation.Alliance.Red;
-		// 			}
-		// 			return false;
-		// 		},
-		// 		this // Reference to this subsystem to set requirements
-		// );
+						var alliance = DriverStation.getAlliance();
+						if (alliance.isPresent()) {
+							return alliance.get() == DriverStation.Alliance.Red;
+						}
+						return false;
+					},
+					this // Reference to this subsystem to set requirements
+			);
+
+			
+		} catch (Exception e) {
+			// Handle error if settings.json is missing or corrupted
+			DriverStation.reportError("Failed to configure AutoBuilder: " + e.getMessage(), e.getStackTrace());
+		}
 
 		// The robot pose estimator for tracking swerve odometry and applying vision
 		// data
 		poseEstimator = new SwerveDrivePoseEstimator(ChassisConstants.kDriveKinematics, getRotation2d(),
 				getModulePositions(), new Pose2d(),
 				// more on n1 and n2 = less trust in source
-				VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)), // robot position (wheel slipping) and robot heading
-																							// (gyro)
+				VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)), // robot position (wheel slipping) and robot
+																		// heading
+																		// (gyro)
 				VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30))); // vision errors (x,y) and rotation
 
 		m_ahrs.reset();
@@ -221,13 +226,14 @@ public class Chassis extends SubsystemBase {
 		zeroYaw();
 		m_ahrs.setAngleAdjustment(0.0);
 
-		// getPose().getRotation().getDegrees();
-		// resetPose(getPose());
+		getPose().getRotation().getDegrees();
+		resetPose(getPose());
 
-		// Pose2d startPose = new Pose2d(new Translation2d(5.79, 4.0),
-		// Rotation2d.fromDegrees(180));
-		// resetPose(startPose);
-		// resetOdometry(startPose);
+		Pose2d startPose = new Pose2d(
+				new Translation2d(5.79, 4.0),
+				Rotation2d.fromDegrees(180));
+		resetPose(startPose);
+		resetOdometry(startPose);
 
 		origPose.set(getPose());
 
@@ -261,17 +267,17 @@ public class Chassis extends SubsystemBase {
 
 		currPose.set(getPose());
 
-		// sbXVel.setDouble(getPose().getX());
-		// sbYVel.setDouble(getPose().getY());
-		// sbRVel.setDouble(getPose().getRotation().getDegrees());
+		sbXVel.setDouble(getPose().getX());
+		sbYVel.setDouble(getPose().getY());
+		sbRVel.setDouble(getPose().getRotation().getDegrees());
 
-		// sbAngle.setDouble(getAngle());
-		// sbYaw.setDouble(getYaw());
-		// sbPitch.setDouble(getPitch());
-		// sbRoll.setDouble(getRoll());
-		// sbFusedHeading.setDouble(getFusedHeading());
-		// sbCompassHeading.setDouble(getCompassHeading());
-		// sbRotDegree.setDouble(getRotation2d().getDegrees());
+		sbAngle.setDouble(getAngle());
+		sbYaw.setDouble(getYaw());
+		sbPitch.setDouble(getPitch());
+		sbRoll.setDouble(getRoll());
+		sbFusedHeading.setDouble(getFusedHeading());
+		sbCompassHeading.setDouble(getCompassHeading());
+		sbRotDegree.setDouble(getRotation2d().getDegrees());
 	}
 
 	/**************************************************************
