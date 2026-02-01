@@ -21,7 +21,8 @@
 
 # gradle files
 .gradle/
-build/
+/build/
+/bin/
 *.bin
 *.lock
 *.dylib

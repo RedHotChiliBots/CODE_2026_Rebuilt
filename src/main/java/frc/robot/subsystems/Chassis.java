@@ -229,9 +229,9 @@ public class Chassis extends SubsystemBase {
 		getPose().getRotation().getDegrees();
 		resetPose(getPose());
 
-		Pose2d startPose = new Pose2d(
-				new Translation2d(5.79, 4.0),
-				Rotation2d.fromDegrees(180));
+		Pose2d startPose = new Pose2d(					// positioned using AdvantageScope
+				new Translation2d(3.45, 2.75),
+				Rotation2d.fromDegrees(52.5));
 		resetPose(startPose);
 		resetOdometry(startPose);
 
