@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.sql.Driver;
 import java.util.Map;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -15,6 +16,7 @@ import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -205,7 +207,6 @@ public class Chassis extends SubsystemBase {
 					this // Reference to this subsystem to set requirements
 			);
 
-			
 		} catch (Exception e) {
 			// Handle error if settings.json is missing or corrupted
 			DriverStation.reportError("Failed to configure AutoBuilder: " + e.getMessage(), e.getStackTrace());
@@ -229,9 +230,10 @@ public class Chassis extends SubsystemBase {
 		getPose().getRotation().getDegrees();
 		resetPose(getPose());
 
-		Pose2d startPose = new Pose2d(					// positioned using AdvantageScope
+		Pose2d startPose = new Pose2d( // This is the blue side starting pose. AutoBuilder will mirror for red.
 				new Translation2d(3.45, 2.75),
-				Rotation2d.fromDegrees(52.5));
+				Rotation2d.fromDegrees(42.5));
+
 		resetPose(startPose);
 		resetOdometry(startPose);
 
