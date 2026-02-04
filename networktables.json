@@ -74,7 +74,7 @@
   {
     "name": "/Shuffleboard/Chassis/R Vel",
     "type": "double",
-    "value": 52.50000000000001,
+    "value": 42.5,
     "properties": {
       "persistent": true
     }

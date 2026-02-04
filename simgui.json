@@ -1,8 +1,10 @@
 {
   "HALProvider": {
-    "RoboRIO": {
-      "window": {
-        "visible": true
+    "Other Devices": {
+      "SPARK MAX [18] ABSOLUTE ENCODER": {
+        "header": {
+          "open": true
+        }
       }
     }
   },
