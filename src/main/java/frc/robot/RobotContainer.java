@@ -57,7 +57,11 @@ public class RobotContainer {
 			new VisionIOPhotonVision(VisionConstants.camera0Name,
 					VisionConstants.robotToCamera0),
 			new VisionIOPhotonVision(VisionConstants.camera1Name,
-					VisionConstants.robotToCamera1));
+					VisionConstants.robotToCamera1),
+			new VisionIOPhotonVision(VisionConstants.camera2Name,
+					VisionConstants.robotToCamera2),
+			new VisionIOPhotonVision(VisionConstants.camera3Name,
+					VisionConstants.robotToCamera3));
 
 	// Define HIDs
 	private final CommandXboxController m_driverController = new CommandXboxController(

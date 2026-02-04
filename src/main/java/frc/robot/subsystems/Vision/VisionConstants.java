@@ -25,25 +25,47 @@ public class VisionConstants {
     public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
     // Camera names, must match names configured on coprocessor
-    public static String camera0Name = "PhotonVision_3";
-    public static String camera1Name = "PhotonVision_4";
+    public static String camera0Name = "rear-right";
+    public static String camera1Name = "rear-left";
+    public static String camera2Name = "front-right";
+    public static String camera3Name = "front-left";
 
-    // Robot to camera transforms
-    // (Not used by Limelight, configure in web UI instead)
-    public static Transform3d robotToCamera0 = new Transform3d(new Translation3d( // camera 3 front left
+    // Robot to camera transforms (Where the camera is relative to front left corner of the robot)
+    //These will need to be adjusted as the robot is constructed
+    public static Transform3d robotToCamera0 = new Transform3d(new Translation3d( // rear right
+            Units.inchesToMeters(-11.204), // x
+            Units.inchesToMeters(-12.603), // y
+            Units.inchesToMeters(8.659)), // z
+            new Rotation3d(0.0, // roll
+                    Units.degreesToRadians(-15.0), // pitch
+                    Units.degreesToRadians(30.0))); // yaw
+
+    public static Transform3d robotToCamera1 = new Transform3d(new Translation3d( // rear left
             Units.inchesToMeters(-11.204), // x
             Units.inchesToMeters(12.603), // y
             Units.inchesToMeters(8.659)), // z
             new Rotation3d(0.0, // roll
                     Units.degreesToRadians(-15.0), // pitch
-                    Units.degreesToRadians(-30.0)));
-    public static Transform3d robotToCamera1 = new Transform3d(new Translation3d( // camera 4 front right
+                    Units.degreesToRadians(30.0))); // yaw
+
+    public static Transform3d robotToCamera2 = new Transform3d(new Translation3d( // front right
+            Units.inchesToMeters(11.204), // x
+            Units.inchesToMeters(-12.603), // y
+            Units.inchesToMeters(8.659)), // z
+            new Rotation3d(0.0, // roll
+                    Units.degreesToRadians(-15.0), // pitch
+                    Units.degreesToRadians(30.0))); // yaw
+
+    public static Transform3d robotToCamera3 = new Transform3d(new Translation3d( // front left
             Units.inchesToMeters(11.204), // x
             Units.inchesToMeters(12.603), // y
             Units.inchesToMeters(8.659)), // z
             new Rotation3d(0.0, // roll
                     Units.degreesToRadians(-15.0), // pitch
-                    Units.degreesToRadians(30.0))); // yaw
+                    Units.degreesToRadians(-30.0)));
+
+
+                    
 
     // Basic filtering thresholds
     public static double maxAmbiguity = 0.2;
@@ -58,10 +80,13 @@ public class VisionConstants {
     // (Adjust to trust some cameras more than others)
     public static double[] cameraStdDevFactors = new double[] {
             1.0, // Camera 0
-            1.0 // Camera 1
+            1.0, // Camera 1
+            1.0, //Camera 2
+            1.0 //Camera 3
     };
 
     // Multipliers to apply for MegaTag 2 observations
     public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
     public static double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // No rotation data available
 }
+
