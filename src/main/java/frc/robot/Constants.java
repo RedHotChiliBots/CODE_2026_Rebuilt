@@ -33,7 +33,8 @@ public final class Constants {
 	}
 
 	public static final class PWMId {
-		public static final int kGrenadePin = 0;
+		public static final int kClimberHook1PWMId = 0;
+		public static final int kClimberHook2PWMId = 1;
 	}
 
 	public static final class CANId {
@@ -59,11 +60,10 @@ public final class Constants {
 		public static final int kAlgaeRightIntakeCanId = 31;
 		public static final int kAlgaeTiltCanId = 32;
 
-		public static final int kClimberLeftCanId = 40;
-		public static final int kClimberRightCanId = 41;
-
-		public static final int kLadderLeftCanId = 50;
-		public static final int kLadderRightCanId = 51;
+		public static final int kClimber1CanId = 40;
+		public static final int kClimber2CanId = 41;
+		public static final int kClimber3CanId = 42;
+		public static final int kClimber4CanId = 43;
 	}
 
 	public static final class MotorConstants {
