@@ -63,6 +63,8 @@ public final class Constants {
 		public static final int kClimber2CanId = 41;
 		public static final int kClimber3CanId = 42;
 		public static final int kClimber4CanId = 43;
+
+		public static final int kClimberServoHubCanId = 50;
 	}
 
 	public static final class MotorConstants {
@@ -212,6 +214,8 @@ public final class Constants {
 
 		public static final double kPosMinOutput = -0.5; //max motion -1.0
 		public static final double kPosMaxOutput = 0.5; //max motion 1.0
+
+		public static final double kTollerance = 0.5; // degrees
 	}
 
 	public static final class Vision {
