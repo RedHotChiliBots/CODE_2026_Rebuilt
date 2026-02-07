@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
@@ -33,7 +33,7 @@ public class Autos {
   private RobotContainer robotContainer;
   private Chassis chassis;
   private Intake intake;
-  private Hopper hopper;
+  private Feeder feeder;
   private Shooter shooter;
   private Climber climber;
 
@@ -52,7 +52,7 @@ public class Autos {
   // climber));
   // }
 
-  public Autos(RobotContainer robotContainer, Chassis chassis, Intake intake, Hopper hopper, Shooter shooter,
+  public Autos(RobotContainer robotContainer, Chassis chassis, Intake intake, Feeder feeder, Shooter shooter,
       Climber climber) {
 
     System.out.println("+++++ Starting Autos Constructor +++++");
@@ -60,7 +60,7 @@ public class Autos {
     this.robotContainer = robotContainer;
     this.chassis = chassis;
     this.intake = intake;
-    this.hopper = hopper;
+    this.feeder = feeder;
     this.shooter = shooter;
     this.climber = climber;
 
