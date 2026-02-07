@@ -3,8 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-
-//import com.revrobotics.spark.config.SparkBaseConfig.IdleMode; 
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode; 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -186,6 +185,33 @@ public final class Constants {
 		public static final double Ultra3 = 2.89;
 		public static final double Ultra4 = 3.61;
 		public static final double Ultra5 = 5.23;
+	}
+
+	public static final class Climber {
+
+		//Motor Inversion
+		public static final boolean kClimberInverted = false;
+
+		//Idle Mode
+		public static final IdleMode kClimberIdleMode = IdleMode.kBrake;
+
+		//Current Limit
+		public static final int kClimberCurrentLimit = 50; // amps
+
+		//Abs Encoder Configs
+		public static final double kZeroOffset = 0.5; //WILL NEED ADJUSTMENT
+		public static final boolean kZeroCentered = true;
+		public static final boolean kEncoderInverted = true;
+		public static final double kTiltPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) * 360.0 degrees
+		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second 
+
+		//Closed loop configs
+		public static final double kPosP = 0.0; // maxmotion 0.0
+		public static final double kPosI = 0.0; // maxmotion 0.0
+		public static final double kPosD = 0.0; // maxmotion 0.0
+
+		public static final double kPosMinOutput = -0.5; //max motion -1.0
+		public static final double kPosMaxOutput = 0.5; //max motion 1.0
 	}
 
 	public static final class Vision {

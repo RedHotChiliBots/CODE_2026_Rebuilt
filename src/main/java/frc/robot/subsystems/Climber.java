@@ -5,18 +5,18 @@
 package frc.robot.subsystems;
 
 
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
 import java.util.Map;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLimitSwitch;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.networktables.GenericEntry;
@@ -49,20 +49,20 @@ public class Climber extends SubsystemBase {
   private final SparkFlex climber4 = new SparkFlex(
     Constants.CANId.kClimber4CanId, MotorType.kBrushless);
 
-  private final SparkMaxConfig climber1Config = new SparkMaxConfig();
-  private final SparkMaxConfig climber2Config = new SparkMaxConfig();
-  private final SparkMaxConfig climber3Config = new SparkMaxConfig();
-  private final SparkMaxConfig climber4Config = new SparkMaxConfig();
+  private final SparkFlexConfig climber1Config = new SparkFlexConfig();
+  private final SparkFlexConfig climber2Config = new SparkFlexConfig();
+  private final SparkFlexConfig climber3Config = new SparkFlexConfig();
+  private final SparkFlexConfig climber4Config = new SparkFlexConfig();
   
   private final SparkClosedLoopController climber1Controller = climber1.getClosedLoopController();
   private final SparkClosedLoopController climber2Controller = climber2.getClosedLoopController();
   private final SparkClosedLoopController climber3Controller = climber3.getClosedLoopController();
   private final SparkClosedLoopController climber4Controller = climber4.getClosedLoopController();
 
-  private final AbsoluteEncoder climber1Encoder = climber1.getAbsoluteEncoder();
-  private final AbsoluteEncoder climber2Encoder = climber2.getAbsoluteEncoder();
-  private final AbsoluteEncoder climber3Encoder = climber3.getAbsoluteEncoder();
-  private final AbsoluteEncoder climber4Encoder = climber4.getAbsoluteEncoder();
+  private final AbsoluteEncoder climber1AbsEncoder = climber1.getAbsoluteEncoder();
+  private final AbsoluteEncoder climber2AbsEncoder = climber2.getAbsoluteEncoder();
+  private final AbsoluteEncoder climber3AbsEncoder = climber3.getAbsoluteEncoder();
+  private final AbsoluteEncoder climber4AbsEncoder = climber4.getAbsoluteEncoder();
 
   private final Servo hook1 = new Servo(PWMId.kClimberHook1PWMId);
   private final Servo hook2 = new Servo(PWMId.kClimberHook2PWMId);
@@ -84,27 +84,84 @@ public class Climber extends SubsystemBase {
 			return sp;
 		}
   }
-
-  private enum PinSP {
-		OPEN(-0.5), // degrees - up and out of way NUMBERS NEED TO CHANGE
-		CLOSE(0.5); // degrees - full climb NUMBERS NEED TO CHANGE
-
-		private final double sp;
-
-		PinSP(final double sp) {
-			this.sp = sp;
-		}
-
-		public double getValue() {
-			return sp;
-		}
-
   private ClimberSP climberSP = Climber.ClimberSP.STOW;
 	private Library lib = new Library();
-}
+
   public Climber() {
+    System.out.println("+++++ Starting Climber Constructor +++++");
+
+    // Climbing Motor Configs 1-4
+    climber1Config
+    .inverted(Constants.Climber.kClimberInverted)
+    .idleMode(Constants.Climber.kClimberIdleMode)
+    .smartCurrentLimit(Constants.Climber.kClimberCurrentLimit);
+    climber1Config.absoluteEncoder
+    .zeroOffset(Constants.Climber.kZeroOffset)
+    .zeroCentered(Constants.Climber.kZeroCentered)
+    .inverted(Constants.Climber.kEncoderInverted)
+    .positionConversionFactor(Constants.Climber.kTiltPositionFactor)
+    .velocityConversionFactor(Constants.Climber.kTiltVelocityFactor);
+    climber1Config.closedLoop
+    .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+    .p(Constants.Climber.kPosP)
+    .i(Constants.Climber.kPosI)
+    .d(Constants.Climber.kPosD)
+    .outputRange(Constants.Climber.kPosMinOutput, Constants.Climber.kPosMaxOutput);
     
-  }
+
+    climber2Config
+    .inverted(Constants.Climber.kClimberInverted)
+    .idleMode(Constants.Climber.kClimberIdleMode)
+    .smartCurrentLimit(Constants.Climber.kClimberCurrentLimit);
+    climber2Config.absoluteEncoder
+    .zeroOffset(Constants.Climber.kZeroOffset)
+    .zeroCentered(Constants.Climber.kZeroCentered)
+    .inverted(Constants.Climber.kEncoderInverted)
+    .positionConversionFactor(Constants.Climber.kTiltPositionFactor)
+    .velocityConversionFactor(Constants.Climber.kTiltVelocityFactor);
+    climber2Config.closedLoop
+    .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+    .p(Constants.Climber.kPosP)
+    .i(Constants.Climber.kPosI)
+    .d(Constants.Climber.kPosD)
+    .outputRange(Constants.Climber.kPosMinOutput, Constants.Climber.kPosMaxOutput);
+
+    climber3Config
+    .inverted(Constants.Climber.kClimberInverted)
+    .idleMode(Constants.Climber.kClimberIdleMode)
+    .smartCurrentLimit(Constants.Climber.kClimberCurrentLimit);
+    climber3Config.absoluteEncoder
+    .zeroOffset(Constants.Climber.kZeroOffset)
+    .zeroCentered(Constants.Climber.kZeroCentered)
+    .inverted(Constants.Climber.kEncoderInverted)
+    .positionConversionFactor(Constants.Climber.kTiltPositionFactor)
+    .velocityConversionFactor(Constants.Climber.kTiltVelocityFactor);
+    climber3Config.closedLoop
+    .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+    .p(Constants.Climber.kPosP)
+    .i(Constants.Climber.kPosI)
+    .d(Constants.Climber.kPosD)
+    .outputRange(Constants.Climber.kPosMinOutput, Constants.Climber.kPosMaxOutput);
+
+    climber4Config
+    .inverted(Constants.Climber.kClimberInverted)
+    .idleMode(Constants.Climber.kClimberIdleMode)
+    .smartCurrentLimit(Constants.Climber.kClimberCurrentLimit);
+    climber4Config.absoluteEncoder
+    .zeroOffset(Constants.Climber.kZeroOffset)
+    .zeroCentered(Constants.Climber.kZeroCentered)
+    .inverted(Constants.Climber.kEncoderInverted)
+    .positionConversionFactor(Constants.Climber.kTiltPositionFactor)
+    .velocityConversionFactor(Constants.Climber.kTiltVelocityFactor);
+    climber4Config.closedLoop
+    .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+    .p(Constants.Climber.kPosP)
+    .i(Constants.Climber.kPosI)
+    .d(Constants.Climber.kPosD)
+    .outputRange(Constants.Climber.kPosMinOutput, Constants.Climber.kPosMaxOutput);
+    
+    System.out.println("+++++ End of Climber Constructor +++++");
+    }
 
 
   /**
