@@ -58,7 +58,7 @@
   {
     "name": "/Shuffleboard/Chassis/X Vel",
     "type": "double",
-    "value": 5.79,
+    "value": 3.45,
     "properties": {
       "persistent": true
     }
@@ -66,7 +66,7 @@
   {
     "name": "/Shuffleboard/Chassis/Y Vel",
     "type": "double",
-    "value": 4.0,
+    "value": 2.75,
     "properties": {
       "persistent": true
     }
@@ -74,7 +74,7 @@
   {
     "name": "/Shuffleboard/Chassis/R Vel",
     "type": "double",
-    "value": 180.0,
+    "value": 42.5,
     "properties": {
       "persistent": true
     }
