@@ -35,13 +35,12 @@ public class Intake extends SubsystemBase {
   private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
   public Intake() {
-    // Configure Left Intake motor
+		System.out.println("+++++ Starting Intake Constructor +++++");
+    // Configure Intake motor
     intakeConfig
-        .inverted(Constants.Intake.kIntakeMotorInverted)
         .idleMode(Constants.Intake.kIntakeIdleMode)
         .smartCurrentLimit(Constants.Intake.kIntakeCurrentLimit);
     intakeConfig.encoder
-        .inverted(Constants.Intake.kIntakeEncoderInverted)
         .positionConversionFactor(Constants.Intake.kIntakePositionFactor)
         .velocityConversionFactor(Constants.Intake.kIntakeVelocityFactor);
     intakeConfig.closedLoop
@@ -81,6 +80,8 @@ public class Intake extends SubsystemBase {
         tiltConfig,
         com.revrobotics.ResetMode.kResetSafeParameters,
 				com.revrobotics.PersistMode.kPersistParameters);
+        
+		System.out.println("----- Ending Intake Constructor -----");
   }
 
   /**
