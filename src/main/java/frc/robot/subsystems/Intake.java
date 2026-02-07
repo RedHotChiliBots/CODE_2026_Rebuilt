@@ -49,9 +49,10 @@ public class Intake extends SubsystemBase {
 				.p(Constants.Intake.kIntakeP)
 				.i(Constants.Intake.kIntakeI)
 				.d(Constants.Intake.kIntakeD)
-        .velocityFF(Constants.Intake.kIntakeVelFF)
 				.outputRange(Constants.Intake.kIntakeMinOutput, Constants.Intake.kIntakeMaxOutput)
 				.positionWrappingEnabled(Constants.Intake.kIntakeEncodeWrapping);
+    intakeConfig.closedLoop.feedForward
+        .kA(Constants.Intake.kIntakeVelFF);
 
 		tiltConfig
 				.inverted(Constants.Intake.kTiltMotorInverted)
