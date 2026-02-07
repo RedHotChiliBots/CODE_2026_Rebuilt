@@ -19,7 +19,7 @@ import frc.robot.Constants;
 public class Intake extends SubsystemBase {
 
   // ==============================================================
-  // Define Intake Motors
+  // Define Intake & Tilt Motors
   private final SparkMax intake = new SparkMax(
       Constants.CANId.kIntakeIntakeCanId, MotorType.kBrushless);
   private final SparkMax tilt = new SparkMax(
@@ -34,7 +34,9 @@ public class Intake extends SubsystemBase {
   private RelativeEncoder intakeEncoder = intake.getEncoder();
   private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
-  public Intake() {
+  // ==============================================================
+  // Constructor
+   public Intake() {
 		System.out.println("+++++ Starting Intake Constructor +++++");
     // Configure Intake motor
     intakeConfig
