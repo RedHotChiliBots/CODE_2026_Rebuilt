@@ -6,13 +6,12 @@ package frc.robot;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-//import com.revrobotics.spark.config.SparkBaseConfig.IdleMode; 
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode; 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.util.Color;
-
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -35,7 +34,8 @@ public final class Constants {
 	}
 
 	public static final class PWMId {
-		public static final int kGrenadePin = 0;
+		public static final int kClimberHook1PWMId = 0;
+		public static final int kClimberHook2PWMId = 1;
 	}
 
 	public static final class CANId {
@@ -57,15 +57,14 @@ public final class Constants {
 		public static final int kShooterRightCanId = 21;
 		public static final int kShooterTiltCanId = 22;
 
-		public static final int kAlgaeLeftIntakeCanId = 30;
-		public static final int kAlgaeRightIntakeCanId = 31;
-		public static final int kAlgaeTiltCanId = 32;
+		public static final int kFeederCanId = 30;
 
-		public static final int kClimberLeftCanId = 40;
-		public static final int kClimberRightCanId = 41;
+		public static final int kClimber1CanId = 40;
+		public static final int kClimber2CanId = 41;
+		public static final int kClimber3CanId = 42;
+		public static final int kClimber4CanId = 43;
 
-		public static final int kLadderLeftCanId = 50;
-		public static final int kLadderRightCanId = 51;
+		public static final int kClimberServoHubCanId = 50;
 	}
 
 	public static final class MotorConstants {
@@ -158,7 +157,7 @@ public final class Constants {
 		public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
 		// 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15
 		// teeth on the bevel pinion
-		public static final double kDrivingMotorReduction = 5.9;	//(45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
+		public static final double kDrivingMotorReduction = 5.9; // (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
 		public static final double kDriveWheelFreeSpeedRps = (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters)
 				/ kDrivingMotorReduction;
 	}
@@ -239,6 +238,34 @@ public final class Constants {
 		public static final int kLeftCurrentLimit = 50; // amps
 		public static final int kRightCurrentLimit = 50; // amps
 		public static final int ktiltCurrentLimit = 50; // amps
+    
+	public static final class Climber {
+
+		//Motor Inversion
+		public static final boolean kClimberInverted = false;
+
+		//Idle Mode
+		public static final IdleMode kClimberIdleMode = IdleMode.kBrake;
+
+		//Current Limit
+		public static final int kClimberCurrentLimit = 50; // amps
+
+		//Abs Encoder Configs
+		public static final double kZeroOffset = 0.5; //WILL NEED ADJUSTMENT
+		public static final boolean kZeroCentered = true;
+		public static final boolean kEncoderInverted = true;
+		public static final double kTiltPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) * 360.0 degrees
+		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second 
+
+		//Closed loop configs
+		public static final double kPosP = 0.0; // maxmotion 0.0
+		public static final double kPosI = 0.0; // maxmotion 0.0
+		public static final double kPosD = 0.0; // maxmotion 0.0
+
+		public static final double kPosMinOutput = -0.5; //max motion -1.0
+		public static final double kPosMaxOutput = 0.5; //max motion 1.0
+
+		public static final double kTollerance = 0.5; // degrees
 	}
 
 	public static final class Vision {
@@ -258,5 +285,86 @@ public final class Constants {
 		public static final double kRTollerance = 0.1;
 		public static final double kRMin = 0.0;
 		public static final double kRMax = 360.0;
+	}
+
+	public static final class Intake {
+		public static final double kTollerance = 0.5; // degrees
+
+		public static final double kIntakeZeroOffset = 0.6643792;
+		public static final boolean kIntakeZeroCentered = true;
+		public static final boolean kIntakeMotorInverted = true;
+		public static final boolean kIntakeEncoderInverted = true;
+		public static final double kIntakeVelFF = 0.0;
+		
+		public static final double kTiltZeroOffset = 0.4019657;
+		public static final boolean kTiltZeroCentered = true;
+		public static final boolean kTiltMotorInverted = false;
+		public static final boolean kTiltEncoderInverted = false;
+
+		public static final boolean kIntakeEncodeWrapping = false;
+		public static final boolean kTiltEncodeWrapping = false;
+
+		public static final double kIntakePositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
+																				// 360.0; // degrees
+		public static final double kIntakeVelocityFactor = kIntakePositionFactor / 60.0; // degrees per second
+
+		public static final double kTiltPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
+																				// 360.0; // degrees
+		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
+
+		public static final double kIntakeP = 0.01; // maxmotion 0.025;
+		public static final double kIntakeI = 0.0; // maxmotion 0.0
+		public static final double kIntakeD = 0.0; // maxmotion 0.0
+		public static final double kIntakeMinOutput = -0.5; // maxmotion -1.0
+		public static final double kIntakeMaxOutput = 0.5; // maxmotion 1.0
+
+		public static final double kIntakeMaxVel = 100000.0; //5000.0
+		public static final double kIntakeMaxAccel = 40000.0; //5000.0
+		public static final double kIntakeAllowedErr = 0.1;
+
+		public static final double kTiltP = 0.01; // maxmotion 0.025;
+		public static final double kTiltI = 0.0; // maxmotion 0.0
+		public static final double kTiltD = 0.0; // maxmotion 0.0
+		public static final double kTiltMinOutput = -0.5; // maxmotion -1.0
+		public static final double kTiltMaxOutput = 0.5; // maxmotion 1.0
+
+		public static final double kTiltMaxVel = 100000.0; //5000.0
+		public static final double kTiltMaxAccel = 40000.0; //5000.0
+		public static final double kTiltAllowedErr = 0.1;
+
+		public static final IdleMode kIntakeIdleMode = IdleMode.kBrake;
+		public static final IdleMode kTiltIdleMode = IdleMode.kBrake;
+
+		public static final int kIntakeCurrentLimit = 50; // amps
+		public static final int kTiltCurrentLimit = 50; // amps
+	}
+
+	public static final class Feeder {
+		public static final double kTollerance = 0.5; // degrees
+
+		public static final double kFeederZeroOffset = 0.6643792;
+		public static final boolean kFeederZeroCentered = true;
+		public static final boolean kFeederMotorInverted = true;
+		public static final boolean kFeederEncoderInverted = true;
+		public static final double kFeederVelFF = 0.0;
+	
+		public static final boolean kFeederEncodeWrapping = false;
+		public static final IdleMode kFeederIdleMode = IdleMode.kBrake;
+
+		public static final double kFeederPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
+																				// 360.0; // degrees
+		public static final double kFeederVelocityFactor = kFeederPositionFactor / 60.0; // degrees per second
+
+		public static final double kFeederP = 0.01; // maxmotion 0.025;
+		public static final double kFeederI = 0.0; // maxmotion 0.0
+		public static final double kFeederD = 0.0; // maxmotion 0.0
+		public static final double kFeederMinOutput = -0.5; // maxmotion -1.0
+		public static final double kFeederMaxOutput = 0.5; // maxmotion 1.0
+
+		public static final double kFeederMaxVel = 100000.0; //5000.0
+		public static final double kFeederMaxAccel = 40000.0; //5000.0
+		public static final double kFeederAllowedErr = 0.1;
+
+		public static final int kFeederCurrentLimit = 50; // amps
 	}
 }
