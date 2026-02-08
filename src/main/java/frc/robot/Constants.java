@@ -191,7 +191,6 @@ public final class Constants {
 	}
 
 	public static final class Shooter {
-
 		public static final double kTollerance = 0.5; // degrees
 
 		public static final double kLeftZeroOffset = 0.6643792;
