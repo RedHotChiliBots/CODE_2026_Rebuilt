@@ -3,6 +3,9 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode; 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -50,8 +53,9 @@ public final class Constants {
 		public static final int kFrontLeftTurningCanId = 17;
 		public static final int kFrontRightTurningCanId = 18;
 
-		public static final int kIntakeIntakeCanId = 20;
-		public static final int kIntakeTiltCanId = 21;
+		public static final int kShooterLeftCanId = 20;
+		public static final int kShooterRightCanId = 21;
+		public static final int kShooterTiltCanId = 22;
 
 		public static final int kFeederCanId = 30;
 
@@ -185,6 +189,56 @@ public final class Constants {
 		public static final double Ultra5 = 5.23;
 	}
 
+	
+	public static final class Shooter {
+		public static final double kTollerance = 0.5; // degrees
+
+		public static final double kLeftZeroOffset = 0.6643792;
+		public static final boolean kLeftZeroCentered = true;
+		public static final boolean kLeftMotorInverted = true;
+		public static final boolean kLeftEncoderInverted = true;
+
+		public static final double kRightZeroOffset = 0.4019657;
+		public static final boolean kRightZeroCentered = true;
+		public static final boolean kRightMotorInverted = false;
+		public static final boolean kRightEncoderInverted = false;
+
+		public static final double ktiltZeroOffset = 0.6643792;
+		public static final boolean ktiltZeroCentered = true;
+		public static final boolean ktiltMotorInverted = true;
+		public static final boolean ktiltEncoderInverted = true;
+
+		public static final boolean kLeftEncodeWrapping = false;
+		public static final boolean kRightEncodeWrapping = false;
+		public static final boolean ktiltEncodeWrapping = false;
+
+		public static final double kTiltPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
+																				// 360.0; // degrees
+		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
+
+		//Unsure if this needs to be uncommented out
+		//public static final double kTiltPosP = 0.002;
+		//public static final double kTiltPosI = 0.000001;
+		//public static final double kTiltPosD = 0.0;
+
+		public static final double kPosP = 0.01; // maxmotion 0.025;
+		public static final double kPosI = 0.0; // maxmotion 0.0
+		public static final double kPosD = 0.0; // maxmotion 0.0
+		public static final double kPosMinOutput = -0.5; // maxmotion -1.0
+		public static final double kPosMaxOutput = 0.5; // maxmotion 1.0
+
+		public static final double kPosMaxVel = 100000.0; //5000.0
+		public static final double kPosMaxAccel = 40000.0; //5000.0
+		public static final double kPosAllowedErr = 0.1;
+
+		public static final IdleMode kLeftIdleMode = IdleMode.kBrake;
+		public static final IdleMode kRightIdleMode = IdleMode.kBrake;
+		public static final IdleMode ktiltIdleMode = IdleMode.kBrake;
+
+		public static final int kLeftCurrentLimit = 50; // amps
+		public static final int kRightCurrentLimit = 50; // amps
+		public static final int ktiltCurrentLimit = 50; // amps
+    
 	public static final class Climber {
 
 		//Motor Inversion
