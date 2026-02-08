@@ -26,7 +26,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision.VisionIOPhotonVision;
@@ -48,7 +48,7 @@ public class RobotContainer {
 	// The robot's subsystems and commands are defined here...
 	private final Chassis chassis = new Chassis();
 	private final Intake intake = new Intake();
-	private final Hopper hopper = new Hopper();
+	private final Feeder feeder = new Feeder();
 	private final Shooter shooter = new Shooter();
 	private final Climber climber = new Climber();
 	@SuppressWarnings("unused")
@@ -68,7 +68,7 @@ public class RobotContainer {
 			OIConstants.kOperatorControllerPort);
 
 	
-	private final Autos auton = new Autos(this, chassis, intake, hopper, shooter, climber);
+	private final Autos auton = new Autos(this, chassis, intake, feeder, shooter, climber);
 
 	private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
 
