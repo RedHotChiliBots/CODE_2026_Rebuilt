@@ -55,9 +55,7 @@ public final class Constants {
 		public static final int kIntakeIntakeCanId = 20;
 		public static final int kIntakeTiltCanId = 21;
 
-		public static final int kAlgaeLeftIntakeCanId = 30;
-		public static final int kAlgaeRightIntakeCanId = 31;
-		public static final int kAlgaeTiltCanId = 32;
+		public static final int kFeederCanId = 30;
 
 		public static final int kClimberLeftCanId = 40;
 		public static final int kClimberRightCanId = 41;
@@ -259,4 +257,32 @@ public final class Constants {
 		public static final int kTiltCurrentLimit = 50; // amps
 	}
 
+	public static final class Feeder {
+		public static final double kTollerance = 0.5; // degrees
+
+		public static final double kFeederZeroOffset = 0.6643792;
+		public static final boolean kFeederZeroCentered = true;
+		public static final boolean kFeederMotorInverted = true;
+		public static final boolean kFeederEncoderInverted = true;
+		public static final double kFeederVelFF = 0.0;
+	
+		public static final boolean kFeederEncodeWrapping = false;
+		public static final IdleMode kFeederIdleMode = IdleMode.kBrake;
+
+		public static final double kFeederPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
+																				// 360.0; // degrees
+		public static final double kFeederVelocityFactor = kFeederPositionFactor / 60.0; // degrees per second
+
+		public static final double kFeederP = 0.01; // maxmotion 0.025;
+		public static final double kFeederI = 0.0; // maxmotion 0.0
+		public static final double kFeederD = 0.0; // maxmotion 0.0
+		public static final double kFeederMinOutput = -0.5; // maxmotion -1.0
+		public static final double kFeederMaxOutput = 0.5; // maxmotion 1.0
+
+		public static final double kFeederMaxVel = 100000.0; //5000.0
+		public static final double kFeederMaxAccel = 40000.0; //5000.0
+		public static final double kFeederAllowedErr = 0.1;
+
+		public static final int kFeederCurrentLimit = 50; // amps
+	}
 }

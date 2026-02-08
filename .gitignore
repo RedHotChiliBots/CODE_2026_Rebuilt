@@ -4,6 +4,9 @@
 # Log file
 *.log
 
+# Backup file
+*.bck
+
 # BlueJ files
 *.ctxt
 
@@ -21,7 +24,8 @@
 
 # gradle files
 .gradle/
-build/
+/build/
+/bin/
 *.bin
 *.lock
 *.dylib
