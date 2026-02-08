@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
-
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;

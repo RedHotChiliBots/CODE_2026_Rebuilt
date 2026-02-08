@@ -190,6 +190,7 @@ public final class Constants {
 		public static final double Ultra5 = 5.23;
 	}
 
+	
 	public static final class Shooter {
 		public static final double kTollerance = 0.5; // degrees
 
