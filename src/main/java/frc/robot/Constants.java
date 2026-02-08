@@ -4,9 +4,11 @@
 
 package frc.robot;
 
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode; 
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -64,7 +66,10 @@ public final class Constants {
 		public static final int kClimber3CanId = 42;
 		public static final int kClimber4CanId = 43;
 
-		public static final int kClimberServoHubCanId = 50;
+		public static final int kIntakeIntakeCanId = 50;
+		public static final int kIntakeTiltCanId = 51;
+
+		public static final int kClimberServoHubCanId = 60;
 	}
 
 	public static final class MotorConstants {
@@ -189,7 +194,6 @@ public final class Constants {
 		public static final double Ultra5 = 5.23;
 	}
 
-	
 	public static final class Shooter {
 		public static final double kTollerance = 0.5; // degrees
 
@@ -213,13 +217,13 @@ public final class Constants {
 		public static final boolean ktiltEncodeWrapping = false;
 
 		public static final double kTiltPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
-																				// 360.0; // degrees
+																// 360.0; // degrees
 		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
-		//Unsure if this needs to be uncommented out
-		//public static final double kTiltPosP = 0.002;
-		//public static final double kTiltPosI = 0.000001;
-		//public static final double kTiltPosD = 0.0;
+		// Unsure if this needs to be uncommented out
+		// public static final double kTiltPosP = 0.002;
+		// public static final double kTiltPosI = 0.000001;
+		// public static final double kTiltPosD = 0.0;
 
 		public static final double kPosP = 0.01; // maxmotion 0.025;
 		public static final double kPosI = 0.0; // maxmotion 0.0
@@ -227,8 +231,8 @@ public final class Constants {
 		public static final double kPosMinOutput = -0.5; // maxmotion -1.0
 		public static final double kPosMaxOutput = 0.5; // maxmotion 1.0
 
-		public static final double kPosMaxVel = 100000.0; //5000.0
-		public static final double kPosMaxAccel = 40000.0; //5000.0
+		public static final double kPosMaxVel = 100000.0; // 5000.0
+		public static final double kPosMaxAccel = 40000.0; // 5000.0
 		public static final double kPosAllowedErr = 0.1;
 
 		public static final IdleMode kLeftIdleMode = IdleMode.kBrake;
@@ -238,32 +242,34 @@ public final class Constants {
 		public static final int kLeftCurrentLimit = 50; // amps
 		public static final int kRightCurrentLimit = 50; // amps
 		public static final int ktiltCurrentLimit = 50; // amps
-    
+	}
+
 	public static final class Climber {
 
-		//Motor Inversion
+		// Motor Inversion
 		public static final boolean kClimberInverted = false;
 
-		//Idle Mode
+		// Idle Mode
 		public static final IdleMode kClimberIdleMode = IdleMode.kBrake;
 
-		//Current Limit
+		// Current Limit
 		public static final int kClimberCurrentLimit = 50; // amps
 
-		//Abs Encoder Configs
-		public static final double kZeroOffset = 0.5; //WILL NEED ADJUSTMENT
+		// Abs Encoder Configs
+		public static final double kZeroOffset = 0.5; // WILL NEED ADJUSTMENT
 		public static final boolean kZeroCentered = true;
 		public static final boolean kEncoderInverted = true;
-		public static final double kTiltPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) * 360.0 degrees
-		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second 
+		public static final double kTiltPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
+																// 360.0 degrees
+		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
-		//Closed loop configs
+		// Closed loop configs
 		public static final double kPosP = 0.0; // maxmotion 0.0
 		public static final double kPosI = 0.0; // maxmotion 0.0
 		public static final double kPosD = 0.0; // maxmotion 0.0
 
-		public static final double kPosMinOutput = -0.5; //max motion -1.0
-		public static final double kPosMaxOutput = 0.5; //max motion 1.0
+		public static final double kPosMinOutput = -0.5; // max motion -1.0
+		public static final double kPosMaxOutput = 0.5; // max motion 1.0
 
 		public static final double kTollerance = 0.5; // degrees
 	}
@@ -295,7 +301,7 @@ public final class Constants {
 		public static final boolean kIntakeMotorInverted = true;
 		public static final boolean kIntakeEncoderInverted = true;
 		public static final double kIntakeVelFF = 0.0;
-		
+
 		public static final double kTiltZeroOffset = 0.4019657;
 		public static final boolean kTiltZeroCentered = true;
 		public static final boolean kTiltMotorInverted = false;
@@ -305,11 +311,11 @@ public final class Constants {
 		public static final boolean kTiltEncodeWrapping = false;
 
 		public static final double kIntakePositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
-																				// 360.0; // degrees
+																// 360.0; // degrees
 		public static final double kIntakeVelocityFactor = kIntakePositionFactor / 60.0; // degrees per second
 
 		public static final double kTiltPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
-																				// 360.0; // degrees
+																// 360.0; // degrees
 		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
 		public static final double kIntakeP = 0.01; // maxmotion 0.025;
@@ -318,8 +324,8 @@ public final class Constants {
 		public static final double kIntakeMinOutput = -0.5; // maxmotion -1.0
 		public static final double kIntakeMaxOutput = 0.5; // maxmotion 1.0
 
-		public static final double kIntakeMaxVel = 100000.0; //5000.0
-		public static final double kIntakeMaxAccel = 40000.0; //5000.0
+		public static final double kIntakeMaxVel = 100000.0; // 5000.0
+		public static final double kIntakeMaxAccel = 40000.0; // 5000.0
 		public static final double kIntakeAllowedErr = 0.1;
 
 		public static final double kTiltP = 0.01; // maxmotion 0.025;
@@ -328,8 +334,8 @@ public final class Constants {
 		public static final double kTiltMinOutput = -0.5; // maxmotion -1.0
 		public static final double kTiltMaxOutput = 0.5; // maxmotion 1.0
 
-		public static final double kTiltMaxVel = 100000.0; //5000.0
-		public static final double kTiltMaxAccel = 40000.0; //5000.0
+		public static final double kTiltMaxVel = 100000.0; // 5000.0
+		public static final double kTiltMaxAccel = 40000.0; // 5000.0
 		public static final double kTiltAllowedErr = 0.1;
 
 		public static final IdleMode kIntakeIdleMode = IdleMode.kBrake;
@@ -347,12 +353,12 @@ public final class Constants {
 		public static final boolean kFeederMotorInverted = true;
 		public static final boolean kFeederEncoderInverted = true;
 		public static final double kFeederVelFF = 0.0;
-	
+
 		public static final boolean kFeederEncodeWrapping = false;
 		public static final IdleMode kFeederIdleMode = IdleMode.kBrake;
 
 		public static final double kFeederPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
-																				// 360.0; // degrees
+																// 360.0; // degrees
 		public static final double kFeederVelocityFactor = kFeederPositionFactor / 60.0; // degrees per second
 
 		public static final double kFeederP = 0.01; // maxmotion 0.025;
@@ -361,8 +367,8 @@ public final class Constants {
 		public static final double kFeederMinOutput = -0.5; // maxmotion -1.0
 		public static final double kFeederMaxOutput = 0.5; // maxmotion 1.0
 
-		public static final double kFeederMaxVel = 100000.0; //5000.0
-		public static final double kFeederMaxAccel = 40000.0; //5000.0
+		public static final double kFeederMaxVel = 100000.0; // 5000.0
+		public static final double kFeederMaxAccel = 40000.0; // 5000.0
 		public static final double kFeederAllowedErr = 0.1;
 
 		public static final int kFeederCurrentLimit = 50; // amps
