@@ -43,6 +43,8 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ChassisConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.utils.SwerveUtils;
@@ -85,6 +87,8 @@ public class Chassis extends SubsystemBase {
 	/**************************************************************
 	 * Initialize Shuffleboard entries
 	 **************************************************************/
+	private final Field2d m_field = new Field2d();
+
 	private final ShuffleboardTab chassisTab = Shuffleboard.getTab("Chassis");
 	private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
 	private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
@@ -136,6 +140,9 @@ public class Chassis extends SubsystemBase {
 	 **************************************************************/
 	public Chassis() {
 		System.out.println("+++++ Starting Chassis Constructor +++++");
+
+		SmartDashboard.putData("Field", m_field);
+
 		compTab.add("Chassis Current", this)
 				.withWidget("Subsystem")
 				.withPosition(22, 2)
@@ -266,6 +273,8 @@ public class Chassis extends SubsystemBase {
 						m_rearLeft.getPosition(),
 						m_rearRight.getPosition()
 				});
+
+		m_field.setRobotPose(getPose());
 
 		currPose.set(getPose());
 
