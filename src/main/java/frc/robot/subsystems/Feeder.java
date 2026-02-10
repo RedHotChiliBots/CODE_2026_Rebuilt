@@ -50,7 +50,7 @@ public class Feeder extends SubsystemBase {
 
     public double getVel(boolean rpm) {
       if (rpm) {
-        return vel * Constants.MotorConstants.kNeoFreeSpeedRpm;
+        return vel * Constants.MotorConstants.kNeoFreeSpeedRpm / 100.0;
       } else {
         return vel;
       }
@@ -109,7 +109,8 @@ public class Feeder extends SubsystemBase {
         com.revrobotics.ResetMode.kResetSafeParameters,
         com.revrobotics.PersistMode.kPersistParameters);
 
-    setFeederSP(FeederSP.OFF);
+    setFeederSP(FeederSP.LOW);
+    //setFeederVel(feederSP);
 
     System.out.println("----- Ending Feeder Constructor -----");
   }
@@ -176,7 +177,7 @@ public class Feeder extends SubsystemBase {
     if (rpm) {
       return feederEncoder.getVelocity();
     } else {
-      return feederEncoder.getVelocity() / Constants.MotorConstants.kNeoFreeSpeedRpm;
+      return feederEncoder.getVelocity() / Constants.MotorConstants.kNeoFreeSpeedRpm * 100.0;
     }
   }
 
