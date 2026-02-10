@@ -72,6 +72,10 @@ public final class Constants {
 		public static final int kClimberServoHubCanId = 60;
 	}
 
+	public static final class DIOId {
+		public static final int kFuelAvail = 0;
+	}
+
 	public static final class MotorConstants {
 		public static final double kVortexFreeSpeedRpm = 6784;
 		public static final double kNeoFreeSpeedRpm = 5676;
@@ -346,7 +350,7 @@ public final class Constants {
 	}
 
 	public static final class Feeder {
-		public static final double kTollerance = 0.5; // degrees
+		public static final double kTollerance = 0.5; // RPMs
 
 		public static final double kFeederZeroOffset = 0.6643792;
 		public static final boolean kFeederZeroCentered = true;
