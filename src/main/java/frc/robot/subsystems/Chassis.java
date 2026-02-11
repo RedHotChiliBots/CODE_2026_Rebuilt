@@ -88,10 +88,18 @@ public class Chassis extends SubsystemBase {
 	 * Initialize Shuffleboard entries
 	 **************************************************************/
 	private final Field2d m_field = new Field2d();
+	private Pose2d hubPose = new Pose2d(new Translation2d(2.015, 4.035), new Rotation2d(0.0)); // Hub pose for 2026 game
+	private Rotation2d bearingToHub = null;
+	private double distToHub = 0.0;
 
 	private final ShuffleboardTab chassisTab = Shuffleboard.getTab("Chassis");
 	private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
 	private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
+
+	private final GenericEntry sbBearingToHub = chassisTab.addPersistent("BearingToHub", 0)
+			.withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
+	private final GenericEntry sbDistToHub = chassisTab.addPersistent("DistToHub", 0)
+			.withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
 
 	private final GenericEntry sbAngle = chassisTab.addPersistent("Angle", 0)
 			.withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
@@ -278,6 +286,10 @@ public class Chassis extends SubsystemBase {
 
 		currPose.set(getPose());
 
+		bearingToHub = getBearingToHub(getPose(), hubPose); // Update bearing to hub
+		sbBearingToHub.setDouble(bearingToHub.getDegrees());
+		sbDistToHub.setDouble(getDistToHub());
+
 		sbXVel.setDouble(getPose().getX());
 		sbYVel.setDouble(getPose().getY());
 		sbRVel.setDouble(getPose().getRotation().getDegrees());
@@ -298,6 +310,10 @@ public class Chassis extends SubsystemBase {
 
 	public Command driveCmd(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
 		return new InstantCommand(() -> this.drive(xSpeed, ySpeed, rot, fieldRelative));
+	}
+
+	public Command driveTrackCmd(double xSpeed, double ySpeed) {
+		return new InstantCommand(() -> this.driveTrack(xSpeed, ySpeed));
 	}
 
 	/**************************************************************
@@ -391,6 +407,14 @@ public class Chassis extends SubsystemBase {
 		return poseEstimator.getEstimatedPosition();
 	}
 
+	public Rotation2d getBearingToHub(Pose2d robotPose, Pose2d hubPose) {
+		return hubPose.getTranslation().minus(robotPose.getTranslation()).getAngle();
+	}
+	
+	public double getDistToHub() {
+		return getPose().getTranslation().getDistance(hubPose.getTranslation());
+	}
+
 	/**
 	 * Resets the odometry to the specified pose.
 	 *
@@ -461,6 +485,10 @@ public class Chassis extends SubsystemBase {
 		}
 
 		return collisionDetected;
+	}
+
+	public void driveTrack(double xSpeed, double ySpeed) {
+		drive(xSpeed, ySpeed, bearingToHub.getDegrees(), true);
 	}
 
 	/**
