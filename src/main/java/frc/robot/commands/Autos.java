@@ -45,6 +45,12 @@ public class Autos {
   private Command resetOdo;
   private Command autoLeave;
 
+  private Command hooksStow;
+  private Command hooksDeploy;
+
+  private Command climberStow;
+  private Command climberAuto;
+
   /** Example static factory for an autonomous command. */
   // public static Command AutonLeave(Chassis chassis, Ladder ladder, Algae algae,
   // Coral coral, Climber climber) {
@@ -85,7 +91,10 @@ public class Autos {
     // before defining the Auto command
     // NamedCommands.registerCommand("resetPose", resetPose);
     // NamedCommands.registerCommand("resetOdo", resetOdo);
-    // NamedCommands.registerCommand("ExtractTrue", algae.setExtractTrue);
+    NamedCommands.registerCommand("HookDeploy", climber.setHooks(Climber.HookSP.DEPLOY));
+    NamedCommands.registerCommand("HookStow", climber.setHooks(Climber.HookSP.STOW));
+    NamedCommands.registerCommand("ClimberAuto", climber.setClimber(Climber.ClimberSP.LVLAUTON));
+    NamedCommands.registerCommand("ClimberStow", climber.setClimber(Climber.ClimberSP.STOW));
     // NamedCommands.registerCommand("goL3", robotContainer.goL3);
     // NamedCommands.registerCommand("goL35", robotContainer.goL35);
     // NamedCommands.registerCommand("goBarge", robotContainer.goBarge);
@@ -96,15 +105,15 @@ public class Autos {
 
     // ********************************************
     // Initialize auto command chooser with auton commands
-    // autoChooser = AutoBuilder.buildAutoChooser("BigKahuna");
-    // autoChooser.addOption("AUTOLEAVE", autoLeave);
+    autoChooser = AutoBuilder.buildAutoChooser("BigKahuna");
+    autoChooser.addOption("AUTOLEAVE", autoLeave);
         
     // ********************************************
     // Add Auton Command chooser to Shuffleboard
-    // compTab.add("Auto Command", autoChooser)
-    //     .withWidget("ComboBox Chooser")
-    //     .withPosition(0, 0)
-    //     .withSize(3, 1);
+    compTab.add("Auto Command", autoChooser)
+        .withWidget("ComboBox Chooser")
+        .withPosition(0, 0)
+        .withSize(3, 1);
         
     System.out.println("----- Ending Autos Constructor -----");
   }

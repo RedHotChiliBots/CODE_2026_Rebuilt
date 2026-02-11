@@ -35,14 +35,10 @@ public final class Constants {
 		public static final double kDriveDeadband = 0.05;
 	}
 
-	public static final class PWMId {
-		public static final int kClimberHook1PWMId = 0;
-		public static final int kClimberHook2PWMId = 1;
-	}
-
 	public static final class CANId {
 
 		public static final int kPDHCanID = 1;
+		public static final int kServoHubCanId = 2;	
 
 		// Drive/Turn CAN IDs
 		public static final int kRearRightDrivingCanId = 10;
@@ -68,8 +64,6 @@ public final class Constants {
 
 		public static final int kIntakeIntakeCanId = 50;
 		public static final int kIntakeTiltCanId = 51;
-
-		public static final int kClimberServoHubCanId = 60;
 	}
 
 	public static final class DIOId {
@@ -276,7 +270,8 @@ public final class Constants {
 		public static final double kPosMinOutput = -0.5; // max motion -1.0
 		public static final double kPosMaxOutput = 0.5; // max motion 1.0
 
-		public static final double kTollerance = 0.5; // degrees
+		public static final double kClimberTollerance = 0.5; // degrees
+		public static final double kHookTollerance = 0.5; // degrees
 	}
 
 	public static final class Vision {
