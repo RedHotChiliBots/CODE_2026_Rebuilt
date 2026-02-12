@@ -4,12 +4,14 @@
 
 package frc.robot;
 
+<<<<<<< 44-update-shooter-methods1
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+=======
+>>>>>>> main
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -36,14 +38,10 @@ public final class Constants {
 		public static final double kDriveDeadband = 0.05;
 	}
 
-	public static final class PWMId {
-		public static final int kClimberHook1PWMId = 0;
-		public static final int kClimberHook2PWMId = 1;
-	}
-
 	public static final class CANId {
 
 		public static final int kPDHCanID = 1;
+		public static final int kServoHubCanId = 2;	
 
 		// Drive/Turn CAN IDs
 		public static final int kRearRightDrivingCanId = 10;
@@ -69,8 +67,6 @@ public final class Constants {
 
 		public static final int kIntakeIntakeCanId = 50;
 		public static final int kIntakeTiltCanId = 51;
-
-		public static final int kClimberServoHubCanId = 60;
 	}
 
 	public static final class DIOId {
@@ -200,7 +196,8 @@ public final class Constants {
 	}
 
 	public static final class Shooter {
-		public static final double kTollerance = 0.5; // degrees
+		public static final double kShooterTollerance = 0.5; // degrees
+		public static final double kTiltTollerance = 0.5; // degrees
 
 		public static final double kLeftZeroOffset = 0.6643792;
 		public static final boolean kLeftZeroCentered = true;
@@ -276,7 +273,8 @@ public final class Constants {
 		public static final double kPosMinOutput = -0.5; // max motion -1.0
 		public static final double kPosMaxOutput = 0.5; // max motion 1.0
 
-		public static final double kTollerance = 0.5; // degrees
+		public static final double kClimberTollerance = 0.5; // degrees
+		public static final double kHookTollerance = 0.5; // degrees
 	}
 
 	public static final class Vision {
