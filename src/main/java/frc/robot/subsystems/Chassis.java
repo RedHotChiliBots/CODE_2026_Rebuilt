@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.sql.Driver;
 import java.util.Map;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -16,7 +15,6 @@ import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
-import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
