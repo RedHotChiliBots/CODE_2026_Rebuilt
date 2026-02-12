@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Map;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase;
@@ -22,10 +24,9 @@ import frc.robot.Constants;
 import frc.robot.Constants.DIOId;
 
 public class Feeder extends SubsystemBase {
-  /** Creates a new ExampleSubsystem. */
-
-  // ==============================================================
+	// ==============================================================
   // Define Feeder Motor
+	// ==============================================================
   private final SparkMax feeder = new SparkMax(
       Constants.CANId.kFeederCanId, MotorType.kBrushless);
 
@@ -35,8 +36,12 @@ public class Feeder extends SubsystemBase {
 
   private RelativeEncoder feederEncoder = feeder.getEncoder();
 
+
+	// ==============================================================
+  // Define motor vel enum
+	// ==============================================================
   // The Feeder SP is stored as a percentage of RPMs
-  private enum FeederSP {
+  public enum FeederSP {
     OFF(0.0),
     LOW(25.0),
     MED(50.0),
@@ -57,16 +62,23 @@ public class Feeder extends SubsystemBase {
     }
   }
 
+  // ==============================================================
+  // Initialize motor setpoints
+	// ==============================================================
   private FeederSP feederSP = FeederSP.OFF;
 
+	// ==============================================================
+  // Define trigger inputs
+	// ==============================================================
   private final DigitalInput fuelSwitch = new DigitalInput(DIOId.kFuelAvail);
 
-  /**************************************************************
-   * Initialize Shuffleboard entries
-   **************************************************************/
+	// ==============================================================
+  // Initialize Dashboard entries
+	// ==============================================================
   // private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
   // private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
   private final ShuffleboardTab feederTab = Shuffleboard.getTab("Feeder");
+	private final ShuffleboardTab FeederCommands = Shuffleboard.getTab("Feeder Commands");
 
   private final GenericEntry sbFuelAvail = feederTab.addPersistent("Fuel Avail", false)
       .withWidget("Boolean Box").withPosition(0, 0).withSize(2, 1).getEntry();
@@ -85,6 +97,9 @@ public class Feeder extends SubsystemBase {
   private final GenericEntry sbFeederVelRPM = feederTab.addPersistent("Feeder Vel RPM", 0)
       .withWidget("Text View").withPosition(4, 1).withSize(2, 1).getEntry();
 
+	// ==============================================================
+  // Constructor
+	// ==============================================================
   public Feeder() {
     System.out.println("+++++ Starting Feeder Constructor +++++");
     // Configure Feeder motor
@@ -109,21 +124,34 @@ public class Feeder extends SubsystemBase {
         com.revrobotics.ResetMode.kResetSafeParameters,
         com.revrobotics.PersistMode.kPersistParameters);
 
+    // Add commands to Dashboard
+		FeederCommands.add("Shoot Off", this.setFeeder(FeederSP.OFF))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+		FeederCommands.add("Shoot Hi", this.setFeeder(FeederSP.HI))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+		FeederCommands.add("Shoot Med", this.setFeeder(FeederSP.MED))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+		FeederCommands.add("Shoot Low", this.setFeeder(FeederSP.LOW))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+
+		// Initialize intake start positions
     setFeederSP(FeederSP.LOW);
     //setFeederVel(feederSP);
 
     System.out.println("----- Ending Feeder Constructor -----");
   }
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
+
+	// ==============================================================
+  // Define subsystem commands
+  // ==============================================================
   public Command setFeeder(FeederSP sp) {
     return runOnce(() -> setFeederSP(sp));
   }
 
+  // ==============================================================
+  // Periodic methods
+  // ==============================================================
   @Override
   public void periodic() {
     sbFeederOnTgt.setBoolean(onFeederTarget());
@@ -140,6 +168,9 @@ public class Feeder extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
   }
 
+	// ==============================================================
+  // Define subsystem methods
+  // ==============================================================
   public void setFeederSP(FeederSP sp) {
     feederSP = sp;
   }
