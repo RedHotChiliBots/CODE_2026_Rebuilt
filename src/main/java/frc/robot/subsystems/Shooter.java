@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Map;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase;
@@ -21,7 +23,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Shooter extends SubsystemBase {
-	/** Creates a new ExampleSubsystem. */
+	// ==============================================================
+    // Define Shooter & Tilt Motors
+	// ==============================================================
 	private final SparkFlex leftShooter = new SparkFlex(
 			Constants.CANId.kShooterLeftCanId, MotorType.kBrushless);
 	private final SparkFlex rightShooter = new SparkFlex(
@@ -42,8 +46,11 @@ public class Shooter extends SubsystemBase {
 	// private AbsoluteEncoder rightEncoder = rightShooter.getAbsoluteEncoder();
 	private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
+	// ==============================================================
+    // Define motor vel and pos enums
+	// ==============================================================
 	// The Shooter SP is stored as a percentage of RPMs
-	private enum ShooterSP {
+	public enum ShooterSP {
 		OFF(0.0),
 		LOW(25.0),
 		MED(50.0),
@@ -64,8 +71,8 @@ public class Shooter extends SubsystemBase {
 		}
 	}
 
-	// The Tilt SP is stored as a percentage of RPMs
-	private enum TiltSP {
+	// The Tilt SP is in degrees
+	public enum TiltSP {
 		OFF(0.0),
 		LOW(25.0),
 		MED(50.0),
@@ -82,15 +89,19 @@ public class Shooter extends SubsystemBase {
 		}
 	}
 
+	// ==============================================================
+    // Initialize motor setpoints
+	// ==============================================================
 	private ShooterSP shooterSP = ShooterSP.OFF;
 	private TiltSP tiltSP = TiltSP.OFF;
 
-	/**************************************************************
-	 * Initialize Shuffleboard entries
-	 **************************************************************/
+	// ==============================================================
+    // Initialize Dashboard entries
+	// ==============================================================
 	// private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
 	// private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
 	private final ShuffleboardTab shooterTab = Shuffleboard.getTab("Shooter");
+	private final ShuffleboardTab ShooterCommands = Shuffleboard.getTab("Shooter Commands");
 
 	private final GenericEntry sbShooterOnTgt = shooterTab.addPersistent("Shooter OnTgt", false)
 			.withWidget("Boolean Box").withPosition(0, 1).withSize(2, 1).getEntry();
@@ -116,6 +127,10 @@ public class Shooter extends SubsystemBase {
 	private final GenericEntry sbTiltPos = shooterTab.addPersistent("Tilt Pos", 0)
 			.withWidget("Text View").withPosition(4, 0).withSize(2, 1).getEntry();
 
+		
+	// ==============================================================
+    // Constructor
+	// ==============================================================
 	public Shooter() {
 		System.out.println("+++++ Starting Shooter Constructor +++++");
 
@@ -177,6 +192,7 @@ public class Shooter extends SubsystemBase {
 				com.revrobotics.ResetMode.kResetSafeParameters,
 				com.revrobotics.PersistMode.kPersistParameters);
 
+		// Configure Tilt motor
 		tiltConfig
 				.inverted(Constants.Shooter.ktiltMotorInverted)
 				.idleMode(Constants.Shooter.ktiltIdleMode)
@@ -199,51 +215,45 @@ public class Shooter extends SubsystemBase {
 				com.revrobotics.ResetMode.kResetSafeParameters,
 				com.revrobotics.PersistMode.kPersistParameters);
 
-		/*
-		 * ShooterCommands.add("shooter", this.shooter)
-		 * .withProperties(Map.of("show type", false));
-		 * ShooterCommands.add("Ready", this.ready)
-		 * .withProperties(Map.of("show type", false));
-		 * ShooterCommands.add("Zero", this.zero)
-		 * .withProperties(Map.of("show type", false));
-		 * // ShooterCommands.add("Stage", this.stage)
-		 * // .withProperties(Map.of("show type", false));
-		 * ShooterCommands.add("Stow", this.stow)
-		 * .withProperties(Map.of("show type", false));
-		 */
+		// Add commands to Dashboard
+		ShooterCommands.add("Shoot Off", this.setShooter(ShooterSP.OFF))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+		ShooterCommands.add("Shoot Hi", this.setShooter(ShooterSP.HI))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+		ShooterCommands.add("Shoot Med", this.setShooter(ShooterSP.MED))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+		ShooterCommands.add("Shoot Low", this.setShooter(ShooterSP.LOW))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+		ShooterCommands.add("Tilt Off", this.setTilt(TiltSP.OFF))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+		ShooterCommands.add("Tilt Hi", this.setTilt(TiltSP.HI))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+		ShooterCommands.add("Tilt Med", this.setTilt(TiltSP.MED))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+		ShooterCommands.add("Tilt Low", this.setTilt(TiltSP.LOW))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+				
 		// Initialize intake start positions
-
-		// setClimberPos(climberSP);
+		setShooterVel(ShooterSP.OFF);
+		setTiltSP(TiltSP.OFF);
 
 		System.out.println("----- Ending Shooter Constructor -----");
-
 	}
 
-	/**
-	 * Example command factory method.
-	 *
-	 * @return a command
-	 */
-	public Command exampleMethodCommand() {
-		// Inline construction of command goes here.
-		// Subsystem::RunOnce implicitly requires `this` subsystem.
-		return runOnce(
-				() -> {
-					/* one-time action goes here */
-				});
+	// ==============================================================
+  	// Define subsystem commands
+  	// ==============================================================
+	public Command setShooter(ShooterSP sp) {
+		return runOnce(() -> setShooterVel(sp));
 	}
 
-	/**
-	 * An example method querying a boolean state of the subsystem (for example, a
-	 * digital sensor).
-	 *
-	 * @return value of some boolean subsystem state, such as a digital sensor.
-	 */
-	public boolean exampleCondition() {
-		// Query some boolean state, such as a digital sensor.
-		return false;
+	public Command setTilt(TiltSP sp) {
+		return runOnce(() -> setTiltPos(sp));
 	}
 
+  	// ==============================================================
+  	// Periodic methods
+  	// ==============================================================
 	@Override
 	public void periodic() {
 		sbShooterOnTgt.setBoolean(onShooterTarget());
@@ -264,6 +274,9 @@ public class Shooter extends SubsystemBase {
 		// This method will be called once per scheduler run during simulation
 	}
 
+	// ==============================================================
+  	// Define subsystem methods
+  	// ==============================================================
 	public void setShooterSP(ShooterSP sp) {
 		shooterSP = sp;
 	}
@@ -291,6 +304,10 @@ public class Shooter extends SubsystemBase {
 
 	public void setTiltSP(TiltSP sp) {
 		tiltSP = sp;
+	}
+
+	public void setTiltPos(TiltSP sp) {
+		setTiltSP(sp);
 		tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kMAXMotionPositionControl);
 	}
 

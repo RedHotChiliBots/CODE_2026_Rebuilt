@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import com.fasterxml.jackson.databind.util.Named;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -76,8 +77,10 @@ public class Autos {
     DriverStation.reportWarning("AutoBuilder Pathfinding " + temp + " configured", false);
 
     // this.autonLeave = new AutonLeave(chassis, ladder, algae, coral, climber);
-    // this.autonLeaveNScoreL1 = new AutonLeaveNScoreL1(robotContainer, chassis, ladder, algae, coral, climber);
-    // this.autonLeaveNScoreL4 = new AutonLeaveNScoreL4(robotContainer, chassis, ladder, algae, coral, climber);
+    // this.autonLeaveNScoreL1 = new AutonLeaveNScoreL1(robotContainer, chassis,
+    // ladder, algae, coral, climber);
+    // this.autonLeaveNScoreL4 = new AutonLeaveNScoreL4(robotContainer, chassis,
+    // ladder, algae, coral, climber);
 
     this.startPose = new Pose2d(new Translation2d(7.3, 4.0), Rotation2d.fromDegrees(180));
     this.resetPose = new InstantCommand(() -> chassis.resetPose(startPose));
@@ -94,27 +97,46 @@ public class Autos {
     NamedCommands.registerCommand("HookDeploy", climber.setHooks(Climber.HookSP.DEPLOY));
     NamedCommands.registerCommand("HookStow", climber.setHooks(Climber.HookSP.STOW));
     NamedCommands.registerCommand("ClimberAuto", climber.setClimber(Climber.ClimberSP.LVLAUTON));
+    NamedCommands.registerCommand("ClimberL1", climber.setClimber(Climber.ClimberSP.LVL1));
+    NamedCommands.registerCommand("ClimberL2", climber.setClimber(Climber.ClimberSP.LVL2));
+    NamedCommands.registerCommand("ClimberL3", climber.setClimber(Climber.ClimberSP.LVL3));
     NamedCommands.registerCommand("ClimberStow", climber.setClimber(Climber.ClimberSP.STOW));
-    // NamedCommands.registerCommand("goL3", robotContainer.goL3);
-    // NamedCommands.registerCommand("goL35", robotContainer.goL35);
-    // NamedCommands.registerCommand("goBarge", robotContainer.goBarge);
-    // NamedCommands.registerCommand("goProcessor", robotContainer.goProcessor);
-    // NamedCommands.registerCommand("doAutonAction", robotContainer.doAutonAction);
-    // NamedCommands.registerCommand("coralIntake", coral.intake);
-    // NamedCommands.registerCommand("algaeZero", algae.zero);
+
+    NamedCommands.registerCommand("ShooterOff", shooter.setShooter(Shooter.ShooterSP.OFF));
+    NamedCommands.registerCommand("ShooterLow", shooter.setShooter(Shooter.ShooterSP.LOW));
+    NamedCommands.registerCommand("ShooterMed", shooter.setShooter(Shooter.ShooterSP.MED));
+    NamedCommands.registerCommand("ShooterHi", shooter.setShooter(Shooter.ShooterSP.HI));
+    NamedCommands.registerCommand("TiltOff", shooter.setTilt(Shooter.TiltSP.OFF));
+    NamedCommands.registerCommand("TiltLow", shooter.setTilt(Shooter.TiltSP.LOW));
+    NamedCommands.registerCommand("TiltMed", shooter.setTilt(Shooter.TiltSP.MED));
+    NamedCommands.registerCommand("TiltHi", shooter.setTilt(Shooter.TiltSP.HI));
+
+    NamedCommands.registerCommand("IntakeOff", intake.setIntake(Intake.IntakeSP.OFF));
+    NamedCommands.registerCommand("IntakeLow", intake.setIntake(Intake.IntakeSP.LOW));
+    NamedCommands.registerCommand("IntakeMed", intake.setIntake(Intake.IntakeSP.MED));
+    NamedCommands.registerCommand("IntakeHi", intake.setIntake(Intake.IntakeSP.HI));
+    NamedCommands.registerCommand("TiltOff", intake.setTilt(Intake.TiltSP.OFF));
+    NamedCommands.registerCommand("TiltLow", intake.setTilt(Intake.TiltSP.LOW));
+    NamedCommands.registerCommand("TiltMed", intake.setTilt(Intake.TiltSP.MED));
+    NamedCommands.registerCommand("TiltHi", intake.setTilt(Intake.TiltSP.HI));
+
+    NamedCommands.registerCommand("FeederOff", feeder.setFeeder(Feeder.FeederSP.OFF));
+    NamedCommands.registerCommand("FeederLow", feeder.setFeeder(Feeder.FeederSP.LOW));
+    NamedCommands.registerCommand("FeederMed", feeder.setFeeder(Feeder.FeederSP.MED));
+    NamedCommands.registerCommand("FeederHi", feeder.setFeeder(Feeder.FeederSP.HI));
 
     // ********************************************
     // Initialize auto command chooser with auton commands
     autoChooser = AutoBuilder.buildAutoChooser("BigKahuna");
     autoChooser.addOption("AUTOLEAVE", autoLeave);
-        
+
     // ********************************************
     // Add Auton Command chooser to Shuffleboard
     compTab.add("Auto Command", autoChooser)
         .withWidget("ComboBox Chooser")
         .withPosition(0, 0)
         .withSize(3, 1);
-        
+
     System.out.println("----- Ending Autos Constructor -----");
   }
 

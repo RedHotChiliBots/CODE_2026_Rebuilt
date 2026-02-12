@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Map;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase;
@@ -26,8 +28,9 @@ import frc.robot.Constants;
 
 //CLASS DEFINITION
 public class Climber extends SubsystemBase {
-
-  // Define Motors, Servos, Etc
+  // ==============================================================
+  // Define Climber Motors and Servos
+  // ==============================================================
   private final SparkMax climber1 = new SparkMax(
       Constants.CANId.kClimber1CanId, MotorType.kBrushless);
 
@@ -67,6 +70,9 @@ public class Climber extends SubsystemBase {
 
   private final ServoHubConfig hubConfig = new ServoHubConfig();
 
+  // ==============================================================
+  // Define motor and servo pos enums
+  // ==============================================================
   public enum ClimberSP { // Climber Setpoints
     STOW(0.5), // NUMBERS NEED TO CHANGE
     TOP(1.0), // NUMBERS NEED TO CHANGE
@@ -102,7 +108,16 @@ public class Climber extends SubsystemBase {
     }
   }
 
+  // ==============================================================
+  // Initialize motor setpoints
+  // ==============================================================
+  private ClimberSP climberSP = Climber.ClimberSP.STOW;
+  private HookSP hookSP = Climber.HookSP.STOW;
+  // ==============================================================
+  // Initialize Dashboard entries
+  // ==============================================================
   private final ShuffleboardTab climberTab = Shuffleboard.getTab("Climber");
+  private final ShuffleboardTab ClimberCommands = Shuffleboard.getTab("Climber Commands");
 
   private final GenericEntry sbClimberOnTgt = climberTab.addPersistent("Climber OnTgt", false)
       .withWidget("Boolean Box").withPosition(0, 1).withSize(2, 1).getEntry();
@@ -118,10 +133,9 @@ public class Climber extends SubsystemBase {
   private final GenericEntry sbHookSPPos = climberTab.addPersistent("Hook SP Pos", 0)
       .withWidget("Text View").withPosition(2, 1).withSize(2, 1).getEntry();
 
-  private ClimberSP climberSP = Climber.ClimberSP.STOW;
-  private HookSP hookSP = Climber.HookSP.STOW;
-
-  // CONSTRUCTOR
+  // ==============================================================
+  // Constructor
+  // ==============================================================
   public Climber() {
     System.out.println("+++++ Starting Climber Constructor +++++");
 
@@ -169,7 +183,7 @@ public class Climber extends SubsystemBase {
     hubConfig.channel1.pulseRange(500, 1500, 2500)
         .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); // Default is 0-180, but can be changed
                                                                                 // if
-    // needed
+    // Servo config
     servoHub.configure(hubConfig,
         com.revrobotics.ResetMode.kResetSafeParameters);
 
@@ -178,19 +192,40 @@ public class Climber extends SubsystemBase {
     leftHook.setEnabled(true);
     rightHook.setEnabled(true);
 
+    // Add commands to Dashboard
+    ClimberCommands.add("Climber Stow", this.setClimber(ClimberSP.STOW))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    ClimberCommands.add("Climber Auto", this.setClimber(ClimberSP.LVLAUTON))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    ClimberCommands.add("Climber L1", this.setClimber(ClimberSP.LVL1))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    ClimberCommands.add("Climber L2", this.setClimber(ClimberSP.LVL2))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    ClimberCommands.add("Climber L3", this.setClimber(ClimberSP.LVL3))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+
+    ClimberCommands.add("Hook Stow", this.setHooks(HookSP.STOW))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    ClimberCommands.add("Hook Deploy", this.setHooks(HookSP.DEPLOY))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+
     System.out.println("+++++ End of Climber Constructor +++++");
   }
 
-  // COMMANDS
-  public Command setHooks( HookSP sp) {
+  // ==============================================================
+  // Define subsystem commands
+  // ==============================================================
+  public Command setHooks(HookSP sp) {
     return runOnce(() -> setHookPos(sp));
   }
 
-  public Command setClimber( ClimberSP sp) {
+  public Command setClimber(ClimberSP sp) {
     return runOnce(() -> setClimberPos(sp));
   }
 
-  // PERIOIDC
+  // ==============================================================
+  // Periodic methods
+  // ==============================================================
   @Override
   public void periodic() {
     sbClimberOnTgt.setBoolean(onClimberTarget());
@@ -206,7 +241,9 @@ public class Climber extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
   }
 
-  // METHODS
+  // ==============================================================
+  // Define subsystem methods
+  // ==============================================================
   // Start of Climber Methods
   public double getClimberPos() {
     return climber1AbsEncoder.getPosition(); // All the other motors should match
