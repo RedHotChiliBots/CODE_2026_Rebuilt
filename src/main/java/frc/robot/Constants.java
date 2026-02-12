@@ -4,6 +4,12 @@
 
 package frc.robot;
 
+<<<<<<< 44-update-shooter-methods1
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+=======
+>>>>>>> main
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.geometry.Translation2d;
