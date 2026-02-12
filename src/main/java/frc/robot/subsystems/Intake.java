@@ -234,7 +234,15 @@ private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
   }
 
   public boolean onIntakeTarget() {
-    return Math.abs(getIntakeVel(true) - getIntakeSP(true)) < Constants.Intake.kTollerance;
+    return Math.abs(getIntakeVel(true) - getIntakeSP(true)) < Constants.Intake.kIntakeTollerance;
+  }
+
+  public double getTiltPos() {
+    return tiltEncoder.getPosition();
+  }
+
+  public double getTiltSP() {
+    return tiltController.getSetpoint();
   }
 
   public boolean onTiltTarget() {
