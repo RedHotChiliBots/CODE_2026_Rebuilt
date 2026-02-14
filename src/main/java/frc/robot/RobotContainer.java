@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -59,8 +60,8 @@ public class RobotContainer {
 	private final Climber climber = new Climber();
 	@SuppressWarnings("unused")
 	private final Vision vision = new Vision(
-//		chassis::addVisionMeasurement,
-//		SwerveDrivePoseEstimator::addVisionMeasurement,
+			// chassis::addVisionMeasurement,
+			// SwerveDrivePoseEstimator::addVisionMeasurement,
 			poseEstimator::updateVision,
 			new VisionIOPhotonVision(VisionConstants.camera0Name,
 					VisionConstants.robotToCamera0),
@@ -79,11 +80,20 @@ public class RobotContainer {
 	private final GenericHID m_operatorHID = new GenericHID(
 			OIConstants.kOperatorControllerPort);
 
-
 	/* Driver Controls */
 	private final int translationAxis = XboxController.Axis.kLeftY.value;
 	private final int strafeAxis = XboxController.Axis.kLeftX.value;
 	private final int rotationAxis = XboxController.Axis.kRightX.value;
+
+	private final Trigger zeroGyro = m_driverController.y()
+	;
+    private final Trigger robotCentric = m_driverController.leftBumper();	
+    private final Trigger dampen = m_driverController.rightBumper();
+
+    private final Trigger dynamicLock = m_driverController.x();
+
+    private final Trigger forwardHold = new Trigger(() -> (m_driverController.getRawAxis(XboxController.Axis.kLeftTrigger.value) > 0.7));
+    private final Trigger backwardHold = new Trigger(() -> (m_driverController.getRawAxis(XboxController.Axis.kRightTrigger.value) > 0.7));
 
 	private final Autos auton = new Autos(this, swerve, intake, feeder, shooter, climber);
 
@@ -99,18 +109,18 @@ public class RobotContainer {
 
 		// Configure default commands
 		// swerve.setDefaultCommand(
-		// 		// The left stick controls translation of the robot.
-		// 		// Turning is controlled by the X axis of the right stick.
-		// 		new RunCommand(
-		// 				() -> swerve.drive(
-		// 						-MathUtil.applyDeadband(m_driverController.getLeftY()
-		// 								* chassis.spdMultiplier, OIConstants.kDriveDeadband),
-		// 						-MathUtil.applyDeadband(m_driverController.getLeftX()
-		// 								* chassis.spdMultiplier, OIConstants.kDriveDeadband),
-		// 						-MathUtil.applyDeadband(m_driverController.getRightX()
-		// 								* chassis.spdMultiplier, OIConstants.kDriveDeadband),
-		// 						true),
-		// 				swerve));
+		// // The left stick controls translation of the robot.
+		// // Turning is controlled by the X axis of the right stick.
+		// new RunCommand(
+		// () -> swerve.drive(
+		// -MathUtil.applyDeadband(m_driverController.getLeftY()
+		// * chassis.spdMultiplier, OIConstants.kDriveDeadband),
+		// -MathUtil.applyDeadband(m_driverController.getLeftX()
+		// * chassis.spdMultiplier, OIConstants.kDriveDeadband),
+		// -MathUtil.applyDeadband(m_driverController.getRightX()
+		// * chassis.spdMultiplier, OIConstants.kDriveDeadband),
+		// true),
+		// swerve));
 
 		swerve.setDefaultCommand(
 				new SwerveCommand(
@@ -145,7 +155,22 @@ public class RobotContainer {
 	/*********************************/
 
 	private void configureBindings() {
+        /* Driver Buttons */
+        zeroGyro.onTrue(new InstantCommand(() -> swerve.zeroGyro()));
 
+    //Heading lock bindings
+        forwardHold.onTrue(
+            new InstantCommand(() -> States.driveState = States.DriveStates.forwardHold)).onFalse(
+            new InstantCommand(() -> States.driveState = States.DriveStates.standard)
+            );
+        backwardHold.onTrue(
+            new InstantCommand(() -> States.driveState = States.DriveStates.backwardHold)).onFalse(
+            new InstantCommand(() -> States.driveState = States.DriveStates.standard)
+            );
+        dynamicLock.onTrue(
+            new InstantCommand(() -> States.driveState = States.DriveStates.dynamicLock)).onFalse(
+            new InstantCommand(() -> States.driveState = States.DriveStates.standard)
+            );
 		// m_driverController.leftBumper()
 		// .onFalse(new InstantCommand(() -> chassis.setSpdHigh()))
 		// .onTrue(new InstantCommand(() -> chassis.setSpdLow()));

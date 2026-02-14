@@ -142,8 +142,8 @@ public class Vision extends SubsystemBase {
         // Send vision observation
         consumer.accept(
             observation.pose().toPose2d(),
-            observation.timestamp(),
-            VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+            observation.timestamp());
+//            VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
       // Log camera datadata
@@ -182,7 +182,7 @@ public class Vision extends SubsystemBase {
   public static interface VisionConsumer {
     public void accept(
         Pose2d visionRobotPoseMeters,
-        double timestampSeconds,
-        Matrix<N3, N1> visionMeasurementStdDevs);
+        double timestampSeconds);
+//        Matrix<N3, N1> visionMeasurementStdDevs);
   }
 }

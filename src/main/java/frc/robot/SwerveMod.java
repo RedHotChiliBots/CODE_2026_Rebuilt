@@ -10,13 +10,12 @@ import frc.lib.math.Conversions;
 import frc.lib.util.CTREModuleState;
 import frc.lib.util.SwerveModuleConstants;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 
 public class SwerveMod {
     public CANBus canBus;
@@ -28,7 +27,7 @@ public class SwerveMod {
     private TalonFX mDriveMotor;
     private CANcoder angleEncoder;
 
-    private CTREConfigs ctreConfigs = new CTREConfigs()
+    private CTREConfigs ctreConfigs = new CTREConfigs();
 
     SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(Constants.Swerve.driveKS, Constants.Swerve.driveKV, Constants.Swerve.driveKA);
 
@@ -92,21 +91,22 @@ public class SwerveMod {
     }
 
     private Rotation2d getAngle(){
-        return Rotation2d.fromDegrees(Conversions.falconToDegrees(mAngleMotor.getSelectedSensorPosition(), Constants.Swerve.angleGearRatio));
+        return Rotation2d.fromDegrees(Conversions.falconToDegrees(mAngleMotor.getPosition().getValueAsDouble(), Constants.Swerve.angleGearRatio));
     }
 
     public Rotation2d getCanCoder(){
-        return Rotation2d.fromDegrees(angleEncoder.getAbsolutePosition());
+        return Rotation2d.fromDegrees(angleEncoder.getAbsolutePosition().getValueAsDouble());
     }
 
     public void resetToAbsolute(){
         double absolutePosition = Conversions.degreesToFalcon(getCanCoder().getDegrees() - angleOffset.getDegrees(), Constants.Swerve.angleGearRatio);
-        mAngleMotor.setSelectedSensorPosition(absolutePosition);
+        //mAngleMotor.setSelectedSensorPosition(absolutePosition);
+        mAngleMotor.setPosition(absolutePosition);
     }
 
     public SwerveModuleState getState(){
         return new SwerveModuleState(
-            Conversions.falconToMPS(mDriveMotor.getSelectedSensorVelocity(), 
+            Conversions.falconToMPS(mDriveMotor.getVelocity().getValueAsDouble(), 
             Constants.Swerve.wheelCircumference, 
             Constants.Swerve.driveGearRatio), 
             getAngle()
@@ -115,7 +115,7 @@ public class SwerveMod {
 
     public SwerveModulePosition getPosition(){
         return new SwerveModulePosition(
-            Conversions.falconToMeters(mDriveMotor.getSelectedSensorPosition(), 
+            Conversions.falconToMeters(mDriveMotor.getPosition().getValueAsDouble(), 
             Constants.Swerve.wheelCircumference, 
             Constants.Swerve.driveGearRatio), 
             getAngle()

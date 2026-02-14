@@ -81,7 +81,7 @@ public class SwerveCommand extends Command {
                 rotationVal = rotationController.calculate(swerve.getYaw().getRadians(), Units.degreesToRadians(270));
                 System.out.println("HEADING LOCK");
                 break;
-            case DynamicLock:
+            case dynamicLock:
 
                 // heading lock - dynamic
                 rotationVal = rotationController.calculate(swerve.getYaw().getRadians(),

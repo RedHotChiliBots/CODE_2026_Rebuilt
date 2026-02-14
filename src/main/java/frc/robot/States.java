@@ -3,7 +3,7 @@ package frc.robot;
 public class States {
 
     public static enum DriveStates {
-        standard, leftHold, rightHold, forwardHold, backwardHold, DynamicLock
+        standard, leftHold, rightHold, forwardHold, backwardHold, dynamicLock
     }
 
     public static enum AlignedStates {
