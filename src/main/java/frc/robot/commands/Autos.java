@@ -23,6 +23,7 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Swerve;
 
 public class Autos {
   private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
@@ -32,7 +33,7 @@ public class Autos {
   private SendableChooser<Command> autoChooser = null;
 
   private RobotContainer robotContainer;
-  private Chassis chassis;
+  private Swerve swerve;
   private Intake intake;
   private Feeder feeder;
   private Shooter shooter;
@@ -59,13 +60,13 @@ public class Autos {
   // climber));
   // }
 
-  public Autos(RobotContainer robotContainer, Chassis chassis, Intake intake, Feeder feeder, Shooter shooter,
+  public Autos(RobotContainer robotContainer, Swerve swerve, Intake intake, Feeder feeder, Shooter shooter,
       Climber climber) {
 
     System.out.println("+++++ Starting Autos Constructor +++++");
 
     this.robotContainer = robotContainer;
-    this.chassis = chassis;
+    this.swerve = swerve;
     this.intake = intake;
     this.feeder = feeder;
     this.shooter = shooter;
@@ -83,8 +84,8 @@ public class Autos {
     // ladder, algae, coral, climber);
 
     this.startPose = new Pose2d(new Translation2d(7.3, 4.0), Rotation2d.fromDegrees(180));
-    this.resetPose = new InstantCommand(() -> chassis.resetPose(startPose));
-    this.resetOdo = new InstantCommand(() -> chassis.resetOdometry(startPose));
+ //   this.resetPose = new InstantCommand(() -> swerve.resetPose(startPose));
+    this.resetOdo = new InstantCommand(() -> swerve.resetOdometry(startPose));
 
     // this.autoLeave = new ChassisDriveDist(chassis, -0.5, 1.0);
 

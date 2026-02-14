@@ -5,7 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -22,13 +24,15 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.Constants.OIConstants;
-//import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.SwerveCommand;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.PoseEstimator;
 import frc.robot.subsystems.Vision.VisionIOPhotonVision;
 import frc.robot.subsystems.Vision.VisionConstants;
 import frc.robot.subsystems.Vision.Vision;
@@ -46,6 +50,8 @@ import java.util.Map;
 public class RobotContainer {
 
 	// The robot's subsystems and commands are defined here...
+	private final Swerve swerve = new Swerve();
+	private final PoseEstimator poseEstimator = new PoseEstimator();
 	private final Chassis chassis = new Chassis();
 	private final Intake intake = new Intake();
 	private final Feeder feeder = new Feeder();
@@ -53,7 +59,9 @@ public class RobotContainer {
 	private final Climber climber = new Climber();
 	@SuppressWarnings("unused")
 	private final Vision vision = new Vision(
-			chassis::addVisionMeasurement,
+//		chassis::addVisionMeasurement,
+//		SwerveDrivePoseEstimator::addVisionMeasurement,
+			poseEstimator::updateVision,
 			new VisionIOPhotonVision(VisionConstants.camera0Name,
 					VisionConstants.robotToCamera0),
 			new VisionIOPhotonVision(VisionConstants.camera1Name,
@@ -71,8 +79,13 @@ public class RobotContainer {
 	private final GenericHID m_operatorHID = new GenericHID(
 			OIConstants.kOperatorControllerPort);
 
-	
-	private final Autos auton = new Autos(this, chassis, intake, feeder, shooter, climber);
+
+	/* Driver Controls */
+	private final int translationAxis = XboxController.Axis.kLeftY.value;
+	private final int strafeAxis = XboxController.Axis.kLeftX.value;
+	private final int rotationAxis = XboxController.Axis.kRightX.value;
+
+	private final Autos auton = new Autos(this, swerve, intake, feeder, shooter, climber);
 
 	private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
 
@@ -85,19 +98,30 @@ public class RobotContainer {
 		configureBindings();
 
 		// Configure default commands
-		chassis.setDefaultCommand(
-				// The left stick controls translation of the robot.
-				// Turning is controlled by the X axis of the right stick.
-				new RunCommand(
-						() -> chassis.drive(
-								-MathUtil.applyDeadband(m_driverController.getLeftY()
-										* chassis.spdMultiplier, OIConstants.kDriveDeadband),
-								-MathUtil.applyDeadband(m_driverController.getLeftX()
-										* chassis.spdMultiplier, OIConstants.kDriveDeadband),
-								-MathUtil.applyDeadband(m_driverController.getRightX()
-										* chassis.spdMultiplier, OIConstants.kDriveDeadband),
-								true),
-						chassis));
+		// swerve.setDefaultCommand(
+		// 		// The left stick controls translation of the robot.
+		// 		// Turning is controlled by the X axis of the right stick.
+		// 		new RunCommand(
+		// 				() -> swerve.drive(
+		// 						-MathUtil.applyDeadband(m_driverController.getLeftY()
+		// 								* chassis.spdMultiplier, OIConstants.kDriveDeadband),
+		// 						-MathUtil.applyDeadband(m_driverController.getLeftX()
+		// 								* chassis.spdMultiplier, OIConstants.kDriveDeadband),
+		// 						-MathUtil.applyDeadband(m_driverController.getRightX()
+		// 								* chassis.spdMultiplier, OIConstants.kDriveDeadband),
+		// 						true),
+		// 				swerve));
+
+		swerve.setDefaultCommand(
+				new SwerveCommand(
+						swerve,
+						() -> -m_driverController.getRawAxis(translationAxis),
+						() -> -m_driverController.getRawAxis(strafeAxis),
+						() -> -m_driverController.getRawAxis(rotationAxis),
+						() -> robotCentric.getAsBoolean(),
+						() -> dampen.getAsBoolean(),
+						() -> 0.0 // Dynamic heading placeholder
+				));
 	}
 
 	/**
@@ -114,7 +138,6 @@ public class RobotContainer {
 	 * joysticks}.
 	 */
 
-
 	/*********************************/
 
 	// CONTROLLER BINDINGS
@@ -124,12 +147,12 @@ public class RobotContainer {
 	private void configureBindings() {
 
 		// m_driverController.leftBumper()
-		// 		.onFalse(new InstantCommand(() -> chassis.setSpdHigh()))
-		// 		.onTrue(new InstantCommand(() -> chassis.setSpdLow()));
+		// .onFalse(new InstantCommand(() -> chassis.setSpdHigh()))
+		// .onTrue(new InstantCommand(() -> chassis.setSpdLow()));
 
 		// m_driverController.rightBumper()
-		// 		.onFalse(new InstantCommand(() -> chassis.setPoseErr()))
-		// 		.onTrue(new InstantCommand(() -> chassis.setPoseZero()));
+		// .onFalse(new InstantCommand(() -> chassis.setPoseErr()))
+		// .onTrue(new InstantCommand(() -> chassis.setPoseZero()));
 
 		// m_operatorController.y().onTrue(this.goL4);
 		// m_operatorController.x().onTrue(this.goL3);
@@ -146,7 +169,8 @@ public class RobotContainer {
 		// m_operatorController.start().onTrue(climber.climb);
 
 		// m_operatorController.leftBumper().onTrue(this.goL35);
-		// m_operatorController.rightBumper().onTrue(this.coral.eject); // was doAction 10:35 AM
+		// m_operatorController.rightBumper().onTrue(this.coral.eject); // was doAction
+		// 10:35 AM
 
 		// m_operatorController.rightStick().onTrue(algae.eject);
 		// m_operatorController.leftStick().onTrue(coral.intake);
@@ -164,7 +188,7 @@ public class RobotContainer {
 	 */
 	public Command getAutonomousCommand() {
 		// return new ChassisTimedDrive(chassis, 0.25, 1.0);
-		
+
 		return auton.getAutoChooser().getSelected();
 	}
 }
