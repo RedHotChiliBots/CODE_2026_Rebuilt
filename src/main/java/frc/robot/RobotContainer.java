@@ -44,22 +44,14 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   	// The robot's subsystems and commands are defined here...
-	private Drive drive;
-	private final Intake intake = new Intake();
-	private final Feeder feeder = new Feeder();
-	private final Shooter shooter = new Shooter();
-	private final Climber climber = new Climber();
-	@SuppressWarnings("unused")
-	private final Vision vision = new Vision(
-			drive::addVisionMeasurement,
-			new VisionIOPhotonVision(VisionConstants.camera0Name,
-					VisionConstants.robotToCamera0),
-			new VisionIOPhotonVision(VisionConstants.camera1Name,
-					VisionConstants.robotToCamera1),
-			new VisionIOPhotonVision(VisionConstants.camera2Name,
-					VisionConstants.robotToCamera2),
-			new VisionIOPhotonVision(VisionConstants.camera3Name,
-					VisionConstants.robotToCamera3));
+	private Drive drive = null;
+	private Intake intake = null;
+	private Feeder feeder = null;
+	private Shooter shooter = null;
+	private Climber climber = null;
+//	@SuppressWarnings("unused")
+	private Vision vision = null;
+	private Autos auton = null;
 
 	// Define HIDs
 	private final CommandXboxController m_driverController = new CommandXboxController(
@@ -70,10 +62,6 @@ public class RobotContainer {
 			OIConstants.kOperatorControllerPort);
 
 	
-	private final Autos auton = new Autos(this, drive, intake, feeder, shooter, climber);
-
-
-
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -136,6 +124,29 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
+
+    // drive = new Drive(
+    //             new GyroIONavX(),
+    //             new ModuleIOTalonFX(TunerConstants.FrontLeft),
+    //             new ModuleIOTalonFX(TunerConstants.FrontRight),
+    //             new ModuleIOTalonFX(TunerConstants.BackLeft),
+    //             new ModuleIOTalonFX(TunerConstants.BackRight));
+	intake = new Intake();
+	feeder = new Feeder();
+	shooter = new Shooter();
+	climber = new Climber();
+//	@SuppressWarnings("unused")
+    vision = new Vision(
+			drive::addVisionMeasurement,
+			new VisionIOPhotonVision(VisionConstants.camera0Name,
+					VisionConstants.robotToCamera0),
+			new VisionIOPhotonVision(VisionConstants.camera1Name,
+					VisionConstants.robotToCamera1),
+			new VisionIOPhotonVision(VisionConstants.camera2Name,
+					VisionConstants.robotToCamera2),
+			new VisionIOPhotonVision(VisionConstants.camera3Name,
+					VisionConstants.robotToCamera3));
+	auton = new Autos(this, drive, intake, feeder, shooter, climber);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());

@@ -9,6 +9,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -27,6 +29,8 @@ public class Robot extends LoggedRobot {
   private RobotContainer robotContainer;
 
   public Robot() {
+    AutoLogOutputManager.addPackage("frc.robot"); // Allow logging in frc.robot
+
     // Record metadata
     // Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     // Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
