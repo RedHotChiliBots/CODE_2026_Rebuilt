@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Color;
 
 /**
@@ -26,6 +27,20 @@ import edu.wpi.first.wpilibj.util.Color;
  */
 public final class Constants {
 
+	public static final Mode simMode = Mode.SIM;
+	public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+
+	public static enum Mode {
+		/** Running on a real robot. */
+		REAL,
+
+		/** Running a physics simulator. */
+		SIM,
+
+		/** Replaying from a log file. */
+		REPLAY
+	}
+
 	public static class OIConstants {
 		public static final int kDriverControllerPort = 0;
 		public static final int kOperatorControllerPort = 1;
@@ -35,7 +50,7 @@ public final class Constants {
 	public static final class CANId {
 
 		public static final int kPDHCanID = 1;
-		public static final int kServoHubCanId = 2;	
+		public static final int kServoHubCanId = 2;
 
 		// Drive/Turn CAN IDs
 		public static final int kRearRightDrivingCanId = 10;
