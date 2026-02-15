@@ -43,17 +43,15 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // Subsystems
-  private final Drive drive;
   	// The robot's subsystems and commands are defined here...
-	private final Chassis chassis = new Chassis();
+	private Drive drive;
 	private final Intake intake = new Intake();
 	private final Feeder feeder = new Feeder();
 	private final Shooter shooter = new Shooter();
 	private final Climber climber = new Climber();
 	@SuppressWarnings("unused")
 	private final Vision vision = new Vision(
-			chassis::addVisionMeasurement,
+			drive::addVisionMeasurement,
 			new VisionIOPhotonVision(VisionConstants.camera0Name,
 					VisionConstants.robotToCamera0),
 			new VisionIOPhotonVision(VisionConstants.camera1Name,
@@ -72,7 +70,7 @@ public class RobotContainer {
 			OIConstants.kOperatorControllerPort);
 
 	
-	private final Autos auton = new Autos(this, chassis, intake, feeder, shooter, climber);
+	private final Autos auton = new Autos(this, drive, intake, feeder, shooter, climber);
 
 
 
