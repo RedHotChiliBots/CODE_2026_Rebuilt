@@ -70,6 +70,7 @@ public class Climber extends SubsystemBase {
 
   private final ServoHubConfig hubConfig = new ServoHubConfig();
 
+  
   // ==============================================================
   // Define motor and servo pos enums
   // ==============================================================
