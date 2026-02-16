@@ -78,24 +78,6 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
-
-        // The ModuleIOTalonFXS implementation provides an example implementation for
-        // TalonFXS controller connected to a CANdi with a PWM encoder. The
-        // implementations
-        // of ModuleIOTalonFX, ModuleIOTalonFXS, and ModuleIOSpark (from the Spark
-        // swerve
-        // template) can be freely intermixed to support alternative hardware
-        // arrangements.
-        // Please see the AdvantageKit template documentation for more information:
-        // https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations
-        //
-        // drive =
-        // new Drive(
-        // new GyroIOPigeon2(),
-        // new ModuleIOTalonFXS(TunerConstants.FrontLeft),
-        // new ModuleIOTalonFXS(TunerConstants.FrontRight),
-        // new ModuleIOTalonFXS(TunerConstants.BackLeft),
-        // new ModuleIOTalonFXS(TunerConstants.BackRight));
         break;
 
       case SIM:
@@ -121,17 +103,10 @@ public class RobotContainer {
         break;
     }
 
-    // drive = new Drive(
-    //             new GyroIONavX(),
-    //             new ModuleIOTalonFX(TunerConstants.FrontLeft),
-    //             new ModuleIOTalonFX(TunerConstants.FrontRight),
-    //             new ModuleIOTalonFX(TunerConstants.BackLeft),
-    //             new ModuleIOTalonFX(TunerConstants.BackRight));
 	intake = new Intake();
 	feeder = new Feeder();
 	shooter = new Shooter();
 	climber = new Climber();
-//	@SuppressWarnings("unused")
     vision = new Vision(
 			drive::addVisionMeasurement,
 			new VisionIOPhotonVision(VisionConstants.camera0Name,
