@@ -54,16 +54,16 @@ public class RobotContainer {
 	private Autos auton = null;
 
 	// Define HIDs
-	private final CommandXboxController m_driverController = new CommandXboxController(
+	private final CommandXboxController driverController = new CommandXboxController(
 			OIConstants.kDriverControllerPort);
-	private final CommandXboxController m_operatorController = new CommandXboxController(
+	private final CommandXboxController operatorController = new CommandXboxController(
 			OIConstants.kOperatorControllerPort);
-	private final GenericHID m_operatorHID = new GenericHID(
+	private final GenericHID operatorHID = new GenericHID(
 			OIConstants.kOperatorControllerPort);
 
 	
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController driveController = new CommandXboxController(0);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -182,25 +182,25 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> -driveController.getLeftY(),
+            () -> -driveController.getLeftX(),
+            () -> -driveController.getRightX()));
 
     // Lock to 0° when A button is held
-    controller
+    driveController
         .a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
+                () -> -driveController.getLeftY(),
+                () -> -driveController.getLeftX(),
                 () -> Rotation2d.kZero));
 
     // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    driveController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
-    controller
+    driveController
         .b()
         .onTrue(
             Commands.runOnce(
