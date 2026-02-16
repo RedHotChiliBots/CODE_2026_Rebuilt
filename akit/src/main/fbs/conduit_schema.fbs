@@ -1,0 +1,101 @@
+namespace org.littletonrobotics.conduit.schema;
+
+// Constants in this file:
+// 6 Joysticks
+// 12 axes per joystick
+// 12 POVs per joystick
+// Joystick name: 256 chars
+// Event name: 64 chars
+// Game specific message: 64 chars
+
+// If you change any of these numbers, you MUST update the corresponding constants in api and io implementations!
+
+struct Joystick {
+    name:[uint8:256];
+    type:uint8;
+    axis_count:int16;
+    axis_types:[uint8:12];
+    axis_values:[float32:12];
+    button_count:uint8;
+    buttons:int32;
+    pov_count:int16;
+    pov_values:[int16:12];
+    is_xbox:bool;
+}
+
+struct DSData {
+    alliance_station:int32;
+    event_name:[uint8:64];
+    game_specific_message_size:uint16;
+    game_specific_message:[uint8:64];
+    match_number:uint16;
+    replay_number:uint8;
+    match_type:int32;
+    control_word:int32;
+    match_time:float64;
+    joysticks:[Joystick:6];
+}
+
+struct PDPData {
+    handle:int32;
+    channel_count:int32;
+    type:int32;
+    module_id:int32;
+    faults:uint32;
+    sticky_faults:uint32;
+    temperature:float64;
+    voltage:float64;
+    channel_current:[float64:24];
+    total_current:float64;
+    total_power:float64;
+    total_energy:float64;
+}
+
+struct CANStatus {
+    percent_bus_utilization:float32;
+    bus_off_count:uint32;
+    tx_full_count:uint32;
+    receive_error_count:uint32;
+    transmit_error_count:uint32;
+}
+
+struct SystemData {
+    fpga_version:int32;
+    fpga_revision:int32;
+    serial_number_size:uint16;
+    serial_number:[uint8:8];
+    comments_size:uint16;
+    comments:[uint8:64];
+    team_number:int32;
+    fpga_button:int32;
+    system_active:int32;
+    browned_out:int32;
+    comms_disable_count:int32;
+    rsl_state:int32;
+    system_time_valid:int32;
+    voltage_vin:float64;
+    current_vin:float64;
+    user_voltage_3v3:float64;
+    user_current_3v3:float64;
+    user_active_3v3:int32;
+    user_current_faults_3v3:int32;
+    user_voltage_5v:float64;
+    user_current_5v:float64;
+    user_active_5v:int32;
+    user_current_faults_5v:int32;
+    user_voltage_6v:float64;
+    user_current_6v:float64;
+    user_active_6v:int32;
+    user_current_faults_6v:int32;
+    brownout_voltage:float64;
+    cpu_temp:float64;
+    can_status:CANStatus;
+    epoch_time:uint64;
+}
+
+struct CoreInputs {
+    timestamp:int64;
+    ds:DSData;
+    pdp:PDPData;
+    sys:SystemData;
+}

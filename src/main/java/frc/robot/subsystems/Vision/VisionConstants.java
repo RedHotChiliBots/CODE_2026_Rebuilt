@@ -1,17 +1,11 @@
-// Copyright 2021-2025 FRC 6328
+// Copyright (c) 2021-2026 Littleton Robotics
 // http://github.com/Mechanical-Advantage
 //
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
+// Use of this source code is governed by a BSD
+// license that can be found in the LICENSE file
+// at the root directory of this project.
 
-package frc.robot.subsystems.Vision;
+package frc.robot.subsystems.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -30,8 +24,11 @@ public class VisionConstants {
     public static String camera2Name = "front-right";
     public static String camera3Name = "front-left";
 
-    // Robot to camera transforms (Where the camera is relative to front left corner of the robot)
-    //These will need to be adjusted as the robot is constructed
+    // Robot to camera transforms
+    // (Not used by Limelight, configure in web UI instead)
+    // Robot to camera transforms (Where the camera is relative to front left corner
+    // of the robot)
+    // These will need to be adjusted as the robot is constructed
     public static Transform3d robotToCamera0 = new Transform3d(new Translation3d( // rear right
             Units.inchesToMeters(-11.204), // x
             Units.inchesToMeters(-12.603), // y
@@ -62,14 +59,11 @@ public class VisionConstants {
             Units.inchesToMeters(8.659)), // z
             new Rotation3d(0.0, // roll
                     Units.degreesToRadians(-15.0), // pitch
-                    Units.degreesToRadians(-30.0)));
-
-
-                    
+                    Units.degreesToRadians(-30.0))); // yaw
 
     // Basic filtering thresholds
-    public static double maxAmbiguity = 0.2;
-    public static double maxZError = 0.2;
+    public static double maxAmbiguity = 0.3;
+    public static double maxZError = 0.75;
 
     // Standard deviation baselines, for 1 meter distance and 1 tag
     // (Adjusted automatically based on distance and # of tags)
@@ -81,12 +75,11 @@ public class VisionConstants {
     public static double[] cameraStdDevFactors = new double[] {
             1.0, // Camera 0
             1.0, // Camera 1
-            1.0, //Camera 2
-            1.0 //Camera 3
+            1.0, // Camera 2
+            1.0 // Camera 3
     };
 
     // Multipliers to apply for MegaTag 2 observations
     public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
     public static double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // No rotation data available
 }
-

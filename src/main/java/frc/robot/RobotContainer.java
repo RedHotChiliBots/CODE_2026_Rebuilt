@@ -1,59 +1,114 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2021-2026 Littleton Robotics
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by a BSD
+// license that can be found in the LICENSE file
+// at the root directory of this project.
 
 package frc.robot;
 
-import edu.wpi.first.math.MathUtil;
+import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OIConstants;
-//import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.subsystems.Chassis;
+import frc.robot.commands.DriveCommands;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Vision.VisionIOPhotonVision;
-import frc.robot.subsystems.Vision.VisionConstants;
-import frc.robot.subsystems.Vision.Vision;
-import java.util.Map;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIONavX;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  	// The robot's subsystems and commands are defined here...
+	private Drive drive = null;
+	private Intake intake = null;
+	private Feeder feeder = null;
+	private Shooter shooter = null;
+	private Climber climber = null;
+//	@SuppressWarnings("unused")
+	private Vision vision = null;
+	private Autos auton = null;
 
-	// The robot's subsystems and commands are defined here...
-	private final Chassis chassis = new Chassis();
-	private final Intake intake = new Intake();
-	private final Feeder feeder = new Feeder();
-	private final Shooter shooter = new Shooter();
-	private final Climber climber = new Climber();
-	@SuppressWarnings("unused")
-	private final Vision vision = new Vision(
-			chassis::addVisionMeasurement,
+	// Define HIDs
+	private final CommandXboxController driverController = new CommandXboxController(
+			OIConstants.kDriverControllerPort);
+	private final CommandXboxController operatorController = new CommandXboxController(
+			OIConstants.kOperatorControllerPort);
+	private final GenericHID operatorHID = new GenericHID(
+			OIConstants.kOperatorControllerPort);
+
+  // Dashboard inputs
+  private final LoggedDashboardChooser<Command> autoChooser;
+
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  public RobotContainer() {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
+        // a CANcoder
+        drive =
+            new Drive(
+                new GyroIONavX(),
+                new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                new ModuleIOTalonFX(TunerConstants.FrontRight),
+                new ModuleIOTalonFX(TunerConstants.BackLeft),
+                new ModuleIOTalonFX(TunerConstants.BackRight));
+        break;
+
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIOSim(TunerConstants.FrontLeft),
+                new ModuleIOSim(TunerConstants.FrontRight),
+                new ModuleIOSim(TunerConstants.BackLeft),
+                new ModuleIOSim(TunerConstants.BackRight));
+        break;
+
+      default:
+        // Replayed robot, disable IO implementations
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
+        break;
+    }
+
+	intake = new Intake();
+	feeder = new Feeder();
+	shooter = new Shooter();
+	climber = new Climber();
+    vision = new Vision(
+			drive::addVisionMeasurement,
 			new VisionIOPhotonVision(VisionConstants.camera0Name,
 					VisionConstants.robotToCamera0),
 			new VisionIOPhotonVision(VisionConstants.camera1Name,
@@ -62,109 +117,77 @@ public class RobotContainer {
 					VisionConstants.robotToCamera2),
 			new VisionIOPhotonVision(VisionConstants.camera3Name,
 					VisionConstants.robotToCamera3));
+	auton = new Autos(this, drive, intake, feeder, shooter, climber);
 
-	// Define HIDs
-	private final CommandXboxController m_driverController = new CommandXboxController(
-			OIConstants.kDriverControllerPort);
-	private final CommandXboxController m_operatorController = new CommandXboxController(
-			OIConstants.kOperatorControllerPort);
-	private final GenericHID m_operatorHID = new GenericHID(
-			OIConstants.kOperatorControllerPort);
+    // Set up auto routines
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-	
-	private final Autos auton = new Autos(this, chassis, intake, feeder, shooter, climber);
+    // Set up SysId routines
+    autoChooser.addOption(
+        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+    autoChooser.addOption(
+        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-	private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
+    // Configure the button bindings
+    configureButtonBindings();
+  }
 
-	/**
-	 * The container for the robot. Contains subsystems, OI devices, and commands.
-	 */
-	public RobotContainer() {
+  /**
+   * Use this method to define your button->command mappings. Buttons can be created by
+   * instantiating a {@link GenericHID} or one of its subclasses ({@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   */
+  private void configureButtonBindings() {
+    // Default command, normal field-relative drive
+    drive.setDefaultCommand(
+        DriveCommands.joystickDrive(
+            drive,
+            () -> -driverController.getLeftY(),
+            () -> -driverController.getLeftX(),
+            () -> -driverController.getRightX()));
 
-		// Configure the trigger bindings
-		configureBindings();
+    // Lock to 0° when A button is held
+    driverController
+        .a()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -driverController.getLeftY(),
+                () -> -driverController.getLeftX(),
+                () -> Rotation2d.kZero));
 
-		// Configure default commands
-		chassis.setDefaultCommand(
-				// The left stick controls translation of the robot.
-				// Turning is controlled by the X axis of the right stick.
-				new RunCommand(
-						() -> chassis.drive(
-								-MathUtil.applyDeadband(m_driverController.getLeftY()
-										* chassis.spdMultiplier, OIConstants.kDriveDeadband),
-								-MathUtil.applyDeadband(m_driverController.getLeftX()
-										* chassis.spdMultiplier, OIConstants.kDriveDeadband),
-								-MathUtil.applyDeadband(m_driverController.getRightX()
-										* chassis.spdMultiplier, OIConstants.kDriveDeadband),
-								true),
-						chassis));
-	}
+    // Switch to X pattern when X button is pressed
+    driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-	/**
-	 * Use this method to define your trigger->command mappings. Triggers can be
-	 * created via the
-	 * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-	 * an arbitrary predicate, or via the named factories in {@link
-	 * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-	 * {@link
-	 * CommandXboxController
-	 * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-	 * PS4} controllers or
-	 * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-	 * joysticks}.
-	 */
+    // Reset gyro to 0° when B button is pressed
+    driverController
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        drive.setPose(
+                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                    drive)
+                .ignoringDisable(true));
+  }
 
-
-	/*********************************/
-
-	// CONTROLLER BINDINGS
-
-	/*********************************/
-
-	private void configureBindings() {
-
-		// m_driverController.leftBumper()
-		// 		.onFalse(new InstantCommand(() -> chassis.setSpdHigh()))
-		// 		.onTrue(new InstantCommand(() -> chassis.setSpdLow()));
-
-		// m_driverController.rightBumper()
-		// 		.onFalse(new InstantCommand(() -> chassis.setPoseErr()))
-		// 		.onTrue(new InstantCommand(() -> chassis.setPoseZero()));
-
-		// m_operatorController.y().onTrue(this.goL4);
-		// m_operatorController.x().onTrue(this.goL3);
-		// m_operatorController.b().onTrue(this.goL2);
-		// m_operatorController.a().onTrue(algae.intake);
-
-		// new POVButton(m_operatorHID, 0).onTrue(this.goBarge);
-		// new POVButton(m_operatorHID, 90).onTrue(this.goStation);
-		// new POVButton(m_operatorHID, 270).onTrue(this.goProcessor);
-		// new POVButton(m_operatorHID, 180).onTrue(this.goFloor);
-
-		// // m_operatorController.start().onTrue(climber.ready);
-		// m_operatorController.back().onTrue(this.goStow);
-		// m_operatorController.start().onTrue(climber.climb);
-
-		// m_operatorController.leftBumper().onTrue(this.goL35);
-		// m_operatorController.rightBumper().onTrue(this.coral.eject); // was doAction 10:35 AM
-
-		// m_operatorController.rightStick().onTrue(algae.eject);
-		// m_operatorController.leftStick().onTrue(coral.intake);
-
-	}
-
-	public RobotContainer getRobotContainer() {
-		return this;
-	}
-
-	/**
-	 * Use this to pass the autonomous command to the main {@link Robot} class.
-	 *
-	 * @return the command to run in autonomous
-	 */
-	public Command getAutonomousCommand() {
-		// return new ChassisTimedDrive(chassis, 0.25, 1.0);
-		
-		return auton.getAutoChooser().getSelected();
-	}
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    return autoChooser.get();
+  }
 }
