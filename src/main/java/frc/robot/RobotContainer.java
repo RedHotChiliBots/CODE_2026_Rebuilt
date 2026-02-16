@@ -61,10 +61,6 @@ public class RobotContainer {
 	private final GenericHID operatorHID = new GenericHID(
 			OIConstants.kOperatorControllerPort);
 
-	
-  // Controller
-  private final CommandXboxController driveController = new CommandXboxController(0);
-
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -182,25 +178,25 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -driveController.getLeftY(),
-            () -> -driveController.getLeftX(),
-            () -> -driveController.getRightX()));
+            () -> -driverController.getLeftY(),
+            () -> -driverController.getLeftX(),
+            () -> -driverController.getRightX()));
 
     // Lock to 0° when A button is held
-    driveController
+    driverController
         .a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
-                () -> -driveController.getLeftY(),
-                () -> -driveController.getLeftX(),
+                () -> -driverController.getLeftY(),
+                () -> -driverController.getLeftX(),
                 () -> Rotation2d.kZero));
 
     // Switch to X pattern when X button is pressed
-    driveController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
-    driveController
+    driverController
         .b()
         .onTrue(
             Commands.runOnce(
