@@ -116,10 +116,8 @@ public class Autos {
     NamedCommands.registerCommand("IntakeLow", intake.setIntake(Intake.IntakeSP.LOW));
     NamedCommands.registerCommand("IntakeMed", intake.setIntake(Intake.IntakeSP.MED));
     NamedCommands.registerCommand("IntakeHi", intake.setIntake(Intake.IntakeSP.HI));
-    NamedCommands.registerCommand("TiltOff", intake.setTilt(Intake.TiltSP.OFF));
-    NamedCommands.registerCommand("TiltLow", intake.setTilt(Intake.TiltSP.LOW));
-    NamedCommands.registerCommand("TiltMed", intake.setTilt(Intake.TiltSP.MED));
-    NamedCommands.registerCommand("TiltHi", intake.setTilt(Intake.TiltSP.HI));
+    NamedCommands.registerCommand("TiltStow", intake.setTilt(Intake.TiltSP.STOW));
+    NamedCommands.registerCommand("TiltDeploy", intake.setTilt(Intake.TiltSP.DEPLOY));
 
     NamedCommands.registerCommand("FeederOff", feeder.setFeeder(Feeder.FeederSP.OFF));
     NamedCommands.registerCommand("FeederLow", feeder.setFeeder(Feeder.FeederSP.LOW));

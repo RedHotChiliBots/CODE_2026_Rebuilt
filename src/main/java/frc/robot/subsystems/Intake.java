@@ -69,10 +69,8 @@ public class Intake extends SubsystemBase {
 
   // The Tilt SP is in degrees
   public enum TiltSP {
-    OFF(0.0),
-    LOW(25.0),
-    MED(50.0),
-    HI(75.0);
+    STOW(25.0),
+    DEPLOY(75.0);
 
     private double pos;
 
@@ -87,7 +85,7 @@ public class Intake extends SubsystemBase {
 
   // Define motor setpoints
   private IntakeSP intakeSP = IntakeSP.OFF;
-  private TiltSP tiltSP = TiltSP.OFF;
+  private TiltSP tiltSP = TiltSP.STOW;
 
   // ==============================================================
   // Initialize Dashboard entries
@@ -182,18 +180,14 @@ public class Intake extends SubsystemBase {
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
 		IntakeCommands.add("Shoot Low", this.setIntake(IntakeSP.LOW))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Tilt Off", this.setTilt(TiltSP.OFF))
+		IntakeCommands.add("Tilt Off", this.setTilt(TiltSP.STOW))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Tilt Hi", this.setTilt(TiltSP.HI))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Tilt Med", this.setTilt(TiltSP.MED))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Tilt Low", this.setTilt(TiltSP.LOW))
+		IntakeCommands.add("Tilt Hi", this.setTilt(TiltSP.DEPLOY))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
 				
     // Initialize intake start positions
     setIntakeVel(IntakeSP.OFF);
-    setTiltSP(TiltSP.OFF);
+    setTiltSP(TiltSP.STOW);
 
     System.out.println("----- Ending Intake Constructor -----");
   }

@@ -53,15 +53,15 @@ public final class Constants {
 		public static final int kServoHubCanId = 2;
 
 		// Drive/Turn CAN IDs
-		public static final int kRearRightDrivingCanId = 10;
-		public static final int kRearLeftDrivingCanId = 11;
-		public static final int kFrontLeftDrivingCanId = 12;
-		public static final int kFrontRightDrivingCanId = 13;
+		// public static final int kRearRightDrivingCanId = 10;
+		// public static final int kRearLeftDrivingCanId = 11;
+		// public static final int kFrontLeftDrivingCanId = 12;
+		// public static final int kFrontRightDrivingCanId = 13;
 
-		public static final int kRearRightTurningCanId = 15;
-		public static final int kRearLeftTurningCanId = 16;
-		public static final int kFrontLeftTurningCanId = 17;
-		public static final int kFrontRightTurningCanId = 18;
+		// public static final int kRearRightTurningCanId = 15;
+		// public static final int kRearLeftTurningCanId = 16;
+		// public static final int kFrontLeftTurningCanId = 17;
+		// public static final int kFrontRightTurningCanId = 18;
 
 		public static final int kShooterLeftCanId = 20;
 		public static final int kShooterRightCanId = 21;

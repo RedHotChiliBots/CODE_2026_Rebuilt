@@ -71,7 +71,7 @@ public class Feeder extends SubsystemBase {
 	// ==============================================================
   // Define trigger inputs
 	// ==============================================================
-  private final DigitalInput fuelSwitch = new DigitalInput(DIOId.kFuelAvail);
+  private final DigitalInput fuelAvail = new DigitalInput(DIOId.kFuelAvail);
 
 	// ==============================================================
   // Initialize Dashboard entries
@@ -202,6 +202,6 @@ public class Feeder extends SubsystemBase {
   }
 
   public boolean isFuelAvail() {
-    return fuelSwitch.get();
+    return fuelAvail.get();
   }
 }

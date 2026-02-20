@@ -33,6 +33,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -55,7 +57,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
-  static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
+  static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 100.0 : 100.0;  //250
   public static final double DRIVE_BASE_RADIUS = Math.max(
       Math.max(
           Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
@@ -108,6 +110,7 @@ public class Drive extends SubsystemBase {
   private final Pose2d startPose = new Pose2d( // This is the blue side starting pose. AutoBuilder will mirror for red.
       new Translation2d(3.45, 2.75),
       Rotation2d.fromDegrees(42.5));
+  public Pose2d currPose = null;
   // game
   private Rotation2d bearingToHub = null;
   private double distToHub = 0.0;
@@ -115,32 +118,41 @@ public class Drive extends SubsystemBase {
   private final ShuffleboardTab driveTab = Shuffleboard.getTab("Drive");
 
   private final GenericEntry sbBearingToHub = driveTab.addPersistent("BearingToHub", 0)
-      .withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
+      .withWidget("Text View").withPosition(2, 0).withSize(1, 1).getEntry();
   private final GenericEntry sbDistToHub = driveTab.addPersistent("DistToHub", 0)
-      .withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
+      .withWidget("Text View").withPosition(3, 0).withSize(1, 1).getEntry();
+  private final GenericEntry sbCurrPose = driveTab.addPersistent("Curr Pose", 0)
+      .withWidget("Text View").withPosition(4, 0).withSize(1, 1).getEntry();
+  private final GenericEntry sbStartPose = driveTab.addPersistent("Start Pose", 0)
+      .withWidget("Text View").withPosition(5, 0).withSize(1, 1).getEntry();
 
-      
-	// private final GenericEntry sbAngle = driveTab.addPersistent("Angle", 0)
-	// 		.withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
-	// private final GenericEntry sbFusedHeading = driveTab.addPersistent("FusedHeading", 0)
-	// 		.withWidget("Text View").withPosition(3, 1).withSize(2, 1).getEntry();
-	// private final GenericEntry sbCompassHeading = driveTab.addPersistent("CompassHeading", 0)
-	// 		.withWidget("Text View").withPosition(3, 2).withSize(2, 1).getEntry();
-	// private final GenericEntry sbRotDegree = driveTab.addPersistent("Rotation2d", 0)
-	// 		.withWidget("Text View").withPosition(3, 3).withSize(2, 1).getEntry();
-	// private final GenericEntry sbPitch = driveTab.addPersistent("Pitch", 0)
-	// 		.withWidget("Text View").withPosition(5, 0).withSize(2, 1).getEntry();
-	// private final GenericEntry sbRoll = driveTab.addPersistent("Roll", 0)
-	// 		.withWidget("Text View").withPosition(5, 1).withSize(2, 1).getEntry();
-	// private final GenericEntry sbYaw = driveTab.addPersistent("Yaw", 0)
-	// 		.withWidget("Text View").withPosition(5, 2).withSize(2, 1).getEntry();
+  // private final GenericEntry sbAngle = driveTab.addPersistent("Angle", 0)
+  // .withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
+  // private final GenericEntry sbFusedHeading =
+  // driveTab.addPersistent("FusedHeading", 0)
+  // .withWidget("Text View").withPosition(3, 1).withSize(2, 1).getEntry();
+  // private final GenericEntry sbCompassHeading =
+  // driveTab.addPersistent("CompassHeading", 0)
+  // .withWidget("Text View").withPosition(3, 2).withSize(2, 1).getEntry();
+  // private final GenericEntry sbRotDegree = driveTab.addPersistent("Rotation2d",
+  // 0)
+  // .withWidget("Text View").withPosition(3, 3).withSize(2, 1).getEntry();
+  // private final GenericEntry sbPitch = driveTab.addPersistent("Pitch", 0)
+  // .withWidget("Text View").withPosition(5, 0).withSize(2, 1).getEntry();
+  // private final GenericEntry sbRoll = driveTab.addPersistent("Roll", 0)
+  // .withWidget("Text View").withPosition(5, 1).withSize(2, 1).getEntry();
+  // private final GenericEntry sbYaw = driveTab.addPersistent("Yaw", 0)
+  // .withWidget("Text View").withPosition(5, 2).withSize(2, 1).getEntry();
 
-	private final GenericEntry sbXVel = driveTab.addPersistent("X Vel", 0)
-			.withWidget("Text View").withPosition(5, 2).withSize(2, 1).getEntry();
-	private final GenericEntry sbYVel = driveTab.addPersistent("Y Vel", 0)
-			.withWidget("Text View").withPosition(5, 3).withSize(2, 1).getEntry();
-	private final GenericEntry sbRVel = driveTab.addPersistent("R Vel", 0)
-			.withWidget("Text View").withPosition(5, 4).withSize(2, 1).getEntry();
+  private final GenericEntry sbXPos = driveTab.addPersistent("X Pos", 0)
+      .withWidget("Text View").withPosition(5, 2).withSize(1, 1).getEntry();
+  private final GenericEntry sbYPos = driveTab.addPersistent("Y Pos", 0)
+      .withWidget("Text View").withPosition(5, 3).withSize(1, 1).getEntry();
+  private final GenericEntry sbRDeg = driveTab.addPersistent("Rot", 0)
+      .withWidget("Text View").withPosition(5, 4).withSize(1, 1).getEntry();
+
+  StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+      .getStructTopic("MyPose", Pose2d.struct).publish();
 
   public Drive(
       GyroIO gyroIO,
@@ -159,6 +171,7 @@ public class Drive extends SubsystemBase {
 
     setPose(startPose);
 
+    m_field.setRobotPose(startPose);
     SmartDashboard.putData("Field", m_field);
 
     // Usage reporting for swerve template
@@ -200,6 +213,8 @@ public class Drive extends SubsystemBase {
             (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
         new SysIdRoutine.Mechanism(
             (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+//    sbStartPose.setData(startPose);
 
     System.out.println("----- Ending Drive Constructor -----");
   }
@@ -265,25 +280,30 @@ public class Drive extends SubsystemBase {
     distToHub = getDistToHub(); // Update distance to hub
     sbDistToHub.setDouble(distToHub);
 
-    sbXVel.setDouble(getPose().getX());
-		sbYVel.setDouble(getPose().getY());
-		sbRVel.setDouble(getPose().getRotation().getDegrees());
+    currPose = getPose();
+    m_field.setRobotPose(getPose());
+    publisher.set(currPose);
 
-		// sbAngle.setDouble(getAngle());
-		// sbYaw.setDouble(getYaw());
-		// sbPitch.setDouble(getPitch());
-		// sbRoll.setDouble(getRoll());
-		// sbFusedHeading.setDouble(getFusedHeading());
-		// sbCompassHeading.setDouble(getCompassHeading());
-		// sbRotDegree.setDouble(getRotation2d().getDegrees());
+
+    sbXPos.setDouble(getPose().getX());
+    sbYPos.setDouble(getPose().getY());
+    sbRDeg.setDouble(getPose().getRotation().getDegrees());
+
+    // sbAngle.setDouble(getAngle());
+    // sbYaw.setDouble(getYaw());
+    // sbPitch.setDouble(getPitch());
+    // sbRoll.setDouble(getRoll());
+    // sbFusedHeading.setDouble(getFusedHeading());
+    // sbCompassHeading.setDouble(getCompassHeading());
+    // sbRotDegree.setDouble(getRotation2d().getDegrees());
   }
 
   public Rotation2d getBearingToHub() {
-    return hubPose.getTranslation().minus(getPose().getTranslation()).getAngle();
+    return ((getPose().getTranslation().minus(hubPose.getTranslation())).getAngle());
   }
 
   public double getDistToHub() {
-    return getPose().getTranslation().getDistance(hubPose.getTranslation());
+    return hubPose.getTranslation().getDistance(getPose().getTranslation());
   }
 
   /**

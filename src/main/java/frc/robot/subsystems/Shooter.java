@@ -2,7 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-
 package frc.robot.subsystems;
 
 import java.util.Map;
@@ -22,10 +21,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.drive.Drive;
 
 public class Shooter extends SubsystemBase {
 	// ==============================================================
-    // Define Shooter & Tilt Motors
+	// Define Shooter & Tilt Motors
 	// ==============================================================
 	private final SparkFlex leftShooter = new SparkFlex(
 			Constants.CANId.kShooterLeftCanId, MotorType.kBrushless);
@@ -47,8 +47,10 @@ public class Shooter extends SubsystemBase {
 	// private AbsoluteEncoder rightEncoder = rightShooter.getAbsoluteEncoder();
 	private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
+	private Drive drive = null;
+
 	// ==============================================================
-    // Define motor vel and pos enums
+	// Define motor vel and pos enums
 	// ==============================================================
 	// The Shooter SP is stored as a percentage of RPMs
 	public enum ShooterSP {
@@ -91,13 +93,13 @@ public class Shooter extends SubsystemBase {
 	}
 
 	// ==============================================================
-    // Initialize motor setpoints
+	// Initialize motor setpoints
 	// ==============================================================
 	private ShooterSP shooterSP = ShooterSP.OFF;
 	private TiltSP tiltSP = TiltSP.OFF;
 
 	// ==============================================================
-    // Initialize Dashboard entries
+	// Initialize Dashboard entries
 	// ==============================================================
 	// private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
 	// private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
@@ -128,12 +130,13 @@ public class Shooter extends SubsystemBase {
 	private final GenericEntry sbTiltPos = shooterTab.addPersistent("Tilt Pos", 0)
 			.withWidget("Text View").withPosition(4, 0).withSize(2, 1).getEntry();
 
-		
 	// ==============================================================
-    // Constructor
+	// Constructor
 	// ==============================================================
-	public Shooter() {
+	public Shooter(Drive drive) {
 		System.out.println("+++++ Starting Shooter Constructor +++++");
+
+		this.drive = drive;
 
 		// Configure Left Shooter motor
 		leftConfig
@@ -233,7 +236,7 @@ public class Shooter extends SubsystemBase {
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
 		ShooterCommands.add("Tilt Low", this.setTilt(TiltSP.LOW))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-				
+
 		// Initialize intake start positions
 		setShooterVel(ShooterSP.OFF);
 		setTiltSP(TiltSP.OFF);
@@ -242,9 +245,13 @@ public class Shooter extends SubsystemBase {
 	}
 
 	// ==============================================================
-  	// Define subsystem commands
-  	// ==============================================================
+	// Define subsystem commands
+	// ==============================================================
 	public Command setShooter(ShooterSP sp) {
+		return runOnce(() -> setShooterVel(sp));
+	}
+
+	public Command setShooter(double sp) {
 		return runOnce(() -> setShooterVel(sp));
 	}
 
@@ -252,9 +259,13 @@ public class Shooter extends SubsystemBase {
 		return runOnce(() -> setTiltPos(sp));
 	}
 
-  	// ==============================================================
-  	// Periodic methods
-  	// ==============================================================
+	public Command setTilt(double sp) {
+		return runOnce(() -> setTiltPos(sp));
+	}
+
+	// ==============================================================
+	// Periodic methods
+	// ==============================================================
 	@Override
 	public void periodic() {
 		sbShooterOnTgt.setBoolean(onShooterTarget());
@@ -276,8 +287,19 @@ public class Shooter extends SubsystemBase {
 	}
 
 	// ==============================================================
-  	// Define subsystem methods
-  	// ==============================================================
+	// Define subsystem methods
+	// ==============================================================
+
+	public double getAutoShoot() {
+		double dist2hub = drive.getDistToHub();
+		return 0.0;
+	}
+
+	public double getAutoTilt() {
+		double dist2hub = drive.getDistToHub();
+		return 0.0;
+	}
+
 	public void setShooterSP(ShooterSP sp) {
 		shooterSP = sp;
 	}
@@ -295,6 +317,10 @@ public class Shooter extends SubsystemBase {
 		leftController.setSetpoint(getShooterSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
+	public void setShooterVel(double sp) {
+		leftController.setSetpoint(sp, SparkBase.ControlType.kMAXMotionVelocityControl);
+	}
+
 	public double getShooterVel(boolean rpm) {
 		if (rpm) {
 			return leftEncoder.getVelocity();
@@ -310,6 +336,10 @@ public class Shooter extends SubsystemBase {
 	public void setTiltPos(TiltSP sp) {
 		setTiltSP(sp);
 		tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kMAXMotionPositionControl);
+	}
+
+	public void setTiltPos(double sp) {
+		tiltController.setSetpoint(sp, SparkBase.ControlType.kMAXMotionPositionControl);
 	}
 
 	public TiltSP getTiltSP() {
