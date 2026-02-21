@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.drive.Drive;
 
 public class Shooter extends SubsystemBase {
 	// ==============================================================
@@ -47,7 +46,7 @@ public class Shooter extends SubsystemBase {
 	// private AbsoluteEncoder rightEncoder = rightShooter.getAbsoluteEncoder();
 	private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
-	private Drive drive = null;
+	private CommandSwerveDrivetrain drivetrain = null;
 
 	// ==============================================================
 	// Define motor vel and pos enums
@@ -133,10 +132,10 @@ public class Shooter extends SubsystemBase {
 	// ==============================================================
 	// Constructor
 	// ==============================================================
-	public Shooter(Drive drive) {
+	public Shooter(CommandSwerveDrivetrain drivetrain) {
 		System.out.println("+++++ Starting Shooter Constructor +++++");
 
-		this.drive = drive;
+		this.drivetrain = drivetrain;
 
 		// Configure Left Shooter motor
 		leftConfig
@@ -291,12 +290,12 @@ public class Shooter extends SubsystemBase {
 	// ==============================================================
 
 	public double getAutoShoot() {
-		double dist2hub = drive.getDistToHub();
+		double dist2hub = drivetrain.getDistToHub();
 		return 0.0;
 	}
 
 	public double getAutoTilt() {
-		double dist2hub = drive.getDistToHub();
+		double dist2hub = drivetrain.getDistToHub();
 		return 0.0;
 	}
 

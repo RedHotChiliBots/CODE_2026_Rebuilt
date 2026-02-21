@@ -23,7 +23,7 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class Autos {
   private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
@@ -33,7 +33,7 @@ public class Autos {
   private SendableChooser<Command> autoChooser = null;
 
   private RobotContainer robotContainer;
-  private Drive drive;
+  private CommandSwerveDrivetrain drivetrain;
   private Intake intake;
   private Feeder feeder;
   private Shooter shooter;
@@ -60,13 +60,13 @@ public class Autos {
   // climber));
   // }
 
-  public Autos(RobotContainer robotContainer, Drive drive, Intake intake, Feeder feeder, Shooter shooter,
+  public Autos(RobotContainer robotContainer, CommandSwerveDrivetrain drivetrain, Intake intake, Feeder feeder, Shooter shooter,
       Climber climber) {
 
     System.out.println("+++++ Starting Autos Constructor +++++");
 
     this.robotContainer = robotContainer;
-    this.drive = drive;
+    this.drivetrain = drivetrain;
     this.intake = intake;
     this.feeder = feeder;
     this.shooter = shooter;
