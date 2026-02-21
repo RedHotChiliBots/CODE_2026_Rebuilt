@@ -1,6 +1,22 @@
 [
   {
-    "name": "/Shuffleboard/Chassis/Angle",
+    "name": "/Shuffleboard/Drive/BearingToHub",
+    "type": "double",
+    "value": -37.21057859960005,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Shuffleboard/Drive/DistToHub",
+    "type": "double",
+    "value": 1.0759358363754474,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Shuffleboard/Drive/Curr Pose",
     "type": "double",
     "value": 0.0,
     "properties": {
@@ -8,7 +24,7 @@
     }
   },
   {
-    "name": "/Shuffleboard/Chassis/FusedHeading",
+    "name": "/Shuffleboard/Drive/Start Pose",
     "type": "double",
     "value": 0.0,
     "properties": {
@@ -16,81 +32,25 @@
     }
   },
   {
-    "name": "/Shuffleboard/Chassis/CompassHeading",
+    "name": "/Shuffleboard/Drive/X Vel",
     "type": "double",
-    "value": 0.0,
+    "value": 4.634557655592071,
     "properties": {
       "persistent": true
     }
   },
   {
-    "name": "/Shuffleboard/Chassis/Rotation2d",
+    "name": "/Shuffleboard/Drive/Y Vel",
     "type": "double",
-    "value": 0.0,
+    "value": 3.9863073526328807,
     "properties": {
       "persistent": true
     }
   },
   {
-    "name": "/Shuffleboard/Chassis/Pitch",
+    "name": "/Shuffleboard/Drive/R Vel",
     "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Chassis/Roll",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Chassis/Yaw",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Chassis/X Vel",
-    "type": "double",
-    "value": 3.45,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Chassis/Y Vel",
-    "type": "double",
-    "value": 2.75,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Chassis/R Vel",
-    "type": "double",
-    "value": 42.5,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Chassis/BearingToHub",
-    "type": "double",
-    "value": 138.1564964703649,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Chassis/DistToHub",
-    "type": "double",
-    "value": 1.92625283906345,
+    "value": 0.8585547690579963,
     "properties": {
       "persistent": true
     }
@@ -98,7 +58,7 @@
   {
     "name": "/Shuffleboard/Intake/Tilt OnTgt",
     "type": "boolean",
-    "value": true,
+    "value": false,
     "properties": {
       "persistent": true
     }
@@ -106,7 +66,7 @@
   {
     "name": "/Shuffleboard/Intake/Tilt SP",
     "type": "string",
-    "value": "OFF",
+    "value": "STOW",
     "properties": {
       "persistent": true
     }
@@ -114,7 +74,7 @@
   {
     "name": "/Shuffleboard/Intake/Tilt SP Pos",
     "type": "double",
-    "value": 0.0,
+    "value": 25.0,
     "properties": {
       "persistent": true
     }
@@ -360,97 +320,25 @@
     }
   },
   {
-    "name": "/Shuffleboard/Drive/BearingToHub",
+    "name": "/Shuffleboard/Drive/X Pos",
     "type": "double",
-    "value": 138.1564964703649,
+    "value": 2.8718949644000857,
     "properties": {
       "persistent": true
     }
   },
   {
-    "name": "/Shuffleboard/Drive/DistToHub",
+    "name": "/Shuffleboard/Drive/Y Pos",
     "type": "double",
-    "value": 1.92625283906345,
+    "value": 3.3843319248781993,
     "properties": {
       "persistent": true
     }
   },
   {
-    "name": "/Shuffleboard/Drive/Angle",
+    "name": "/Shuffleboard/Drive/Rot",
     "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Drive/FusedHeading",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Drive/CompassHeading",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Drive/Rotation2d",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Drive/Pitch",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Drive/Roll",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Drive/Yaw",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Drive/X Vel",
-    "type": "double",
-    "value": 3.45,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Drive/Y Vel",
-    "type": "double",
-    "value": 2.75,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Shuffleboard/Drive/R Vel",
-    "type": "double",
-    "value": 42.5,
+    "value": -37.21057860718477,
     "properties": {
       "persistent": true
     }

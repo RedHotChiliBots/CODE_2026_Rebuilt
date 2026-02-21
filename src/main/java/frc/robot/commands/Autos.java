@@ -23,7 +23,7 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class Autos {
   private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
@@ -33,7 +33,7 @@ public class Autos {
   private SendableChooser<Command> autoChooser = null;
 
   private RobotContainer robotContainer;
-  private Drive drive;
+  private CommandSwerveDrivetrain drivetrain;
   private Intake intake;
   private Feeder feeder;
   private Shooter shooter;
@@ -60,13 +60,13 @@ public class Autos {
   // climber));
   // }
 
-  public Autos(RobotContainer robotContainer, Drive drive, Intake intake, Feeder feeder, Shooter shooter,
+  public Autos(RobotContainer robotContainer, CommandSwerveDrivetrain drivetrain, Intake intake, Feeder feeder, Shooter shooter,
       Climber climber) {
 
     System.out.println("+++++ Starting Autos Constructor +++++");
 
     this.robotContainer = robotContainer;
-    this.drive = drive;
+    this.drivetrain = drivetrain;
     this.intake = intake;
     this.feeder = feeder;
     this.shooter = shooter;
@@ -116,10 +116,8 @@ public class Autos {
     NamedCommands.registerCommand("IntakeLow", intake.setIntake(Intake.IntakeSP.LOW));
     NamedCommands.registerCommand("IntakeMed", intake.setIntake(Intake.IntakeSP.MED));
     NamedCommands.registerCommand("IntakeHi", intake.setIntake(Intake.IntakeSP.HI));
-    NamedCommands.registerCommand("TiltOff", intake.setTilt(Intake.TiltSP.OFF));
-    NamedCommands.registerCommand("TiltLow", intake.setTilt(Intake.TiltSP.LOW));
-    NamedCommands.registerCommand("TiltMed", intake.setTilt(Intake.TiltSP.MED));
-    NamedCommands.registerCommand("TiltHi", intake.setTilt(Intake.TiltSP.HI));
+    NamedCommands.registerCommand("TiltStow", intake.setTilt(Intake.TiltSP.STOW));
+    NamedCommands.registerCommand("TiltDeploy", intake.setTilt(Intake.TiltSP.DEPLOY));
 
     NamedCommands.registerCommand("FeederOff", feeder.setFeeder(Feeder.FeederSP.OFF));
     NamedCommands.registerCommand("FeederLow", feeder.setFeeder(Feeder.FeederSP.LOW));
