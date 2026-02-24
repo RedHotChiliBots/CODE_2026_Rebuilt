@@ -17,11 +17,17 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -115,17 +121,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // Create field and pose related vars
     private final Field2d m_field = new Field2d();
+
     private final Pose2d hubPose = new Pose2d(
-            new Translation2d(2.015, 4.035),
-            new Rotation2d(0.0)); // Hub pose for 2026
-    private final Pose2d startPose = new Pose2d( // This is the blue side starting pose. AutoBuilder will mirror for
-                                                 // red.
+            new Translation2d(4.660, 4.118),
+            Rotation2d.fromDegrees(180.0)); // Hub pose for 2026
+    private final Pose2d startPose = new Pose2d( // This is the blue side starting pose. AutoBuilder will mirror for red.
             new Translation2d(3.45, 2.75),
             Rotation2d.fromDegrees(42.5));
+
     public Pose2d currPose = null;
-    // game
-    private Rotation2d bearingToHub = null;
-    private double distToHub = 0.0;
+    public Rotation2d bearingToHub = null;
+    public double distToHub = 0.0;
+
+    private final ShuffleboardTab driveTab = Shuffleboard.getTab("Drive");
+
+    private final GenericEntry sbBearingToHub = driveTab.addPersistent("BearingToHub", 0).withWidget("Text View")
+            .withPosition(2, 0).withSize(1, 1).getEntry();
+    private final GenericEntry sbDistToHub = driveTab.addPersistent("DistToHub", 0).withWidget("Text View")
+            .withPosition(3, 0).withSize(1, 1).getEntry();
+
+    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("MyPose", Pose2d.struct).publish();
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -211,6 +227,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+
+        m_field.setRobotPose(startPose);
+        SmartDashboard.putData("Field", m_field);
     }
 
     /**
@@ -268,6 +287,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        bearingToHub = getBearingToHub(); // Update bearing to hub
+        sbBearingToHub.setDouble(bearingToHub.getDegrees());
+        distToHub = getDistToHub(); // Update distance to hub
+        sbDistToHub.setDouble(distToHub);
+
+        currPose = getPose();
+        m_field.setRobotPose(currPose);
+        publisher.set(currPose);
     }
 
     public Pose2d getPose() {
@@ -275,7 +303,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public Rotation2d getBearingToHub() {
-        return ((getPose().getTranslation().minus(hubPose.getTranslation())).getAngle());
+        return ((getPose().getTranslation().minus(hubPose.getTranslation())).getAngle().plus(new Rotation2d(Math.PI)));
     }
 
     public double getDistToHub() {

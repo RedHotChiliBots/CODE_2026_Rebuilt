@@ -63,19 +63,19 @@ public final class Constants {
 		// public static final int kFrontLeftTurningCanId = 17;
 		// public static final int kFrontRightTurningCanId = 18;
 
-		public static final int kShooterLeftCanId = 20;
-		public static final int kShooterRightCanId = 21;
-		public static final int kShooterTiltCanId = 22;
+		public static final int kShooterLeftCanId = 50;
+		public static final int kShooterRightCanId = 51;
+		public static final int kShooterTiltCanId = 52;
 
-		public static final int kFeederCanId = 30;
+		public static final int kFeederCanId = 60;
 
-		public static final int kClimber1CanId = 40;
-		public static final int kClimber2CanId = 41;
-		public static final int kClimber3CanId = 42;
-		public static final int kClimber4CanId = 43;
+		public static final int kClimber1CanId = 70;
+		public static final int kClimber2CanId = 71;
+		public static final int kClimber3CanId = 72;
+		public static final int kClimber4CanId = 73;
 
-		public static final int kIntakeIntakeCanId = 50;
-		public static final int kIntakeTiltCanId = 51;
+		public static final int kIntakeIntakeCanId = 80;
+		public static final int kIntakeTiltCanId = 81;
 	}
 
 	public static final class DIOId {
@@ -287,7 +287,7 @@ public final class Constants {
 	}
 
 	public static final class Vision {
-		public static final double kXP = 0.6;
+        public static final double kXP = 0.6;
 		public static final double kXI = 0.0;
 		public static final double kXD = 0.0;
 		public static final double kXTollerance = 0.1;

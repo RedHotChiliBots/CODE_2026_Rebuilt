@@ -16,7 +16,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.servohub.ServoChannel;
 import com.revrobotics.servohub.ServoChannel.ChannelId;
 import com.revrobotics.servohub.ServoHub;
-import com.revrobotics.servohub.config.ServoChannelConfig;
 import com.revrobotics.servohub.config.ServoHubConfig;
 
 import edu.wpi.first.networktables.GenericEntry;
@@ -70,7 +69,6 @@ public class Climber extends SubsystemBase {
 
   private final ServoHubConfig hubConfig = new ServoHubConfig();
 
-  
   // ==============================================================
   // Define motor and servo pos enums
   // ==============================================================
@@ -178,20 +176,35 @@ public class Climber extends SubsystemBase {
         com.revrobotics.ResetMode.kNoResetSafeParameters,
         com.revrobotics.PersistMode.kPersistParameters);
 
-    hubConfig.channel0.pulseRange(500, 1500, 2500)
-        .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); // Default is 0-180, but can be changed
+    hubConfig.channel0.pulseRange(500, 1500, 2500);
+//        .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); // Default is 0-180, but can be changed
                                                                                 // if
-    hubConfig.channel1.pulseRange(500, 1500, 2500)
-        .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); // Default is 0-180, but can be changed
+    hubConfig.channel1.pulseRange(500, 1500, 2500);
+//        .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); // Default is 0-180, but can be changed
                                                                                 // if
     // Servo config
-    servoHub.configure(hubConfig,
-        com.revrobotics.ResetMode.kResetSafeParameters);
+    servoHub.configure(hubConfig, com.revrobotics.ResetMode.kResetSafeParameters);
+    servoHub.clearFaults();
+    
+    if (servoHub.hasActiveWarning()) {
+      System.out.println("Servo Hub " + servoHub.getDeviceId() + " has warnings!");
+    } else {
+      System.out.println("Servo Hub " + servoHub.getDeviceId() + " has NO warnings!");
+    }
+    
+    if (servoHub.hasActiveFault()) {
+      System.out.println("Servo Hub " + servoHub.getDeviceId() + " has faults!");
+    } else {
+      System.out.println("Servo Hub " + servoHub.getDeviceId() + " has NO faults!");
+    }
 
     leftHook.setPowered(true);
     rightHook.setPowered(true);
     leftHook.setEnabled(true);
     rightHook.setEnabled(true);
+
+    System.out.println("Left Ch. " + leftHook.getChannelId() + " Enabled: " + leftHook.isEnabled());
+    System.out.println("Right Ch. " + leftHook.getChannelId() + " Enabled: " + rightHook.isEnabled());
 
     // Add commands to Dashboard
     ClimberCommands.add("Climber Stow", this.setClimber(ClimberSP.STOW))

@@ -2,7 +2,7 @@
   {
     "name": "/Shuffleboard/Drive/BearingToHub",
     "type": "double",
-    "value": 41.61972864716428,
+    "value": 22.13182923016553,
     "properties": {
       "persistent": true
     }
@@ -10,7 +10,7 @@
   {
     "name": "/Shuffleboard/Drive/DistToHub",
     "type": "double",
-    "value": 6.200111345606933,
+    "value": 2.2563909384246013,
     "properties": {
       "persistent": true
     }
