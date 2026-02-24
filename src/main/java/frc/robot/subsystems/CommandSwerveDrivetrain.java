@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -31,7 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -119,6 +120,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
+    private final Pigeon2 pigeon = new Pigeon2(TunerConstants.kPigeonId);
+
     // Create field and pose related vars
     private final Field2d m_field = new Field2d();
 
@@ -135,6 +138,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     private final ShuffleboardTab driveTab = Shuffleboard.getTab("Drive");
 
+    private final GenericEntry sbCurrHeading = driveTab.addPersistent("CurrHeading", 0).withWidget("Text View")
+            .withPosition(1, 0).withSize(1, 1).getEntry();
     private final GenericEntry sbBearingToHub = driveTab.addPersistent("BearingToHub", 0).withWidget("Text View")
             .withPosition(2, 0).withSize(1, 1).getEntry();
     private final GenericEntry sbDistToHub = driveTab.addPersistent("DistToHub", 0).withWidget("Text View")
@@ -162,7 +167,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        
+        m_field.setRobotPose(startPose);
+        SmartDashboard.putData("Field", m_field);
+
+        pigeon.setYaw(0.0);
     }
+    
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -187,6 +198,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        
+        m_field.setRobotPose(startPose);
+        SmartDashboard.putData("Field", m_field);
+        
+        pigeon.setYaw(0.0);
     }
 
     /**
@@ -230,6 +246,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
+        
+        pigeon.setYaw(0.0);
     }
 
     /**
@@ -292,6 +310,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         sbBearingToHub.setDouble(bearingToHub.getDegrees());
         distToHub = getDistToHub(); // Update distance to hub
         sbDistToHub.setDouble(distToHub);
+        sbCurrHeading.setDouble(getHeading());
 
         currPose = getPose();
         m_field.setRobotPose(currPose);
@@ -308,6 +327,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getDistToHub() {
         return hubPose.getTranslation().getDistance(getPose().getTranslation());
+    }
+
+    public double getHeading() {
+        return pigeon.getYaw().getValueAsDouble();
     }
 
     private void startSimThread() {

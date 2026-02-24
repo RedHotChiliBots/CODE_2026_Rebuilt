@@ -42,7 +42,7 @@ public class RobotContainer {
 	private final SwerveRequest.FieldCentricFacingAngle driveAngle = new SwerveRequest.FieldCentricFacingAngle()
 			.withDeadband(MaxSpeed * 0.1) // .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
 			.withDriveRequestType(DriveRequestType.OpenLoopVoltage) // Use open-loop control for drive motors
-			.withSteerRequestType(SteerRequestType.MotionMagicExpo);
+			.withHeadingPID(100.0, 0.0, 0.5);
 	// .Position); // Use position control for steer motors
 
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
@@ -96,7 +96,7 @@ public class RobotContainer {
 						// Drive left with negative X (left)
 						.withVelocityY(-joystick.getLeftX() * MaxSpeed)
 						// Drive pointing to hub
-						.withTargetDirection(drivetrain.bearingToHub)));
+						.withTargetDirection(drivetrain.bearingToHub.minus(new Rotation2d(Math.PI)))));
 
 		// Idle while the robot is disabled. This ensures the configured
 		// neutral mode is applied to the drive motors while disabled.

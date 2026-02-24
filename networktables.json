@@ -2,7 +2,7 @@
   {
     "name": "/Shuffleboard/Drive/BearingToHub",
     "type": "double",
-    "value": 41.61972864716428,
+    "value": -42.7620291249719,
     "properties": {
       "persistent": true
     }
@@ -10,7 +10,7 @@
   {
     "name": "/Shuffleboard/Drive/DistToHub",
     "type": "double",
-    "value": 6.200111345606933,
+    "value": 4.031080628441869,
     "properties": {
       "persistent": true
     }
@@ -339,6 +339,14 @@
     "name": "/Shuffleboard/Drive/Rot",
     "type": "double",
     "value": -37.21057860718477,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Shuffleboard/Drive/CurrHeading",
+    "type": "double",
+    "value": -42.76702880859375,
     "properties": {
       "persistent": true
     }
