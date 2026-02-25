@@ -22,6 +22,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+import frc.robot.utils.ShooterBallistics;
+
 public class Shooter extends SubsystemBase {
 	// ==============================================================
 	// Define Shooter & Tilt Motors
@@ -289,15 +291,31 @@ public class Shooter extends SubsystemBase {
 	// Define subsystem methods
 	// ==============================================================
 
+	// public double getAutoShoot() {
+	// 	double dist2hub = drivetrain.getDistToHub();
+	// 	return 0.0;
+	// }
 	public double getAutoShoot() {
-		double dist2hub = drivetrain.getDistToHub();
-		return 0.0;
+	  double distToHubM = drivetrain.getDistToHub(); // already returns meters
+	  var sp = ShooterBallistics.solveStationary(distToHubM, 0.5);
+
+	  if (!sp.feasible()) return 0.0;   // or hold last good value if you prefer
+
+	  // setShooterVel(double sp) expects RPM
+	  return sp.wheelRpm();
 	}
 
+	// public double getAutoTilt() {
+	// 	double dist2hub = drivetrain.getDistToHub();
+	// 	return 0.0;
+	// }
 	public double getAutoTilt() {
-		double dist2hub = drivetrain.getDistToHub();
-		return 0.0;
-	}
+      double distToHubM = drivetrain.getDistToHub();
+      var sp = ShooterBallistics.solveStationary(distToHubM, 0.5);
+
+      if (!sp.feasible()) return ShooterBallistics.kMinAngleDeg; // safe default
+      return sp.angleDeg();
+    }
 
 	public void setShooterSP(ShooterSP sp) {
 		shooterSP = sp;
