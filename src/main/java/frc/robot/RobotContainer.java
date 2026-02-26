@@ -7,12 +7,12 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -21,6 +21,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Feeder;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision.VisionConstants;
 import frc.robot.subsystems.Vision.VisionIOPhotonVision;
 import frc.robot.subsystems.Vision.Vision;
@@ -51,28 +53,30 @@ public class RobotContainer {
 
 	private final Telemetry logger = new Telemetry(MaxSpeed);
 
-	private final CommandXboxController driverController = new CommandXboxController(Constants.OIConstants.kDriverControllerPort);
-	private final CommandXboxController operatorController = new CommandXboxController(Constants.OIConstants.kOperatorControllerPort);
+	private final CommandXboxController driverController = new CommandXboxController(
+			Constants.OIConstants.kDriverControllerPort);
+	private final CommandXboxController operatorController = new CommandXboxController(
+			Constants.OIConstants.kOperatorControllerPort);
 
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-	// private Intake intake = null;
+	private Intake intake = null;
 	private Feeder feeder = null;
-	// private Shooter shooter = null;
+	private Shooter shooter = null;
 	private Climber climber = null;
 	private Vision vision = null;
 	private Autos auton = null;
 
 	public RobotContainer() {
-		// intake = new Intake();
+		intake = new Intake();
 		feeder = new Feeder();
-		// shooter = new Shooter(drive);
+		shooter = new Shooter(drivetrain);
 		climber = new Climber();
 		vision = new Vision(drivetrain::addVisionMeasurement,
 				new VisionIOPhotonVision(VisionConstants.camera0Name, VisionConstants.robotToCamera0),
 				new VisionIOPhotonVision(VisionConstants.camera1Name, VisionConstants.robotToCamera1),
 				new VisionIOPhotonVision(VisionConstants.camera2Name, VisionConstants.robotToCamera2),
 				new VisionIOPhotonVision(VisionConstants.camera3Name, VisionConstants.robotToCamera3));
-		// auton = new Autos(this, drive, intake, feeder, shooter, climber);
+		auton = new Autos(this, drivetrain, intake, feeder, shooter, climber);
 
 		configureBindings();
 	}
@@ -92,13 +96,16 @@ public class RobotContainer {
 
 		// Track Hub when A button is held
 		driverController.a().whileTrue(
+			new ParallelCommandGroup(
+				shooter.setShooter(shooter.getAutoShoot()),
+				shooter.setTilt(shooter.getAutoTilt()),
 				drivetrain.applyRequest(() -> driveAngle
 						// Drive forward with negative Y (forward)
 						.withVelocityX(-driverController.getLeftY() * MaxSpeed)
 						// Drive left with negative X (left)
 						.withVelocityY(-driverController.getLeftX() * MaxSpeed)
 						// Drive pointing to hub
-						.withTargetDirection(drivetrain.bearingToHub.minus(new Rotation2d(Math.PI)))));
+						.withTargetDirection(drivetrain.bearingToHub.minus(new Rotation2d(Math.PI))))));
 
 		// Idle while the robot is disabled. This ensures the configured
 		// neutral mode is applied to the drive motors while disabled.

@@ -95,8 +95,8 @@ public class Autos {
     // before defining the Auto command
     // NamedCommands.registerCommand("resetPose", resetPose);
     // NamedCommands.registerCommand("resetOdo", resetOdo);
-    NamedCommands.registerCommand("HookDeploy", climber.setHooks(Climber.HookSP.DEPLOY));
-    NamedCommands.registerCommand("HookStow", climber.setHooks(Climber.HookSP.STOW));
+    NamedCommands.registerCommand("HookDeploy", climber.deployHooks());
+    NamedCommands.registerCommand("HookStow", climber.stowHooks());
     NamedCommands.registerCommand("ClimberAuto", climber.setClimber(Climber.ClimberSP.LVLAUTON));
     NamedCommands.registerCommand("ClimberL1", climber.setClimber(Climber.ClimberSP.LVL1));
     NamedCommands.registerCommand("ClimberL2", climber.setClimber(Climber.ClimberSP.LVL2));

@@ -52,30 +52,19 @@ public final class Constants {
 		public static final int kPDHCanID = 1;
 		public static final int kServoHubCanId = 2;
 
-		// Drive/Turn CAN IDs
-		// public static final int kRearRightDrivingCanId = 10;
-		// public static final int kRearLeftDrivingCanId = 11;
-		// public static final int kFrontLeftDrivingCanId = 12;
-		// public static final int kFrontRightDrivingCanId = 13;
-
-		// public static final int kRearRightTurningCanId = 15;
-		// public static final int kRearLeftTurningCanId = 16;
-		// public static final int kFrontLeftTurningCanId = 17;
-		// public static final int kFrontRightTurningCanId = 18;
-
-		public static final int kShooterLeftCanId = 50;
-		public static final int kShooterRightCanId = 51;
-		public static final int kShooterTiltCanId = 52;
-
-		public static final int kFeederCanId = 60;
-
 		public static final int kClimber1CanId = 40;
 		public static final int kClimber2CanId = 41;
 		public static final int kClimber3CanId = 42;
 		public static final int kClimber4CanId = 43;
 
-		public static final int kIntakeIntakeCanId = 80;
-		public static final int kIntakeTiltCanId = 81;
+		public static final int kShooterLeftCanId = 50;
+		public static final int kShooterRightCanId = 51;
+		public static final int kShooterTiltCanId = 52;
+		
+		public static final int kIntakeIntakeCanId = 55;
+		public static final int kIntakeTiltCanId = 56;
+
+		public static final int kFeederCanId = 60;
 	}
 
 	public static final class DIOId {
@@ -260,7 +249,7 @@ public final class Constants {
 	}
 
 	public static final class Climber {
-		public static final double kServoAmpLimit = 0.5;
+		public static final double kServoAmpLimit = 1.25;
 
 		// Motor Inversion
 		public static final boolean kClimberInverted = false;
