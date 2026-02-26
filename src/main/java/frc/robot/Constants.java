@@ -69,10 +69,10 @@ public final class Constants {
 
 		public static final int kFeederCanId = 60;
 
-		public static final int kClimber1CanId = 70;
-		public static final int kClimber2CanId = 71;
-		public static final int kClimber3CanId = 72;
-		public static final int kClimber4CanId = 73;
+		public static final int kClimber1CanId = 40;
+		public static final int kClimber2CanId = 41;
+		public static final int kClimber3CanId = 42;
+		public static final int kClimber4CanId = 43;
 
 		public static final int kIntakeIntakeCanId = 80;
 		public static final int kIntakeTiltCanId = 81;
@@ -80,6 +80,10 @@ public final class Constants {
 
 	public static final class DIOId {
 		public static final int kFuelAvail = 0;
+	}
+
+	public static final class AIOId {
+		public static final int kFuelSensor = 0;
 	}
 
 	public static final class MotorConstants {
@@ -256,6 +260,7 @@ public final class Constants {
 	}
 
 	public static final class Climber {
+		public static final double kServoAmpLimit = 0.5;
 
 		// Motor Inversion
 		public static final boolean kClimberInverted = false;
@@ -287,7 +292,7 @@ public final class Constants {
 	}
 
 	public static final class Vision {
-        public static final double kXP = 0.6;
+		public static final double kXP = 0.6;
 		public static final double kXI = 0.0;
 		public static final double kXD = 0.0;
 		public static final double kXTollerance = 0.1;

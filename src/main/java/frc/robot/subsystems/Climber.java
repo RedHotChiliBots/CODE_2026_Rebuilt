@@ -5,6 +5,9 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.FeedbackSensor;
@@ -22,6 +25,8 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -70,6 +75,12 @@ public class Climber extends SubsystemBase {
   private final ServoHubConfig hubConfig = new ServoHubConfig();
 
   // ==============================================================
+  // Servo movement thread
+  // ==============================================================
+
+  ScheduledExecutorService servoExecutor = Executors.newScheduledThreadPool(2);
+
+  // ==============================================================
   // Define motor and servo pos enums
   // ==============================================================
   public enum ClimberSP { // Climber Setpoints
@@ -93,16 +104,17 @@ public class Climber extends SubsystemBase {
   }
 
   public enum HookSP { // Climber Setpoints
-    STOW(1000), // NUMBERS NEED TO CHANGE
-    DEPLOY(1250); // NUMBERS NEED TO CHANGE
+    STOW(0.1), // NUMBERS NEED TO CHANGE
+    STOP(0.5),
+    DEPLOY(0.9); // NUMBERS NEED TO CHANGE
 
-    private final int sp;
+    private final double sp;
 
-    HookSP(final int sp) {
+    HookSP(final double sp) {
       this.sp = sp;
     }
 
-    public int getPos() {
+    public double getPos() {
       return sp;
     }
   }
@@ -177,21 +189,23 @@ public class Climber extends SubsystemBase {
         com.revrobotics.PersistMode.kPersistParameters);
 
     hubConfig.channel0.pulseRange(500, 1500, 2500);
-//        .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); // Default is 0-180, but can be changed
-                                                                                // if
+    // .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); //
+    // Default is 0-180, but can be changed
+
     hubConfig.channel1.pulseRange(500, 1500, 2500);
-//        .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); // Default is 0-180, but can be changed
-                                                                                // if
+    // .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); //
+    // Default is 0-180, but can be changed
+
     // Servo config
     servoHub.configure(hubConfig, com.revrobotics.ResetMode.kResetSafeParameters);
     servoHub.clearFaults();
-    
+
     if (servoHub.hasActiveWarning()) {
       System.out.println("Servo Hub " + servoHub.getDeviceId() + " has warnings!");
     } else {
       System.out.println("Servo Hub " + servoHub.getDeviceId() + " has NO warnings!");
     }
-    
+
     if (servoHub.hasActiveFault()) {
       System.out.println("Servo Hub " + servoHub.getDeviceId() + " has faults!");
     } else {
@@ -218,9 +232,9 @@ public class Climber extends SubsystemBase {
     ClimberCommands.add("Climber L3", this.setClimber(ClimberSP.LVL3))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
-    ClimberCommands.add("Hook Stow", this.setHooks(HookSP.STOW))
+    ClimberCommands.add("Hooks Stow", this.moveHooks(HookSP.STOW))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    ClimberCommands.add("Hook Deploy", this.setHooks(HookSP.DEPLOY))
+    ClimberCommands.add("Hooks Deploy", this.moveHooks(HookSP.DEPLOY))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
     System.out.println("+++++ End of Climber Constructor +++++");
@@ -235,6 +249,46 @@ public class Climber extends SubsystemBase {
 
   public Command setClimber(ClimberSP sp) {
     return runOnce(() -> setClimberPos(sp));
+  }
+
+  public Command stowLeftHook() {
+    return Commands.startEnd(
+        () -> this.setHook(leftHook, HookSP.STOW),
+        () -> this.setHook(leftHook, HookSP.STOP),
+        this)
+        .until(() -> this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit);
+  }
+
+  public Command stowRightHook() {
+    return Commands.startEnd(
+        () -> this.setHook(rightHook, HookSP.STOW),
+        () -> this.setHook(rightHook, HookSP.STOP),
+        this)
+        .until(() -> this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit);
+  }
+
+  public Command stowHooks() {
+    return new ParallelCommandGroup(
+        stowLeftHook(),
+        stowRightHook());
+  }
+
+  public Command deployLeftHook() {
+    return this.setHook(leftHook, HookSP.DEPLOY).withTimeout(1.0);
+  }
+
+  public Command deployRightHook() {
+    return Commands.startEnd(
+        () -> this.setHook(rightHook, HookSP.DEPLOY),
+        () -> this.setHook(rightHook, HookSP.STOP),
+        this)
+        .until(() -> this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit);
+  }
+
+  public Command deployHooks() {
+    return new ParallelCommandGroup(
+        deployLeftHook(),
+        deployRightHook());
   }
 
   // ==============================================================
@@ -302,8 +356,10 @@ public class Climber extends SubsystemBase {
   }
 
   public void setHookPos(HookSP pos) {
-    leftHook.setPulseWidth(pos.getPos());
-    rightHook.setPulseWidth(pos.getPos());
+    servoExecutor.scheduleAtFixedRate(new ServoThread(leftHook, pos), 0, 10, TimeUnit.MILLISECONDS);
+    servoExecutor.scheduleAtFixedRate(new ServoThread(rightHook, pos), 0, 10, TimeUnit.MILLISECONDS);
+    // leftHook.setPulseWidth(pos.getPos());
+    // rightHook.setPulseWidth(pos.getPos());
   }
 
   public double getHookPos() {
@@ -312,5 +368,13 @@ public class Climber extends SubsystemBase {
 
   public boolean onHookTarget() {
     return Math.abs(getHookPos() - getHookSP().getPos()) < Constants.Climber.kHookTollerance;
+  }
+
+  public void setHook(ServoChannel channel, HookSP sp) {
+    channel.setPulseWidth(sp.getPos());
+  }
+
+  public double getChannelAmps(ServoChannel channel) {
+    return channel.getCurrent();
   }
 }

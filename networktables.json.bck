@@ -2,7 +2,7 @@
   {
     "name": "/Shuffleboard/Drive/BearingToHub",
     "type": "double",
-    "value": -42.76057071513423,
+    "value": 118.69982520174845,
     "properties": {
       "persistent": true
     }
@@ -10,7 +10,7 @@
   {
     "name": "/Shuffleboard/Drive/DistToHub",
     "type": "double",
-    "value": 4.03107182764995,
+    "value": 3.5123063117896507,
     "properties": {
       "persistent": true
     }
@@ -346,7 +346,23 @@
   {
     "name": "/Shuffleboard/Drive/CurrHeading",
     "type": "double",
-    "value": -42.63519287109375,
+    "value": 874.2645263671875,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Shuffleboard/Feeder/Fuel Volts",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Shuffleboard/Feeder/Fuel Dist",
+    "type": "double",
+    "value": 0.0,
     "properties": {
       "persistent": true
     }
