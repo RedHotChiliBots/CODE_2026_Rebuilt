@@ -259,7 +259,8 @@ public class Climber extends SubsystemBase {
           timer.reset();
           timer.start();
         },
-        () -> {},
+        () -> {
+        },
         // Stop driving at the end of the command
         interrupted -> this.setHook(leftHook, HookSP.STOP),
         // End the command when the robot's driven distance exceeds the desired value
@@ -279,7 +280,8 @@ public class Climber extends SubsystemBase {
           timer.reset();
           timer.start();
         },
-        () -> {},
+        () -> {
+        },
         // Stop driving at the end of the command
         interrupted -> this.setHook(rightHook, HookSP.STOP),
         // End the command when the robot's driven distance exceeds the desired value

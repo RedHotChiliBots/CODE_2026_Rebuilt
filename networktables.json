@@ -2,7 +2,7 @@
   {
     "name": "/Shuffleboard/Drive/BearingToHub",
     "type": "double",
-    "value": 117.63520677663867,
+    "value": -10.343833785397214,
     "properties": {
       "persistent": true
     }
@@ -10,7 +10,7 @@
   {
     "name": "/Shuffleboard/Drive/DistToHub",
     "type": "double",
-    "value": 3.5006430230279464,
+    "value": 4.391266471187414,
     "properties": {
       "persistent": true
     }
@@ -346,7 +346,7 @@
   {
     "name": "/Shuffleboard/Drive/CurrHeading",
     "type": "double",
-    "value": 874.2672729492188,
+    "value": -10.42327880859375,
     "properties": {
       "persistent": true
     }
@@ -363,6 +363,22 @@
     "name": "/Shuffleboard/Feeder/Fuel Dist",
     "type": "double",
     "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Shuffleboard/Climber/Hook Left Amp",
+    "type": "double",
+    "value": 0.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Shuffleboard/Climber/Hook Right Amp",
+    "type": "double",
+    "value": 0.5099999904632568,
     "properties": {
       "persistent": true
     }

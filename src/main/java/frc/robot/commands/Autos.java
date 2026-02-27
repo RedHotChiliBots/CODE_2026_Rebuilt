@@ -72,11 +72,6 @@ public class Autos {
     this.shooter = shooter;
     this.climber = climber;
 
-    String temp = AutoBuilder.isConfigured() ? "IS" : "IS NOT";
-    DriverStation.reportWarning("AutoBuilder " + temp + " configured", false);
-    temp = AutoBuilder.isPathfindingConfigured() ? "IS" : "IS NOT";
-    DriverStation.reportWarning("AutoBuilder Pathfinding " + temp + " configured", false);
-
     // this.autonLeave = new AutonLeave(chassis, ladder, algae, coral, climber);
     // this.autonLeaveNScoreL1 = new AutonLeaveNScoreL1(robotContainer, chassis,
     // ladder, algae, coral, climber);
@@ -135,6 +130,12 @@ public class Autos {
         .withWidget("ComboBox Chooser")
         .withPosition(0, 0)
         .withSize(3, 1);
+
+        
+    String temp = AutoBuilder.isConfigured() ? "IS" : "IS NOT";
+    DriverStation.reportWarning("AutoBuilder " + temp + " configured", false);
+    temp = AutoBuilder.isPathfindingConfigured() ? "IS" : "IS NOT";
+    DriverStation.reportWarning("AutoBuilder Pathfinding " + temp + " configured", false);
 
     System.out.println("----- Ending Autos Constructor -----");
   }

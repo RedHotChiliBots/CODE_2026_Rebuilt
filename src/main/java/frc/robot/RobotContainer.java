@@ -30,17 +30,17 @@ import frc.robot.commands.Autos;
 
 public class RobotContainer {
 	private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired
-																						// top
-																						// speed
+	// top
+	// speed
 	private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
-																						// second
-																						// max angular velocity
+	// second
+	// max angular velocity
 
 	/* Setting up bindings for necessary control of the swerve drive platform */
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
 			.withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
 			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
-																		// motors
+	// motors
 	// Create the field-centric facing angle request
 	private final SwerveRequest.FieldCentricFacingAngle driveAngle = new SwerveRequest.FieldCentricFacingAngle()
 			.withDeadband(MaxSpeed * 0.1) // .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
@@ -64,7 +64,7 @@ public class RobotContainer {
 	private Shooter shooter = null;
 	private Climber climber = null;
 	private Vision vision = null;
-	private Autos auton = null;
+	// private Autos auton = null;
 
 	public RobotContainer() {
 		intake = new Intake();
@@ -76,7 +76,7 @@ public class RobotContainer {
 				new VisionIOPhotonVision(VisionConstants.camera1Name, VisionConstants.robotToCamera1),
 				new VisionIOPhotonVision(VisionConstants.camera2Name, VisionConstants.robotToCamera2),
 				new VisionIOPhotonVision(VisionConstants.camera3Name, VisionConstants.robotToCamera3));
-		auton = new Autos(this, drivetrain, intake, feeder, shooter, climber);
+		// auton = new Autos(this, drivetrain, intake, feeder, shooter, climber);
 
 		configureBindings();
 	}
@@ -96,16 +96,16 @@ public class RobotContainer {
 
 		// Track Hub when A button is held
 		driverController.a().whileTrue(
-			new ParallelCommandGroup(
-				shooter.setShooter(shooter.getAutoShoot()),
-				shooter.setTilt(shooter.getAutoTilt()),
-				drivetrain.applyRequest(() -> driveAngle
-						// Drive forward with negative Y (forward)
-						.withVelocityX(-driverController.getLeftY() * MaxSpeed)
-						// Drive left with negative X (left)
-						.withVelocityY(-driverController.getLeftX() * MaxSpeed)
-						// Drive pointing to hub
-						.withTargetDirection(drivetrain.bearingToHub.minus(new Rotation2d(Math.PI))))));
+				new ParallelCommandGroup(
+						shooter.setShooter(shooter.getAutoShoot()).andThen(
+							shooter.setTilt(shooter.getAutoTilt())),
+						drivetrain.applyRequest(() -> driveAngle
+								// Drive forward with negative Y (forward)
+								.withVelocityX(-driverController.getLeftY() * MaxSpeed)
+								// Drive left with negative X (left)
+								.withVelocityY(-driverController.getLeftX() * MaxSpeed)
+								// Drive pointing to hub
+								.withTargetDirection(drivetrain.bearingToHub.minus(new Rotation2d(Math.PI))))));
 
 		// Idle while the robot is disabled. This ensures the configured
 		// neutral mode is applied to the drive motors while disabled.

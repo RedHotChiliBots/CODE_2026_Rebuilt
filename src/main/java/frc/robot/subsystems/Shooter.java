@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -96,8 +97,8 @@ public class Shooter extends SubsystemBase {
 	// ==============================================================
 	// Initialize motor setpoints
 	// ==============================================================
-	private ShooterSP shooterSP = ShooterSP.OFF;
-	private TiltSP tiltSP = TiltSP.OFF;
+	private double shooterSP = ShooterSP.OFF.getVel(false);
+	private double tiltSP = TiltSP.OFF.getPos();
 
 	// ==============================================================
 	// Initialize Dashboard entries
@@ -249,19 +250,25 @@ public class Shooter extends SubsystemBase {
 	// Define subsystem commands
 	// ==============================================================
 	public Command setShooter(ShooterSP sp) {
-		return runOnce(() -> setShooterVel(sp));
+		return runOnce(() -> this.setShooterVel(sp));
 	}
 
 	public Command setShooter(double sp) {
-		return runOnce(() -> setShooterVel(sp));
+		return runOnce(() -> this.setShooterVel(sp));
 	}
 
 	public Command setTilt(TiltSP sp) {
-		return runOnce(() -> setTiltPos(sp));
+		return runOnce(() -> this.setTiltPos(sp));
 	}
 
 	public Command setTilt(double sp) {
-		return runOnce(() -> setTiltPos(sp));
+		return runOnce(() -> this.setTiltPos(sp));
+	}
+
+	public Command autoShoot(double sp) {
+		return new ParallelCommandGroup(
+			setTilt(sp),
+			setShooter(sp));
 	}
 
 	// ==============================================================
@@ -317,21 +324,17 @@ public class Shooter extends SubsystemBase {
       return sp.angleDeg();
     }
 
-	public void setShooterSP(ShooterSP sp) {
+	public void setShooterSP(double sp) {
 		shooterSP = sp;
 	}
 
-	public ShooterSP getShooterSP() {
+	public double getShooterSP() {
 		return shooterSP;
 	}
 
-	public double getShooterSP(boolean rpm) {
-		return shooterSP.getVel(rpm);
-	}
-
 	public void setShooterVel(ShooterSP sp) {
-		setShooterSP(sp);
-		leftController.setSetpoint(getShooterSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
+		setShooterSP(sp.getVel(false));
+		leftController.setSetpoint(getShooterSP(), SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
 	public void setShooterVel(double sp) {
