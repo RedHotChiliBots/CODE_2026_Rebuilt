@@ -20,9 +20,13 @@ import com.revrobotics.servohub.config.ServoChannelConfig;
 import com.revrobotics.servohub.config.ServoHubConfig;
 
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -70,7 +74,6 @@ public class Climber extends SubsystemBase {
 
   private final ServoHubConfig hubConfig = new ServoHubConfig();
 
-  
   // ==============================================================
   // Define motor and servo pos enums
   // ==============================================================
@@ -96,7 +99,8 @@ public class Climber extends SubsystemBase {
 
   public enum HookSP { // Climber Setpoints
     STOW(1000), // NUMBERS NEED TO CHANGE
-    DEPLOY(1250); // NUMBERS NEED TO CHANGE
+    STOP(1500),
+    DEPLOY(2000); // NUMBERS NEED TO CHANGE
 
     private final int sp;
 
@@ -132,6 +136,10 @@ public class Climber extends SubsystemBase {
   private final GenericEntry sbHookSP = climberTab.addPersistent("Hook SP", "")
       .withWidget("Text View").withPosition(2, 0).withSize(2, 1).getEntry();
   private final GenericEntry sbHookSPPos = climberTab.addPersistent("Hook SP Pos", 0)
+      .withWidget("Text View").withPosition(2, 1).withSize(2, 1).getEntry();
+  private final GenericEntry sbLeftHookAmp = climberTab.addPersistent("Hook Left Amp", 0)
+      .withWidget("Text View").withPosition(2, 1).withSize(2, 1).getEntry();
+  private final GenericEntry sbRightHookAmp = climberTab.addPersistent("Hook Right Amp", 0)
       .withWidget("Text View").withPosition(2, 1).withSize(2, 1).getEntry();
 
   // ==============================================================
@@ -179,19 +187,36 @@ public class Climber extends SubsystemBase {
         com.revrobotics.PersistMode.kPersistParameters);
 
     hubConfig.channel0.pulseRange(500, 1500, 2500)
-        .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); // Default is 0-180, but can be changed
-                                                                                // if
+        .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); //
+    // Default is 0-180, but can be changed
+
     hubConfig.channel1.pulseRange(500, 1500, 2500)
-        .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); // Default is 0-180, but can be changed
-                                                                                // if
+        .disableBehavior(ServoChannelConfig.BehaviorWhenDisabled.kSupplyPower); //
+    // Default is 0-180, but can be changed
+
     // Servo config
-    servoHub.configure(hubConfig,
-        com.revrobotics.ResetMode.kResetSafeParameters);
+    servoHub.configure(hubConfig, com.revrobotics.ResetMode.kResetSafeParameters);
+    servoHub.clearFaults();
+
+    if (servoHub.hasActiveWarning()) {
+      System.out.println("Servo Hub " + servoHub.getDeviceId() + " has warnings!");
+    } else {
+      System.out.println("Servo Hub " + servoHub.getDeviceId() + " has NO warnings!");
+    }
+
+    if (servoHub.hasActiveFault()) {
+      System.out.println("Servo Hub " + servoHub.getDeviceId() + " has faults!");
+    } else {
+      System.out.println("Servo Hub " + servoHub.getDeviceId() + " has NO faults!");
+    }
 
     leftHook.setPowered(true);
     rightHook.setPowered(true);
     leftHook.setEnabled(true);
     rightHook.setEnabled(true);
+
+    System.out.println("Left Ch. " + leftHook.getChannelId() + " Enabled: " + leftHook.isEnabled());
+    System.out.println("Right Ch. " + leftHook.getChannelId() + " Enabled: " + rightHook.isEnabled());
 
     // Add commands to Dashboard
     ClimberCommands.add("Climber Stow", this.setClimber(ClimberSP.STOW))
@@ -205,10 +230,12 @@ public class Climber extends SubsystemBase {
     ClimberCommands.add("Climber L3", this.setClimber(ClimberSP.LVL3))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
-    ClimberCommands.add("Hook Stow", this.setHooks(HookSP.STOW))
+    ClimberCommands.add("Hooks Stow", this.stowHooks())
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    ClimberCommands.add("Hook Deploy", this.setHooks(HookSP.DEPLOY))
+    ClimberCommands.add("Hooks Deploy", this.deployHooks())
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+
+    System.out.println("<<<<<<<<<<<<<<<<<<<<<<TESTINGs>>>>>>>>>>>>>>>>>>>>>>>");
 
     System.out.println("+++++ End of Climber Constructor +++++");
   }
@@ -216,12 +243,91 @@ public class Climber extends SubsystemBase {
   // ==============================================================
   // Define subsystem commands
   // ==============================================================
-  public Command setHooks(HookSP sp) {
-    return runOnce(() -> setHookPos(sp));
-  }
 
   public Command setClimber(ClimberSP sp) {
     return runOnce(() -> setClimberPos(sp));
+  }
+
+  public Command stowLeftHook1() {
+    final Timer timer = new Timer();
+    return new FunctionalCommand(
+        // Reset encoders on command start
+        // m_robotDrive::resetEncoders,
+        // Start driving forward at the start of the command
+        () -> {
+          this.setHook(leftHook, HookSP.STOW);
+          timer.reset();
+          timer.start();
+        },
+        () -> {
+        },
+        // Stop driving at the end of the command
+        interrupted -> this.setHook(leftHook, HookSP.STOP),
+        // End the command when the robot's driven distance exceeds the desired value
+        () -> ((this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit) && timer.hasElapsed(0.01)));
+    // Require the drive subsystem
+    // m_robotDrive
+  }
+
+  public Command stowRighHook1() {
+    final Timer timer = new Timer();
+    return new FunctionalCommand(
+        // Reset encoders on command start
+        // m_robotDrive::resetEncoders,
+        // Start driving forward at the start of the command
+        () -> {
+          this.setHook(rightHook, HookSP.STOW);
+          timer.reset();
+          timer.start();
+        },
+        () -> {
+        },
+        // Stop driving at the end of the command
+        interrupted -> this.setHook(rightHook, HookSP.STOP),
+        // End the command when the robot's driven distance exceeds the desired value
+        () -> ((this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit) && timer.hasElapsed(0.01)));
+    // Require the drive subsystem
+    // m_robotDrive
+  }
+
+  public Command stowLeftHook() {
+    return Commands.startEnd(
+        () -> this.setHook(leftHook, HookSP.STOW),
+        () -> this.setHook(leftHook, HookSP.STOP))
+        .until(() -> this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit);
+  }
+
+  public Command stowRightHook() {
+    return Commands.startEnd(
+        () -> this.setHook(rightHook, HookSP.STOW),
+        () -> this.setHook(rightHook, HookSP.STOP))
+        .until(() -> this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit);
+  }
+
+  public Command stowHooks() {
+    return new ParallelCommandGroup(
+        stowLeftHook(),
+        stowRightHook());
+  }
+
+  public Command deployLeftHook() {
+    return Commands.startEnd(
+        () -> this.setHook(leftHook, HookSP.DEPLOY),
+        () -> this.setHook(leftHook, HookSP.STOP))
+        .withTimeout(5.0);
+  }
+
+  public Command deployRightHook() {
+    return Commands.startEnd(
+        () -> this.setHook(rightHook, HookSP.DEPLOY),
+        () -> this.setHook(rightHook, HookSP.STOP))
+        .withTimeout(5.0);
+  }
+
+  public Command deployHooks() {
+    return new ParallelCommandGroup(
+        deployLeftHook(),
+        deployRightHook());
   }
 
   // ==============================================================
@@ -235,6 +341,8 @@ public class Climber extends SubsystemBase {
     sbHookOnTgt.setBoolean(onHookTarget());
     sbHookSP.setString(getHookSP().name());
     sbHookSPPos.setDouble(getHookSP().getPos());
+    sbLeftHookAmp.setDouble(getChannelAmps(leftHook));
+    sbRightHookAmp.setDouble(getChannelAmps(rightHook));
   }
 
   @Override
@@ -288,16 +396,19 @@ public class Climber extends SubsystemBase {
     return hookSP;
   }
 
-  public void setHookPos(HookSP pos) {
-    leftHook.setPulseWidth(pos.getPos());
-    rightHook.setPulseWidth(pos.getPos());
-  }
-
   public double getHookPos() {
     return ((leftHook.getPulseWidth() + rightHook.getPulseWidth()) / 2.0); // Average of the two hooks
   }
 
   public boolean onHookTarget() {
     return Math.abs(getHookPos() - getHookSP().getPos()) < Constants.Climber.kHookTollerance;
+  }
+
+  public void setHook(ServoChannel channel, HookSP sp) {
+    channel.setPulseWidth(sp.getPos());
+  }
+
+  public double getChannelAmps(ServoChannel channel) {
+    return channel.getCurrent();
   }
 }

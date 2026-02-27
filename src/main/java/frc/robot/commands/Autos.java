@@ -72,11 +72,6 @@ public class Autos {
     this.shooter = shooter;
     this.climber = climber;
 
-    String temp = AutoBuilder.isConfigured() ? "IS" : "IS NOT";
-    DriverStation.reportWarning("AutoBuilder " + temp + " configured", false);
-    temp = AutoBuilder.isPathfindingConfigured() ? "IS" : "IS NOT";
-    DriverStation.reportWarning("AutoBuilder Pathfinding " + temp + " configured", false);
-
     // this.autonLeave = new AutonLeave(chassis, ladder, algae, coral, climber);
     // this.autonLeaveNScoreL1 = new AutonLeaveNScoreL1(robotContainer, chassis,
     // ladder, algae, coral, climber);
@@ -95,8 +90,8 @@ public class Autos {
     // before defining the Auto command
     // NamedCommands.registerCommand("resetPose", resetPose);
     // NamedCommands.registerCommand("resetOdo", resetOdo);
-    NamedCommands.registerCommand("HookDeploy", climber.setHooks(Climber.HookSP.DEPLOY));
-    NamedCommands.registerCommand("HookStow", climber.setHooks(Climber.HookSP.STOW));
+    NamedCommands.registerCommand("HookDeploy", climber.deployHooks());
+    NamedCommands.registerCommand("HookStow", climber.stowHooks());
     NamedCommands.registerCommand("ClimberAuto", climber.setClimber(Climber.ClimberSP.LVLAUTON));
     NamedCommands.registerCommand("ClimberL1", climber.setClimber(Climber.ClimberSP.LVL1));
     NamedCommands.registerCommand("ClimberL2", climber.setClimber(Climber.ClimberSP.LVL2));
@@ -135,6 +130,12 @@ public class Autos {
         .withWidget("ComboBox Chooser")
         .withPosition(0, 0)
         .withSize(3, 1);
+
+        
+    String temp = AutoBuilder.isConfigured() ? "IS" : "IS NOT";
+    DriverStation.reportWarning("AutoBuilder " + temp + " configured", false);
+    temp = AutoBuilder.isPathfindingConfigured() ? "IS" : "IS NOT";
+    DriverStation.reportWarning("AutoBuilder Pathfinding " + temp + " configured", false);
 
     System.out.println("----- Ending Autos Constructor -----");
   }

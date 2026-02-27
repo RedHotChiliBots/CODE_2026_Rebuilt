@@ -16,13 +16,14 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.AnalogInput;
+
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.DIOId;
+
 
 public class Feeder extends SubsystemBase {
 	// ==============================================================
@@ -36,7 +37,11 @@ public class Feeder extends SubsystemBase {
   private SparkClosedLoopController feederController = feeder.getClosedLoopController();
 
   private RelativeEncoder feederEncoder = feeder.getEncoder();
-
+  
+	// ==============================================================
+  // Define trigger inputs
+	// =============================================================
+  private final AnalogInput fuelSensor = new AnalogInput(Constants.AIOId.kFuelSensor);
 
 	// ==============================================================
   // Define motor vel enum
@@ -69,11 +74,6 @@ public class Feeder extends SubsystemBase {
   private FeederSP feederSP = FeederSP.OFF;
 
 	// ==============================================================
-  // Define trigger inputs
-	// ==============================================================
-  private final DigitalInput fuelAvail = new DigitalInput(DIOId.kFuelAvail);
-
-	// ==============================================================
   // Initialize Dashboard entries
 	// ==============================================================
   // private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
@@ -82,6 +82,10 @@ public class Feeder extends SubsystemBase {
 	private final ShuffleboardTab FeederCommands = Shuffleboard.getTab("Feeder Commands");
 
   private final GenericEntry sbFuelAvail = feederTab.addPersistent("Fuel Avail", false)
+      .withWidget("Boolean Box").withPosition(0, 0).withSize(2, 1).getEntry();
+  private final GenericEntry sbFuelVolts = feederTab.addPersistent("Fuel Volts", 0.0)
+      .withWidget("Boolean Box").withPosition(0, 2).withSize(2, 1).getEntry();
+  private final GenericEntry sbFuelDist = feederTab.addPersistent("Fuel Dist", 0.0)
       .withWidget("Boolean Box").withPosition(0, 0).withSize(2, 1).getEntry();
 
   private final GenericEntry sbFeederOnTgt = feederTab.addPersistent("Feeder OnTgt", false)
@@ -157,6 +161,8 @@ public class Feeder extends SubsystemBase {
   public void periodic() {
     sbFeederOnTgt.setBoolean(onFeederTarget());
     sbFuelAvail.setBoolean(isFuelAvail());
+    sbFuelVolts.setDouble(getFuelVolts());
+    sbFuelDist.setDouble(getFuelDist());
     sbFeederSP.setString(getFeederSP().name());
     sbFeederSPPct.setDouble(getFeederSP(false));
     sbFeederSPRPM.setDouble(getFeederSP(true));
@@ -201,7 +207,15 @@ public class Feeder extends SubsystemBase {
     return Math.abs(getFeederVel(true) - getFeederSP(true)) < Constants.Feeder.kTollerance;
   }
 
+  public double getFuelVolts() {
+    return fuelSensor.getVoltage();
+  }
+
+  public double getFuelDist() {
+    return getFuelVolts() / (5.0 / 1024.0) / (25.4 / 5.0);
+  }
+
   public boolean isFuelAvail() {
-    return fuelAvail.get();
+    return !(getFuelDist() > 21.0 && getFuelDist() < 30.0);
   }
 }

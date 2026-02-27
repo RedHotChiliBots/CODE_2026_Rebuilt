@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -97,7 +98,12 @@ public class Shooter extends SubsystemBase {
 	// Initialize motor setpoints
 	// ==============================================================
 	private ShooterSP shooterSP = ShooterSP.OFF;
+	private boolean shooterSpIsCustom = false;
+	private double shooterSetpointRpm = 0.0;
+
 	private TiltSP tiltSP = TiltSP.OFF;
+	private boolean tiltSpIsCustom = false;
+	private double tiltSetpointDeg = 0.0;
 
 	// ==============================================================
 	// Initialize Dashboard entries
@@ -130,7 +136,14 @@ public class Shooter extends SubsystemBase {
 
 	private final GenericEntry sbTiltPos = shooterTab.addPersistent("Tilt Pos", 0)
 			.withWidget("Text View").withPosition(4, 0).withSize(2, 1).getEntry();
-
+    
+	// Shuffleboard debug for auto-shot (feasible / angle / rpm)
+	private final GenericEntry sbAutoFeasible = shooterTab.addPersistent("Auto Feasible", false)
+    		.withWidget("Boolean Box").withPosition(0, 2).withSize(2, 1).getEntry();
+	private final GenericEntry sbAutoAngleDeg = shooterTab.addPersistent("Auto Angle Deg", 0.0)
+    		.withWidget("Text View").withPosition(2, 3).withSize(2, 1).getEntry();
+	private final GenericEntry sbAutoRpm = shooterTab.addPersistent("Auto RPM", 0.0)
+    		.withWidget("Text View").withPosition(2, 4).withSize(2, 1).getEntry();
 	// ==============================================================
 	// Constructor
 	// ==============================================================
@@ -240,7 +253,7 @@ public class Shooter extends SubsystemBase {
 
 		// Initialize intake start positions
 		setShooterVel(ShooterSP.OFF);
-		setTiltSP(TiltSP.OFF);
+		setTiltPos(TiltSP.OFF);
 
 		System.out.println("----- Ending Shooter Constructor -----");
 	}
@@ -249,19 +262,31 @@ public class Shooter extends SubsystemBase {
 	// Define subsystem commands
 	// ==============================================================
 	public Command setShooter(ShooterSP sp) {
-		return runOnce(() -> setShooterVel(sp));
+		return runOnce(() -> this.setShooterVel(sp));
 	}
 
 	public Command setShooter(double sp) {
-		return runOnce(() -> setShooterVel(sp));
+		return runOnce(() -> this.setShooterVel(sp));
 	}
 
 	public Command setTilt(TiltSP sp) {
-		return runOnce(() -> setTiltPos(sp));
+		return runOnce(() -> this.setTiltPos(sp));
 	}
 
 	public Command setTilt(double sp) {
-		return runOnce(() -> setTiltPos(sp));
+		return runOnce(() -> this.setTiltPos(sp));
+	}
+
+	public Command autoShoot(double tiltDeg, double shooterRpm) {
+	  return new ParallelCommandGroup(
+		setTilt(tiltDeg),
+		setShooter(shooterRpm));
+	}
+
+	public Command autoShoot() {
+		return new ParallelCommandGroup(
+				setTilt(getAutoTilt()),
+				setShooter(getAutoShoot()));
 	}
 
 	// ==============================================================
@@ -270,16 +295,23 @@ public class Shooter extends SubsystemBase {
 	@Override
 	public void periodic() {
 		sbShooterOnTgt.setBoolean(onShooterTarget());
-		sbShooterSP.setString(getShooterSP().name());
+		sbShooterSP.setString(getShooterSPName());
 		sbShooterSPPct.setDouble(getShooterSP(false));
 		sbShooterSPRPM.setDouble(getShooterSP(true));
 		sbShooterVelPct.setDouble(getShooterVel(false));
 		sbShooterVelRPM.setDouble(getShooterVel(true));
 
 		sbTiltOnTgt.setBoolean(onTiltTarget());
-		sbTiltSP.setString(getTiltSP().name());
-		sbTiltSPPos.setDouble(getTiltSP().getPos());
+		sbTiltSP.setString(getTiltSPName());
+		sbTiltSPPos.setDouble(getTiltSPDeg());
 		sbTiltPos.setDouble(getTiltPos());
+
+		// Gives you live visibility of what the solver wants to do, 
+		// without actually commanding anything unless you call autoShoot().
+		var auto = ShooterBallistics.solveStationary(drivetrain.getDistToHub(), 0.5);
+		sbAutoFeasible.setBoolean(auto.feasible());
+		sbAutoAngleDeg.setDouble(auto.feasible() ? auto.angleDeg() : ShooterBallistics.kMinAngleDeg);
+		sbAutoRpm.setDouble(auto.feasible() ? auto.wheelRpm() : 0.0);
 	}
 
 	@Override
@@ -291,10 +323,6 @@ public class Shooter extends SubsystemBase {
 	// Define subsystem methods
 	// ==============================================================
 
-	// public double getAutoShoot() {
-	// 	double dist2hub = drivetrain.getDistToHub();
-	// 	return 0.0;
-	// }
 	public double getAutoShoot() {
 	  double distToHubM = drivetrain.getDistToHub(); // already returns meters
 	  var sp = ShooterBallistics.solveStationary(distToHubM, 0.5);
@@ -305,36 +333,56 @@ public class Shooter extends SubsystemBase {
 	  return sp.wheelRpm();
 	}
 
-	// public double getAutoTilt() {
-	// 	double dist2hub = drivetrain.getDistToHub();
-	// 	return 0.0;
-	// }
+	// What this does
+	//	 * If solver fails, go to min angle
+	//	 * If solver somehow returns something slightly outside bounds, clamp
+	//	 * Does not change any other behavior
 	public double getAutoTilt() {
-      double distToHubM = drivetrain.getDistToHub();
-      var sp = ShooterBallistics.solveStationary(distToHubM, 0.5);
+	  double distToHubM = drivetrain.getDistToHub();
+	  var sp = ShooterBallistics.solveStationary(distToHubM, 0.5);
 
-      if (!sp.feasible()) return ShooterBallistics.kMinAngleDeg; // safe default
-      return sp.angleDeg();
+	  double angleDeg = sp.feasible()
+		? sp.angleDeg()
+		: ShooterBallistics.kMinAngleDeg;
+
+	  // Clamp to mechanical limits (defensive safety)
+	  angleDeg = Math.max(
+		ShooterBallistics.kMinAngleDeg,
+	  	Math.min(ShooterBallistics.kMaxAngleDeg, angleDeg)
+	  );
+
+	  return angleDeg;
+	}
+	/**
+	 * Returns the name of the active shooter setpoint for Shuffleboard display.
+	 * 
+	 * We support two modes:
+	 *  - Preset enum-based setpoints (LOW, MED, HI, etc.)
+	 *  - Custom numeric RPM setpoints (used by ballistics auto-aim)
+	 *
+	 * If a custom RPM is active, we return "CUSTOM" since there is no enum value.
+	 */
+	public String getShooterSPName() {
+      return shooterSpIsCustom ? "CUSTOM" : shooterSP.name();
     }
 
-	public void setShooterSP(ShooterSP sp) {
-		shooterSP = sp;
-	}
-
-	public ShooterSP getShooterSP() {
-		return shooterSP;
-	}
-
 	public double getShooterSP(boolean rpm) {
-		return shooterSP.getVel(rpm);
+		if (rpm) {
+			return shooterSetpointRpm;
+		}
+		return shooterSetpointRpm / Constants.MotorConstants.kVortexFreeSpeedRpm * 100.0;
 	}
 
 	public void setShooterVel(ShooterSP sp) {
-		setShooterSP(sp);
-		leftController.setSetpoint(getShooterSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
+		shooterSP = sp;
+		shooterSpIsCustom = false;
+		shooterSetpointRpm = sp.getVel(true);
+		leftController.setSetpoint(shooterSetpointRpm, SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
 	public void setShooterVel(double sp) {
+		shooterSpIsCustom = true;
+		shooterSetpointRpm = sp;
 		leftController.setSetpoint(sp, SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
@@ -346,16 +394,24 @@ public class Shooter extends SubsystemBase {
 		}
 	}
 
-	public void setTiltSP(TiltSP sp) {
-		tiltSP = sp;
+	public String getTiltSPName() {
+		return tiltSpIsCustom ? "CUSTOM" : tiltSP.name();
+	}
+
+	public double getTiltSPDeg() {
+		return tiltSetpointDeg;
 	}
 
 	public void setTiltPos(TiltSP sp) {
-		setTiltSP(sp);
-		tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kMAXMotionPositionControl);
+		tiltSP = sp;
+		tiltSpIsCustom = false;
+		tiltSetpointDeg = sp.getPos();
+		tiltController.setSetpoint(tiltSetpointDeg, SparkBase.ControlType.kMAXMotionPositionControl);
 	}
 
 	public void setTiltPos(double sp) {
+		tiltSpIsCustom = true;
+		tiltSetpointDeg = sp;
 		tiltController.setSetpoint(sp, SparkBase.ControlType.kMAXMotionPositionControl);
 	}
 
@@ -368,7 +424,7 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public boolean onTiltTarget() {
-		return Math.abs(getTiltPos() - getTiltSP().getPos()) < Constants.Shooter.kTiltTollerance;
+		return Math.abs(getTiltPos() - tiltSetpointDeg) < Constants.Shooter.kTiltTollerance;
 	}
 
 	public boolean onShooterTarget() {
