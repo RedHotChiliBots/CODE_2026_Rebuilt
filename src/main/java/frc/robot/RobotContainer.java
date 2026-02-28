@@ -71,7 +71,7 @@ public class RobotContainer {
 	//  2) Endgame warning at 5 seconds remaining (rule-based timing).
 	//
 	// Design principles:
-	//  - Simple, binary signals (no “always buzzing”).
+	//  - Simple, binary signals (no "always buzzing").
 	//  - Priority: endgame warning overrides shooter-ready.
 	//  - Use FMS/DriverStation match clock (DriverStation.getMatchTime()).
 	//  - Never rumble while disabled.
@@ -199,7 +199,7 @@ public class RobotContainer {
 	}
 
 	/*
-	 Returns true when robot is within the current “shooting range” distance to the hub.
+	 Returns true when robot is within the current “shooting range" distance to the hub.
 	 Includes a deadband to prevent rumble chatter when hovering near the boundary.
 	*/
 	private boolean inShootRange() {
@@ -213,7 +213,7 @@ public class RobotContainer {
 	  - shooter velocity on target
 	  - tilt position on target
 	 
-	 This is intended to be a “green light” for the operator.
+	 This is intended to be a "green light" for the operator.
 	*/
 	private boolean shooterReady() {
 	  return inShootRange() && shooter.onShooterTarget() && shooter.onTiltTarget();
