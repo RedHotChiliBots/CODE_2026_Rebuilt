@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -171,6 +172,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
 
+        var cfg = new Pigeon2Configuration();
+        cfg.MountPose.MountPoseYaw = 0; // Degrees clockwise is negative
+        cfg.MountPose.MountPosePitch = 0;
+        cfg.MountPose.MountPoseRoll = 90;
+        pigeon.getConfigurator().apply(cfg);
+
+        // zero yaww for field relative
         pigeon.setYaw(0.0);
     }
     
@@ -202,6 +210,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
         
+         var cfg = new Pigeon2Configuration();
+        cfg.MountPose.MountPoseYaw = 0; // Degrees clockwise is negative
+        cfg.MountPose.MountPosePitch = 0;
+        cfg.MountPose.MountPoseRoll = 90;
+        pigeon.getConfigurator().apply(cfg);
+
+        // zero yaww for field relative
         pigeon.setYaw(0.0);
     }
 
@@ -247,6 +262,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
         
+        var cfg = new Pigeon2Configuration();
+        cfg.MountPose.MountPoseYaw = 0; // Degrees clockwise is negative
+        cfg.MountPose.MountPosePitch = 0;
+        cfg.MountPose.MountPoseRoll = 90;
+        pigeon.getConfigurator().apply(cfg);
+
+        // zero yaww for field relative
         pigeon.setYaw(0.0);
     }
 

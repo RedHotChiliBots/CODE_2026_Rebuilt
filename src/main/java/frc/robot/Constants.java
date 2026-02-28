@@ -221,7 +221,7 @@ public final class Constants {
 		public static final boolean ktiltEncodeWrapping = false;
 		
 		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
-		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5 * 3.0);
+		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5 * 3.0);	// 3.0 is pully ratio
 
 		public static final double kTiltPositionFactor = 360.0 / kTiltGearRatio; // degrees
 		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
