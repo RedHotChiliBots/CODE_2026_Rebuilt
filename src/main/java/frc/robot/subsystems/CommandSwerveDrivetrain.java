@@ -146,6 +146,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final GenericEntry sbDistToHub = driveTab.addPersistent("DistToHub", 0).withWidget("Text View")
             .withPosition(3, 0).withSize(1, 1).getEntry();
 
+    private final GenericEntry sbYaw = driveTab.addPersistent("Yaw", 0).withWidget("Text View")
+            .withPosition(1, 1).withSize(1, 1).getEntry();
+    private final GenericEntry sbPitch = driveTab.addPersistent("Pitch", 0).withWidget("Text View")
+            .withPosition(2, 1).withSize(1, 1).getEntry();
+    private final GenericEntry sbRoll = driveTab.addPersistent("Roll", 0).withWidget("Text View")
+            .withPosition(3, 1).withSize(1, 1).getEntry();
+
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose2d.struct).publish();
 
@@ -312,6 +319,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         distToHub = getDistToHub(); // Update distance to hub
         sbDistToHub.setDouble(distToHub);
         sbCurrHeading.setDouble(getHeading());
+
+        sbYaw.setDouble(pigeon.getYaw().getValueAsDouble());
+        sbPitch.setDouble(pigeon.getPitch().getValueAsDouble());
+        sbRoll.setDouble(pigeon.getRoll().getValueAsDouble());
 
         currPose = getPose();
         m_field.setRobotPose(currPose);

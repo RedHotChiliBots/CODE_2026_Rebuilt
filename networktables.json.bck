@@ -2,7 +2,7 @@
   {
     "name": "/Shuffleboard/Drive/BearingToHub",
     "type": "double",
-    "value": -10.343833785397214,
+    "value": 30.07888314034746,
     "properties": {
       "persistent": true
     }
@@ -10,7 +10,7 @@
   {
     "name": "/Shuffleboard/Drive/DistToHub",
     "type": "double",
-    "value": 4.391266471187414,
+    "value": 4.216325569361962,
     "properties": {
       "persistent": true
     }
@@ -346,7 +346,7 @@
   {
     "name": "/Shuffleboard/Drive/CurrHeading",
     "type": "double",
-    "value": -10.42327880859375,
+    "value": -15.47698974609375,
     "properties": {
       "persistent": true
     }
@@ -386,7 +386,7 @@
   {
     "name": "/Shuffleboard/Shooter/Auto Feasible",
     "type": "boolean",
-    "value": false,
+    "value": true,
     "properties": {
       "persistent": true
     }
@@ -394,7 +394,7 @@
   {
     "name": "/Shuffleboard/Shooter/Auto Angle Deg",
     "type": "double",
-    "value": 0.0,
+    "value": 52.5,
     "properties": {
       "persistent": true
     }
@@ -402,7 +402,39 @@
   {
     "name": "/Shuffleboard/Shooter/Auto RPM",
     "type": "double",
+    "value": 1383.4268634859534,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Shuffleboard/Drive/Yaw",
+    "type": "double",
+    "value": -15.47698974609375,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Shuffleboard/Drive/Pitch",
+    "type": "double",
     "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Shuffleboard/Drive/Roll",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Shuffleboard/Climber/Hook SP Spd",
+    "type": "double",
+    "value": 500.0,
     "properties": {
       "persistent": true
     }
