@@ -98,9 +98,9 @@ public class Climber extends SubsystemBase {
   }
 
   public enum HookSP { // Climber Setpoints
-    STOW(1000), // NUMBERS NEED TO CHANGE
+    STOW(500), // NUMBERS NEED TO CHANGE
     STOP(1500),
-    DEPLOY(2000); // NUMBERS NEED TO CHANGE
+    DEPLOY(2500); // NUMBERS NEED TO CHANGE
 
     private final int sp;
 
@@ -108,7 +108,7 @@ public class Climber extends SubsystemBase {
       this.sp = sp;
     }
 
-    public int getPos() {
+    public int getSpd() {
       return sp;
     }
   }
@@ -135,7 +135,7 @@ public class Climber extends SubsystemBase {
       .withWidget("Boolean Box").withPosition(0, 1).withSize(2, 1).getEntry();
   private final GenericEntry sbHookSP = climberTab.addPersistent("Hook SP", "")
       .withWidget("Text View").withPosition(2, 0).withSize(2, 1).getEntry();
-  private final GenericEntry sbHookSPPos = climberTab.addPersistent("Hook SP Pos", 0)
+  private final GenericEntry sbHookSPSpd = climberTab.addPersistent("Hook SP Spd", 0)
       .withWidget("Text View").withPosition(2, 1).withSize(2, 1).getEntry();
   private final GenericEntry sbLeftHookAmp = climberTab.addPersistent("Hook Left Amp", 0)
       .withWidget("Text View").withPosition(2, 1).withSize(2, 1).getEntry();
@@ -248,56 +248,56 @@ public class Climber extends SubsystemBase {
     return runOnce(() -> setClimberPos(sp));
   }
 
-  public Command stowLeftHook1() {
+  public Command stowLeftHook() {
     final Timer timer = new Timer();
     return new FunctionalCommand(
-        // Reset encoders on command start
-        // m_robotDrive::resetEncoders,
-        // Start driving forward at the start of the command
+        // Initialize
+        // Start servo moving
+        // Start timer
         () -> {
           this.setHook(leftHook, HookSP.STOW);
           timer.reset();
           timer.start();
         },
-        () -> {
-        },
-        // Stop driving at the end of the command
+        // Execute - do nothing
+        () -> {},
+        // End
+        // Stop the servo
         interrupted -> this.setHook(leftHook, HookSP.STOP),
-        // End the command when the robot's driven distance exceeds the desired value
-        () -> ((this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit) && timer.hasElapsed(0.01)));
-    // Require the drive subsystem
-    // m_robotDrive
+        // Is finished
+        // Timer has expired and amps are higher than threshold
+        () -> ((this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit) && timer.hasElapsed(Constants.Climber.kServoTimeout)));
   }
 
-  public Command stowRighHook1() {
+  public Command stowRightHook() {
     final Timer timer = new Timer();
     return new FunctionalCommand(
-        // Reset encoders on command start
-        // m_robotDrive::resetEncoders,
-        // Start driving forward at the start of the command
+        // Initialize
+        // Start servo moving
+        // Start timer
         () -> {
           this.setHook(rightHook, HookSP.STOW);
           timer.reset();
           timer.start();
         },
-        () -> {
-        },
-        // Stop driving at the end of the command
+        // Execute - do nothing
+        () -> {},
+        // End
+        // Stop the servo
         interrupted -> this.setHook(rightHook, HookSP.STOP),
-        // End the command when the robot's driven distance exceeds the desired value
-        () -> ((this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit) && timer.hasElapsed(0.01)));
-    // Require the drive subsystem
-    // m_robotDrive
+        // Is finished
+        // Timer has expired and amps are higher than threshold
+        () -> ((this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit) && timer.hasElapsed(Constants.Climber.kServoTimeout)));
   }
 
-  public Command stowLeftHook() {
+  public Command stowLeftHook1() {
     return Commands.startEnd(
         () -> this.setHook(leftHook, HookSP.STOW),
         () -> this.setHook(leftHook, HookSP.STOP))
         .until(() -> this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit);
   }
 
-  public Command stowRightHook() {
+  public Command stowRightHook1() {
     return Commands.startEnd(
         () -> this.setHook(rightHook, HookSP.STOW),
         () -> this.setHook(rightHook, HookSP.STOP))
@@ -340,7 +340,7 @@ public class Climber extends SubsystemBase {
     sbClimberSPPos.setDouble(getClimberSP().getValue());
     sbHookOnTgt.setBoolean(onHookTarget());
     sbHookSP.setString(getHookSP().name());
-    sbHookSPPos.setDouble(getHookSP().getPos());
+    sbHookSPSpd.setDouble(getHookSP().getSpd());
     sbLeftHookAmp.setDouble(getChannelAmps(leftHook));
     sbRightHookAmp.setDouble(getChannelAmps(rightHook));
   }
@@ -396,16 +396,16 @@ public class Climber extends SubsystemBase {
     return hookSP;
   }
 
-  public double getHookPos() {
+  public double getHookSpd() {
     return ((leftHook.getPulseWidth() + rightHook.getPulseWidth()) / 2.0); // Average of the two hooks
   }
 
   public boolean onHookTarget() {
-    return Math.abs(getHookPos() - getHookSP().getPos()) < Constants.Climber.kHookTollerance;
+    return Math.abs(getHookSpd() - getHookSP().getSpd()) < Constants.Climber.kHookTollerance;
   }
 
   public void setHook(ServoChannel channel, HookSP sp) {
-    channel.setPulseWidth(sp.getPos());
+    channel.setPulseWidth(sp.getSpd());
   }
 
   public double getChannelAmps(ServoChannel channel) {

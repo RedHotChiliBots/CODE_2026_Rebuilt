@@ -7,15 +7,22 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.GenericEntry;
@@ -30,8 +37,10 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.ChassisConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -59,6 +68,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
+    // Used in DriveRobotRelative
+    private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric();
+
+    RobotConfig config = null;
     /*
      * SysId routine for characterizing translation. This is used to find PID gains
      * for the drive motors.
@@ -128,7 +141,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final Pose2d hubPose = new Pose2d(
             new Translation2d(4.660, 4.118),
             Rotation2d.fromDegrees(180.0)); // Hub pose for 2026
-    private final Pose2d startPose = new Pose2d( // This is the blue side starting pose. AutoBuilder will mirror for red.
+    private final Pose2d startPose = new Pose2d( // This is the blue side starting pose. AutoBuilder will mirror for
+                                                 // red.
             new Translation2d(3.45, 2.75),
             Rotation2d.fromDegrees(42.5));
 
@@ -144,6 +158,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withPosition(2, 0).withSize(1, 1).getEntry();
     private final GenericEntry sbDistToHub = driveTab.addPersistent("DistToHub", 0).withWidget("Text View")
             .withPosition(3, 0).withSize(1, 1).getEntry();
+
+    private final GenericEntry sbYaw = driveTab.addPersistent("Yaw", 0).withWidget("Text View")
+            .withPosition(1, 1).withSize(1, 1).getEntry();
+    private final GenericEntry sbPitch = driveTab.addPersistent("Pitch", 0).withWidget("Text View")
+            .withPosition(2, 1).withSize(1, 1).getEntry();
+    private final GenericEntry sbRoll = driveTab.addPersistent("Roll", 0).withWidget("Text View")
+            .withPosition(3, 1).withSize(1, 1).getEntry();
 
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose2d.struct).publish();
@@ -167,13 +188,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        
+
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
 
-        pigeon.setYaw(0.0);
+        configPigeon();
+        setupAutoBuilder();
     }
-    
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -198,11 +219,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        
+
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
-        
-        pigeon.setYaw(0.0);
+
+        configPigeon();
+        setupAutoBuilder();
     }
 
     /**
@@ -246,8 +268,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
-        
-        pigeon.setYaw(0.0);
+
+        configPigeon();
+        setupAutoBuilder();
+
     }
 
     /**
@@ -312,9 +336,82 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         sbDistToHub.setDouble(distToHub);
         sbCurrHeading.setDouble(getHeading());
 
+        sbYaw.setDouble(pigeon.getYaw().getValueAsDouble());
+        sbPitch.setDouble(pigeon.getPitch().getValueAsDouble());
+        sbRoll.setDouble(pigeon.getRoll().getValueAsDouble());
+
         currPose = getPose();
         m_field.setRobotPose(currPose);
         publisher.set(currPose);
+    }
+
+    public ChassisSpeeds getRobotRelativeSpeeds() {
+        // Get the current drivetrain state
+        var driveState = this.getState(); // This was generated with copilot, i have no faith in this and neither should
+                                          // you
+        // The state already contains robot-relative ChassisSpeeds
+        return driveState.Speeds;
+    }
+
+    public void driveRobotRelative(ChassisSpeeds chassisSpeeds) {
+        // Convert ChassisSpeeds to a robot-centric swerve request
+        setControl(robotCentric
+                .withVelocityX(chassisSpeeds.vxMetersPerSecond)
+                .withVelocityY(chassisSpeeds.vyMetersPerSecond) // This was generated with copilot, i have no faith in
+                                                                // this and neither should you
+                .withRotationalRate(chassisSpeeds.omegaRadiansPerSecond));
+    }
+
+    private void setupAutoBuilder() {
+
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            // Handle exception as needed
+            e.printStackTrace();
+        }
+
+        // Configure AutoBuilder last
+        AutoBuilder.configure(
+                this::getPose, // Robot pose supplier
+                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT
+                                                                      // RELATIVE ChassisSpeeds. Also optionally outputs
+                                                                      // individual module feedforwards
+                new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
+                                                // holonomic drive trains
+                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                ),
+                config, // The robot configuration
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red
+                    // alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
+
+    }
+
+    private void configPigeon() {
+        // Configure Pigeon orientation
+        var cfg = new Pigeon2Configuration();
+        cfg.MountPose.MountPoseYaw = 0; // Degrees clockwise is negative
+        cfg.MountPose.MountPosePitch = 0;
+        cfg.MountPose.MountPoseRoll = 90;
+        pigeon.getConfigurator().apply(cfg);
+
+        // zero yaww for field relative
+        pigeon.setYaw(0.0);
     }
 
     public Pose2d getPose() {

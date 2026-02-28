@@ -219,9 +219,11 @@ public final class Constants {
 		public static final boolean kLeftEncodeWrapping = false;
 		public static final boolean kRightEncodeWrapping = false;
 		public static final boolean ktiltEncodeWrapping = false;
+		
+		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
+		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5 * 3.0);	// 3.0 is pully ratio
 
-		public static final double kTiltPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
-																// 360.0; // degrees
+		public static final double kTiltPositionFactor = 360.0 / kTiltGearRatio; // degrees
 		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
 		// Unsure if this needs to be uncommented out
@@ -249,7 +251,8 @@ public final class Constants {
 	}
 
 	public static final class Climber {
-		public static final double kServoAmpLimit = 1.25;
+		public static final double kServoAmpLimit = 0.5;	// amps
+		public static final double kServoTimeout = 0.5;		// seconds
 
 		// Motor Inversion
 		public static final boolean kClimberInverted = false;
@@ -264,8 +267,16 @@ public final class Constants {
 		public static final double kZeroOffset = 0.5; // WILL NEED ADJUSTMENT
 		public static final boolean kZeroCentered = true;
 		public static final boolean kEncoderInverted = true;
-		public static final double kTiltPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
-																// 360.0 degrees
+
+		public static final double kClimberGearRatio = (GearBox.Max5 * GearBox.Max5);
+		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5);
+
+		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
+		public static final double kClimberPositionFactor = (1.0 * Math.PI) / kClimberGearRatio;	// inches
+		public static final double kClimberVelocityFactor = kClimberPositionFactor / 60.0; // inches per second
+
+		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
+		public static final double kTiltPositionFactor = 360 / kTiltGearRatio;	// degrees
 		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
 		// Closed loop configs
@@ -317,12 +328,15 @@ public final class Constants {
 		public static final boolean kIntakeEncodeWrapping = false;
 		public static final boolean kTiltEncodeWrapping = false;
 
-		public static final double kIntakePositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
-																// 360.0; // degrees
-		public static final double kIntakeVelocityFactor = kIntakePositionFactor / 60.0; // degrees per second
-
-		public static final double kTiltPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
-																// 360.0; // degrees
+		public static final double kIntakeGearRatio = (GearBox.Max3 * GearBox.Max4);
+		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5);
+		
+		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
+		public static final double kIntakePositionFactor = 1.0 / kIntakeGearRatio;	// RPMs
+		public static final double kIntakeVelocityFactor = kIntakePositionFactor / 60.0; // Revs per second
+		
+		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
+		public static final double kTiltPositionFactor = 360.0 / kTiltGearRatio;	// degrees
 		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
 		public static final double kIntakeP = 0.01; // maxmotion 0.025;
@@ -364,9 +378,11 @@ public final class Constants {
 		public static final boolean kFeederEncodeWrapping = false;
 		public static final IdleMode kFeederIdleMode = IdleMode.kBrake;
 
-		public static final double kFeederPositionFactor = 360; // 1.0 / (GearBox.Max9 * GearBox.Max5 * GearBox.Max5) *
-																// 360.0; // degrees
-		public static final double kFeederVelocityFactor = kFeederPositionFactor / 60.0; // degrees per second
+		public static final double kFeederGearRatio = (GearBox.Max3 * GearBox.Max4);
+												
+		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
+		public static final double kFeederPositionFactor = 1.0 / kFeederGearRatio;	// RPMs
+		public static final double kFeederVelocityFactor = kFeederPositionFactor / 60.0; // Revs per second
 
 		public static final double kFeederP = 0.01; // maxmotion 0.025;
 		public static final double kFeederI = 0.0; // maxmotion 0.0
