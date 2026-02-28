@@ -172,14 +172,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
 
-        var cfg = new Pigeon2Configuration();
-        cfg.MountPose.MountPoseYaw = 0; // Degrees clockwise is negative
-        cfg.MountPose.MountPosePitch = 0;
-        cfg.MountPose.MountPoseRoll = 90;
-        pigeon.getConfigurator().apply(cfg);
-
-        // zero yaww for field relative
-        pigeon.setYaw(0.0);
+        configPigeon();
     }
     
 
@@ -210,14 +203,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
         
-         var cfg = new Pigeon2Configuration();
-        cfg.MountPose.MountPoseYaw = 0; // Degrees clockwise is negative
-        cfg.MountPose.MountPosePitch = 0;
-        cfg.MountPose.MountPoseRoll = 90;
-        pigeon.getConfigurator().apply(cfg);
-
-        // zero yaww for field relative
-        pigeon.setYaw(0.0);
+        configPigeon();
     }
 
     /**
@@ -262,14 +248,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
         
-        var cfg = new Pigeon2Configuration();
-        cfg.MountPose.MountPoseYaw = 0; // Degrees clockwise is negative
-        cfg.MountPose.MountPosePitch = 0;
-        cfg.MountPose.MountPoseRoll = 90;
-        pigeon.getConfigurator().apply(cfg);
-
-        // zero yaww for field relative
-        pigeon.setYaw(0.0);
+        configPigeon();
     }
 
     /**
@@ -337,6 +316,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         currPose = getPose();
         m_field.setRobotPose(currPose);
         publisher.set(currPose);
+    }
+
+    private void configPigeon() {
+        // Configure Pigeon orientation
+        var cfg = new Pigeon2Configuration();
+        cfg.MountPose.MountPoseYaw = 0; // Degrees clockwise is negative
+        cfg.MountPose.MountPosePitch = 0;
+        cfg.MountPose.MountPoseRoll = 90;
+        pigeon.getConfigurator().apply(cfg);
+
+        // zero yaww for field relative
+        pigeon.setYaw(0.0);
     }
 
     public Pose2d getPose() {
