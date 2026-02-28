@@ -64,7 +64,7 @@ public class RobotContainer {
 	private Shooter shooter = null;
 	private Climber climber = null;
 	private Vision vision = null;
-	// private Autos auton = null;
+	private Autos auton = null;
 
 	public RobotContainer() {
 		intake = new Intake();
@@ -76,7 +76,7 @@ public class RobotContainer {
 				new VisionIOPhotonVision(VisionConstants.camera1Name, VisionConstants.robotToCamera1),
 				new VisionIOPhotonVision(VisionConstants.camera2Name, VisionConstants.robotToCamera2),
 				new VisionIOPhotonVision(VisionConstants.camera3Name, VisionConstants.robotToCamera3));
-		// auton = new Autos(this, drivetrain, intake, feeder, shooter, climber);
+		auton = new Autos(this, drivetrain, intake, feeder, shooter, climber);
 
 		configureBindings();
 	}
@@ -131,19 +131,13 @@ public class RobotContainer {
 		drivetrain.registerTelemetry(logger::telemeterize);
 	}
 
+		/**
+	 * Use this to pass the autonomous command to the main {@link Robot} class.
+	 *
+	 * @return the command to run in autonomous
+	 */
 	public Command getAutonomousCommand() {
-		// Simple drive forward auton
-		final var idle = new SwerveRequest.Idle();
-		return Commands.sequence(
-				// Reset our field centric heading to match the robot
-				// facing away from our alliance station wall (0 deg).
-				drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-				// Then slowly drive forward (away from us) for 5 seconds.
-				drivetrain.applyRequest(() -> drive.withVelocityX(0.5)
-						.withVelocityY(0)
-						.withRotationalRate(0))
-						.withTimeout(5.0),
-				// Finally idle for the rest of auton
-				drivetrain.applyRequest(() -> idle));
+		// return new ChassisTimedDrive(chassis, 0.25, 1.0);
+		return auton.getAutoChooser().getSelected();
 	}
 }
