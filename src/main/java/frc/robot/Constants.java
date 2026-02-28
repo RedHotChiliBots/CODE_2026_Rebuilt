@@ -268,7 +268,12 @@ public final class Constants {
 		public static final boolean kZeroCentered = true;
 		public static final boolean kEncoderInverted = true;
 
+		public static final double kClimberGearRatio = (GearBox.Max5 * GearBox.Max5);
 		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5);
+
+		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
+		public static final double kClimberPositionFactor = (1.0 * Math.PI) / kClimberGearRatio;	// inches
+		public static final double kClimberVelocityFactor = kClimberPositionFactor / 60.0; // inches per second
 
 		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
 		public static final double kTiltPositionFactor = 360 / kTiltGearRatio;	// degrees
@@ -329,7 +334,6 @@ public final class Constants {
 		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
 		public static final double kIntakePositionFactor = 1.0 / kIntakeGearRatio;	// RPMs
 		public static final double kIntakeVelocityFactor = kIntakePositionFactor / 60.0; // Revs per second
-
 		
 		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
 		public static final double kTiltPositionFactor = 360.0 / kTiltGearRatio;	// degrees
