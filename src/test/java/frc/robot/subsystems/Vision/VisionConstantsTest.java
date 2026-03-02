@@ -69,5 +69,6 @@ public class VisionConstantsTest {
         Assertions.assertTrue(val.isPositive(VisionConstants.robotToCamera0.getTranslation().getZ()), 
         "Z");
     }
+    
 }
 
