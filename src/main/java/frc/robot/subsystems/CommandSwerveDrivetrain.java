@@ -140,7 +140,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
-    private final Pigeon2 pigeon = new Pigeon2(TunerConstants.kPigeonId);
+    private final Pigeon2 pigeon = new Pigeon2(TunerConstants.kPigeonId, TunerConstants.kCANBus);
 
     // Create field and pose related vars
     private final Field2d m_field = new Field2d();
