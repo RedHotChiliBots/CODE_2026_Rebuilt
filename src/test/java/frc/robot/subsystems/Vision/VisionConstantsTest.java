@@ -22,7 +22,7 @@ public class VisionConstantsTest {
     @DisplayName("Front Left")
     void testFrontLeft() {
         Assertions.assertEquals(VisionConstants.camera3Name, "front-left", 
-        "X");
+        "Name");
         Assertions.assertTrue(val.isNegative(VisionConstants.robotToCamera3.getTranslation().getX()), 
         "X");
         Assertions.assertTrue(val.isNegative(VisionConstants.robotToCamera3.getTranslation().getY()), 
@@ -35,7 +35,7 @@ public class VisionConstantsTest {
     @DisplayName("Front Right")
     void testFrontRight() {
         Assertions.assertEquals(VisionConstants.camera2Name, "front-right", 
-        "X");
+        "Name");
         Assertions.assertTrue(val.isPositive(VisionConstants.robotToCamera2.getTranslation().getX()), 
         "X");
         Assertions.assertTrue(val.isNegative(VisionConstants.robotToCamera2.getTranslation().getY()), 
@@ -48,7 +48,7 @@ public class VisionConstantsTest {
     @DisplayName("Rear Left")
     void testRearLeft() {
         Assertions.assertEquals(VisionConstants.camera1Name, "rear-left", 
-        "X");
+        "Name");
         Assertions.assertTrue(val.isNegative(VisionConstants.robotToCamera1.getTranslation().getX()), 
         "X");
         Assertions.assertTrue(val.isNegative(VisionConstants.robotToCamera1.getTranslation().getY()), 
@@ -61,7 +61,7 @@ public class VisionConstantsTest {
     @DisplayName("Rear Right")
     void testRearRight() {
         Assertions.assertEquals(VisionConstants.camera0Name, "rear-right", 
-        "X");
+        "Name");
         Assertions.assertTrue(val.isPositive(VisionConstants.robotToCamera0.getTranslation().getX()), 
         "X");
         Assertions.assertTrue(val.isNegative(VisionConstants.robotToCamera0.getTranslation().getY()), 
