@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-
+import frc.robot.utils.Library;
 import frc.robot.utils.ShooterBallistics;
 
 public class Shooter extends SubsystemBase {
@@ -50,6 +50,8 @@ public class Shooter extends SubsystemBase {
 	private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
 	private CommandSwerveDrivetrain drivetrain = null;
+
+	private Library lib = new Library();
 
 	// ==============================================================
 	// Define motor vel and pos enums
@@ -296,22 +298,22 @@ public class Shooter extends SubsystemBase {
 	public void periodic() {
 		sbShooterOnTgt.setBoolean(onShooterTarget());
 		sbShooterSP.setString(getShooterSPName());
-		sbShooterSPPct.setDouble(getShooterSP(false));
-		sbShooterSPRPM.setDouble(getShooterSP(true));
-		sbShooterVelPct.setDouble(getShooterVel(false));
-		sbShooterVelRPM.setDouble(getShooterVel(true));
+		sbShooterSPPct.setDouble(lib.SBFormat(getShooterSP(false)));
+		sbShooterSPRPM.setDouble(lib.SBFormat(getShooterSP(true)));
+		sbShooterVelPct.setDouble(lib.SBFormat(getShooterVel(false)));
+		sbShooterVelRPM.setDouble(lib.SBFormat(getShooterVel(true)));
 
 		sbTiltOnTgt.setBoolean(onTiltTarget());
 		sbTiltSP.setString(getTiltSPName());
-		sbTiltSPPos.setDouble(getTiltSPDeg());
-		sbTiltPos.setDouble(getTiltPos());
+		sbTiltSPPos.setDouble(lib.SBFormat(getTiltSPDeg()));
+		sbTiltPos.setDouble(lib.SBFormat(getTiltPos()));
 
 		// Gives you live visibility of what the solver wants to do, 
 		// without actually commanding anything unless you call autoShoot().
 		var auto = ShooterBallistics.solveStationary(drivetrain.getDistToHub(), 0.5);
 		sbAutoFeasible.setBoolean(auto.feasible());
-		sbAutoAngleDeg.setDouble(auto.feasible() ? auto.angleDeg() : ShooterBallistics.kMinAngleDeg);
-		sbAutoRpm.setDouble(auto.feasible() ? auto.wheelRpm() : 0.0);
+		sbAutoAngleDeg.setDouble(lib.SBFormat(auto.feasible() ? auto.angleDeg() : ShooterBallistics.kMinAngleDeg));
+		sbAutoRpm.setDouble(lib.SBFormat(auto.feasible() ? auto.wheelRpm() : 0.0));
 	}
 
 	@Override

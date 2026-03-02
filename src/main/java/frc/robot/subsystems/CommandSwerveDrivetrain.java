@@ -47,6 +47,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANId;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.utils.Library;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -140,8 +141,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
-    private final Pigeon2 pigeon = new Pigeon2(TunerConstants.kPigeonId, TunerConstants.kCANBus);
+    private final Library lib = new Library();
 
+    private final Pigeon2 pigeon = new Pigeon2(TunerConstants.kPigeonId, TunerConstants.kCANBus);
+    
     // Create field and pose related vars
     private final Field2d m_field = new Field2d();
 
@@ -340,14 +343,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         bearingToHub = getBearingToHub(); // Update bearing to hub
-        sbBearingToHub.setDouble(bearingToHub.getDegrees());
+        sbBearingToHub.setDouble(lib.SBFormat(bearingToHub.getDegrees()));
         distToHub = getDistToHub(); // Update distance to hub
-        sbDistToHub.setDouble(distToHub);
-        sbCurrHeading.setDouble(getHeading());
+        sbDistToHub.setDouble(lib.SBFormat(distToHub));
+        sbCurrHeading.setDouble(lib.SBFormat(getHeading()));
 
-        sbYaw.setDouble(pigeon.getYaw().getValueAsDouble());
-        sbPitch.setDouble(pigeon.getPitch().getValueAsDouble());
-        sbRoll.setDouble(pigeon.getRoll().getValueAsDouble());
+        sbYaw.setDouble(lib.SBFormat(pigeon.getYaw().getValueAsDouble()));
+        sbPitch.setDouble(lib.SBFormat(pigeon.getPitch().getValueAsDouble()));
+        sbRoll.setDouble(lib.SBFormat(pigeon.getRoll().getValueAsDouble()));
 
         currPose = getPose();
         m_field.setRobotPose(currPose);
