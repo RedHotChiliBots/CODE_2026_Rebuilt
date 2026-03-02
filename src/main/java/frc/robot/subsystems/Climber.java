@@ -235,8 +235,6 @@ public class Climber extends SubsystemBase {
     ClimberCommands.add("Hooks Deploy", this.deployHooks())
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
-    System.out.println("<<<<<<<<<<<<<<<<<<<<<<TESTINGs>>>>>>>>>>>>>>>>>>>>>>>");
-
     System.out.println("+++++ End of Climber Constructor +++++");
   }
 
