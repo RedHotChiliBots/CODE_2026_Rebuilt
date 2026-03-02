@@ -61,32 +61,32 @@ public class RobotContainer {
 			Constants.OIConstants.kDriverControllerPort);
 	private final CommandXboxController operatorController = new CommandXboxController(
 			Constants.OIConstants.kOperatorControllerPort);
-	
+
 	// =============================================================
 	// Operator controller haptic feedback (rumble)
 	// =============================================================
 	//
 	// Goals:
-	//  1) Shooter-ready confirmation without looking at Shuffleboard.
-	//  2) Endgame warning at 5 seconds remaining (rule-based timing).
+	// 1) Shooter-ready confirmation without looking at Shuffleboard.
+	// 2) Endgame warning at 5 seconds remaining (rule-based timing).
 	//
 	// Design principles:
-	//  - Simple, binary signals (no "always buzzing").
-	//  - Priority: endgame warning overrides shooter-ready.
-	//  - Use FMS/DriverStation match clock (DriverStation.getMatchTime()).
-	//  - Never rumble while disabled.
+	// - Simple, binary signals (no "always buzzing").
+	// - Priority: endgame warning overrides shooter-ready.
+	// - Use FMS/DriverStation match clock (DriverStation.getMatchTime()).
+	// - Never rumble while disabled.
 	//
 	// NOTE: All distances are meters. "Range" will be tuned on-field.
 	//
-	private static final double kShootRangeM = 4.0;           // TODO tune based on real scoring range
-	private static final double kShootRangeDeadbandM = 0.25;  // prevents on/off jitter at boundary
+	private static final double kShootRangeM = 4.0; // TODO tune based on real scoring range
+	private static final double kShootRangeDeadbandM = 0.25; // prevents on/off jitter at boundary
 
-	private static final double kRumbleShootReady = 0.60;     // steady rumble when ready to shoot (0..1)
+	private static final double kRumbleShootReady = 0.60; // steady rumble when ready to shoot (0..1)
 
-	private static final double kEndgameWarnAtSec = 5.0;      // start warning when <= 5s remaining in teleop
-	private static final double kEndgamePulseOnSec = 0.20;    // pulse pattern: on duration
-	private static final double kEndgamePulseOffSec = 0.20;   // pulse pattern: off duration
-	private static final double kRumbleEndgame = 1.00;        // endgame warning intensity (0..1)
+	private static final double kEndgameWarnAtSec = 5.0; // start warning when <= 5s remaining in teleop
+	private static final double kEndgamePulseOnSec = 0.20; // pulse pattern: on duration
+	private static final double kEndgamePulseOffSec = 0.20; // pulse pattern: off duration
+	private static final double kRumbleEndgame = 1.00; // endgame warning intensity (0..1)
 
 	// Cache last rumble value to avoid spamming USB updates every loop.
 	private double lastOperatorRumble = -1.0;
@@ -119,11 +119,11 @@ public class RobotContainer {
 		auton = new Autos(this, drivetrain, intake, feeder, shooter, climber);
 
 		configureBindings();
-		
+
 		// Run rumble updater continuously.
-        // .ignoringDisable(true) allows the function to run while disabled so we can
-        // force rumble OFF and keep the pulse timer state clean.
-        Commands.run(this::updateOperatorRumble).ignoringDisable(true).schedule();
+		// .ignoringDisable(true) allows the function to run while disabled so we can
+		// force rumble OFF and keep the pulse timer state clean.
+		Commands.run(this::updateOperatorRumble).ignoringDisable(true).schedule();
 	}
 
 	private void configureBindings() {
@@ -143,7 +143,7 @@ public class RobotContainer {
 		driverController.a().whileTrue(
 				new ParallelCommandGroup(
 						shooter.setShooter(shooter.getAutoShoot()).andThen(
-							shooter.setTilt(shooter.getAutoTilt())),
+								shooter.setTilt(shooter.getAutoTilt())),
 						drivetrain.applyRequest(() -> driveAngle
 								// Drive forward with negative Y (forward)
 								.withVelocityX(-driverController.getLeftY() * MaxSpeed)
@@ -157,15 +157,13 @@ public class RobotContainer {
 		final var idle = new SwerveRequest.Idle();
 		RobotModeTriggers.disabled().whileTrue(
 				drivetrain.applyRequest(() -> idle).ignoringDisable(true));
-        
+
 		// OPTIONAL SAFETY: hard-stop operator rumble when disabled.
-        // (Not strictly required because updateOperatorRumble() also forces rumble off.)
-        RobotModeTriggers.disabled().onTrue(
-    		Commands.runOnce(() ->
-          		operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0)
-          	)
-        );
-		
+		// (Not strictly required because updateOperatorRumble() also forces rumble
+		// off.)
+		RobotModeTriggers.disabled().onTrue(
+				Commands.runOnce(() -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
+
 		// joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
 		driverController.b().whileTrue(drivetrain.applyRequest(
 				() -> point.withModuleDirection(
@@ -185,118 +183,124 @@ public class RobotContainer {
 	}
 
 	/*
-	 Sets operator rumble intensity (0..1).
-	 Uses a small cache to reduce repeated setRumble calls.
-	*/
+	 * Sets operator rumble intensity (0..1).
+	 * Uses a small cache to reduce repeated setRumble calls.
+	 */
 	private void setOperatorRumble(double intensity) {
-	  intensity = Math.max(0.0, Math.min(1.0, intensity));
-      
-	  // Reduce spam: only update if the value changed meaningfully.
-	  if (Math.abs(intensity - lastOperatorRumble) < 0.01) return;
-      
-	  lastOperatorRumble = intensity;
-	  operatorController.getHID().setRumble(RumbleType.kBothRumble, intensity);
+		intensity = Math.max(0.0, Math.min(1.0, intensity));
+
+		// Reduce spam: only update if the value changed meaningfully.
+		if (Math.abs(intensity - lastOperatorRumble) < 0.01)
+			return;
+
+		lastOperatorRumble = intensity;
+		operatorController.getHID().setRumble(RumbleType.kBothRumble, intensity);
 	}
 
 	/*
-	 Returns true when robot is within the current “shooting range" distance to the hub.
-	 Includes a deadband to prevent rumble chatter when hovering near the boundary.
-	*/
+	 * Returns true when robot is within the current “shooting range" distance to
+	 * the hub.
+	 * Includes a deadband to prevent rumble chatter when hovering near the
+	 * boundary.
+	 */
 	private boolean inShootRange() {
-	  double d = drivetrain.getDistToHub(); // meters
-	  return d <= (kShootRangeM - kShootRangeDeadbandM);
+		double d = drivetrain.getDistToHub(); // meters
+		return d <= (kShootRangeM - kShootRangeDeadbandM);
 	}
 
 	/*
-	 Shooter-ready is a strict condition:
-	  - in range
-	  - shooter velocity on target
-	  - tilt position on target
-	 
-	 This is intended to be a "green light" for the operator.
-	*/
+	 * Shooter-ready is a strict condition:
+	 * - in range
+	 * - shooter velocity on target
+	 * - tilt position on target
+	 * 
+	 * This is intended to be a "green light" for the operator.
+	 */
 	private boolean shooterReady() {
-	  return inShootRange() && shooter.onShooterTarget() && shooter.onTiltTarget();
+		return inShootRange() && shooter.onShooterTarget() && shooter.onTiltTarget();
 	}
 
 	/*
-	 Endgame warning window based on the official match clock.
-	 
-	 We DO NOT run our own match timer.
-	 DriverStation.getMatchTime() returns seconds remaining in the current period.
-	 
-	 Returns true only during TELEOP and only when:
-	  - match time is known (>= 0)
-	  - time remaining is <= kEndgameWarnAtSec and > 0
-	*/
+	 * Endgame warning window based on the official match clock.
+	 * 
+	 * We DO NOT run our own match timer.
+	 * DriverStation.getMatchTime() returns seconds remaining in the current period.
+	 * 
+	 * Returns true only during TELEOP and only when:
+	 * - match time is known (>= 0)
+	 * - time remaining is <= kEndgameWarnAtSec and > 0
+	 */
 	private boolean endgameWarningWindow() {
-	  if (!DriverStation.isTeleopEnabled()) return false;
-      
-	  double t = DriverStation.getMatchTime(); // seconds remaining, -1 if unknown
-	  if (t < 0.0) return false;
-      
-	  return (t <= kEndgameWarnAtSec) && (t > 0.0);
+		if (!DriverStation.isTeleopEnabled())
+			return false;
+
+		double t = DriverStation.getMatchTime(); // seconds remaining, -1 if unknown
+		if (t < 0.0)
+			return false;
+
+		return (t <= kEndgameWarnAtSec) && (t > 0.0);
 	}
 
 	/*
-	 Simple on/off rumble pulse pattern for endgame warning.
-	 Uses rumblePulseTimer ONLY for pulse timing.
-	*/
+	 * Simple on/off rumble pulse pattern for endgame warning.
+	 * Uses rumblePulseTimer ONLY for pulse timing.
+	 */
 	private double endgamePulseIntensity() {
-	double period = kEndgamePulseOnSec + kEndgamePulseOffSec;
-	double phase = rumblePulseTimer.get() % period;
-	return (phase < kEndgamePulseOnSec) ? kRumbleEndgame : 0.0;
+		double period = kEndgamePulseOnSec + kEndgamePulseOffSec;
+		double phase = rumblePulseTimer.get() % period;
+		return (phase < kEndgamePulseOnSec) ? kRumbleEndgame : 0.0;
 	}
 
 	/**
-	 Central rumble update called continuously during robot operation.
-	 
-	 Priority order:
-	  1) Endgame warning pulses
-	  2) Shooter-ready steady rumble
-	  3) Otherwise: rumble off
-	 
-	 Safety:
-	  - Never rumble while disabled.
-	*/
+	 * Central rumble update called continuously during robot operation.
+	 * 
+	 * Priority order:
+	 * 1) Endgame warning pulses
+	 * 2) Shooter-ready steady rumble
+	 * 3) Otherwise: rumble off
+	 * 
+	 * Safety:
+	 * - Never rumble while disabled.
+	 */
 	private void updateOperatorRumble() {
-	  // Absolute safety: never rumble while disabled.
-	  if (!DriverStation.isEnabled()) {
-  		setOperatorRumble(0.0);
+		// Absolute safety: never rumble while disabled.
+		if (!DriverStation.isEnabled()) {
+			setOperatorRumble(0.0);
 
-		// Reset endgame pulse state so it starts clean on next enable.
-		endgamePulseActive = false;
-		rumblePulseTimer.stop();
-		rumblePulseTimer.reset();
-		return;
-	  }
-
-	  // Priority 1: Endgame warning pulses.
-	  if (endgameWarningWindow()) {
-		if (!endgamePulseActive) {
-		  endgamePulseActive = true;
-		  rumblePulseTimer.reset();
-		  rumblePulseTimer.start();
+			// Reset endgame pulse state so it starts clean on next enable.
+			endgamePulseActive = false;
+			rumblePulseTimer.stop();
+			rumblePulseTimer.reset();
+			return;
 		}
-        
-		setOperatorRumble(endgamePulseIntensity());
-		return;
-	  }
 
-	  // If we leave the warning window, stop/reset the pulse timer.
-	  if (endgamePulseActive) {
-		endgamePulseActive = false;
-		rumblePulseTimer.stop();
-		rumblePulseTimer.reset();
-	  }
+		// Priority 1: Endgame warning pulses.
+		if (endgameWarningWindow()) {
+			if (!endgamePulseActive) {
+				endgamePulseActive = true;
+				rumblePulseTimer.reset();
+				rumblePulseTimer.start();
+			}
 
-	  // Priority 2: Shooter-ready steady rumble.
-	  if (shooterReady()) {
-		setOperatorRumble(kRumbleShootReady);
-	  } else {
-		setOperatorRumble(0.0);
-	  }
+			setOperatorRumble(endgamePulseIntensity());
+			return;
+		}
+
+		// If we leave the warning window, stop/reset the pulse timer.
+		if (endgamePulseActive) {
+			endgamePulseActive = false;
+			rumblePulseTimer.stop();
+			rumblePulseTimer.reset();
+		}
+
+		// Priority 2: Shooter-ready steady rumble.
+		if (shooterReady()) {
+			setOperatorRumble(kRumbleShootReady);
+		} else {
+			setOperatorRumble(0.0);
+		}
 	}
+
 	public Command getAutonomousCommand() {
 		// return new ChassisTimedDrive(chassis, 0.25, 1.0);
 		return auton.getAutoChooser().getSelected();

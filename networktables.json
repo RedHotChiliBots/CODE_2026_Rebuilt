@@ -2,7 +2,7 @@
   {
     "name": "/Shuffleboard/Drive/BearingToHub",
     "type": "double",
-    "value": 36.70950953777081,
+    "value": -23.94134236062721,
     "properties": {
       "persistent": true
     }
@@ -10,7 +10,7 @@
   {
     "name": "/Shuffleboard/Drive/DistToHub",
     "type": "double",
-    "value": 3.6655759961696086,
+    "value": 2.8504845589623367,
     "properties": {
       "persistent": true
     }
@@ -346,7 +346,7 @@
   {
     "name": "/Shuffleboard/Drive/CurrHeading",
     "type": "double",
-    "value": 36.76849365234375,
+    "value": -26.03485107421875,
     "properties": {
       "persistent": true
     }
@@ -394,7 +394,7 @@
   {
     "name": "/Shuffleboard/Shooter/Auto Angle Deg",
     "type": "double",
-    "value": 53.5,
+    "value": 55.5,
     "properties": {
       "persistent": true
     }
@@ -402,7 +402,7 @@
   {
     "name": "/Shuffleboard/Shooter/Auto RPM",
     "type": "double",
-    "value": 1316.0172888039135,
+    "value": 1211.8741505938665,
     "properties": {
       "persistent": true
     }
@@ -410,7 +410,7 @@
   {
     "name": "/Shuffleboard/Drive/Yaw",
     "type": "double",
-    "value": 36.76849365234375,
+    "value": -26.03485107421875,
     "properties": {
       "persistent": true
     }

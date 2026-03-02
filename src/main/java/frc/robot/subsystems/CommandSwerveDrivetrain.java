@@ -6,7 +6,9 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -22,7 +24,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.GenericEntry;
@@ -37,10 +39,10 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.ChassisConstants;
+
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -403,12 +405,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     private void configPigeon() {
-        // Configure Pigeon orientation
-        var cfg = new Pigeon2Configuration();
-        cfg.MountPose.MountPoseYaw = 0; // Degrees clockwise is negative
-        cfg.MountPose.MountPosePitch = 0;
-        cfg.MountPose.MountPoseRoll = 90;
-        pigeon.getConfigurator().apply(cfg);
+        // Create a configuration object
+        Pigeon2Configuration configs = new Pigeon2Configuration();
+
+        // Configure the mount pose to match the physical orientation on the robot.
+        // For example, if the Pigeon 2 is mounted flat, use default values. 
+        // If it's on its side, you would specify the roll, pitch, or yaw.
+        // The values here represent the axis that points forward/up/left in the robot's reference frame.
+        configs.MountPose = new MountPoseConfigs()
+            .withMountPoseYaw(0) // Degrees offset for Yaw
+            .withMountPosePitch(0) // Degrees offset for Pitch
+            .withMountPoseRoll(0); // Degrees offset for Roll
+
+        // Apply the configurations to the device
+        // It's good practice to check the status code for errors
+        StatusCode status = pigeon.getConfigurator().apply(configs);
+        
+        if (status.isOK()) {
+            System.out.println("Pigeon 2 configuration applied successfully!");
+        } else {
+            System.err.println("Failed to apply Pigeon 2 configuration: " + status.toString());
+        }
 
         // zero yaww for field relative
         pigeon.setYaw(0.0);
