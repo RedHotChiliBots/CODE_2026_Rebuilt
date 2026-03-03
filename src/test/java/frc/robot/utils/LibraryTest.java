@@ -21,7 +21,7 @@ public class LibraryTest {
     
         lib.isMoving(5.0, 3.0);
 
-        Assertions.assertEquals(true, lib.isMoving(4.0, 3.0), "The add method should return the sum of its arguments");
+        Assertions.assertEquals(true, lib.isMoving(4.0, 3.0), "Moving towards");
     }
 
     @Test
@@ -29,7 +29,7 @@ public class LibraryTest {
     void testIsNotMoving() {
          lib.isMoving(5.0, 3.0);
 
-        Assertions.assertEquals(false, lib.isMoving(5.0, 3.0), "The add method should return the sum of its arguments");
+        Assertions.assertEquals(false, lib.isMoving(5.0, 3.0), "Not moving");
     }
 
     @Test
@@ -37,6 +37,6 @@ public class LibraryTest {
     void testIsMovingAway() {
          lib.isMoving(5.0, 3.0);
 
-        Assertions.assertEquals(false, lib.isMoving(6.0, 3.0), "The add method should return the sum of its arguments");
+        Assertions.assertEquals(false, lib.isMoving(6.0, 3.0), "Moving away");
      }
 }

@@ -2,7 +2,7 @@
   {
     "name": "/Shuffleboard/Drive/BearingToHub",
     "type": "double",
-    "value": -23.940072227581975,
+    "value": 43.566,
     "properties": {
       "persistent": true
     }
@@ -10,7 +10,7 @@
   {
     "name": "/Shuffleboard/Drive/DistToHub",
     "type": "double",
-    "value": 2.850403469007595,
+    "value": 4.548,
     "properties": {
       "persistent": true
     }
@@ -210,7 +210,7 @@
   {
     "name": "/Shuffleboard/Shooter/Shooter SP Pct",
     "type": "double",
-    "value": 23.68619857311632,
+    "value": 23.686,
     "properties": {
       "persistent": true
     }
@@ -218,7 +218,7 @@
   {
     "name": "/Shuffleboard/Shooter/Shooter SP RPM",
     "type": "double",
-    "value": 1606.8717112002112,
+    "value": 1606.872,
     "properties": {
       "persistent": true
     }
@@ -346,7 +346,7 @@
   {
     "name": "/Shuffleboard/Drive/CurrHeading",
     "type": "double",
-    "value": -24.91424560546875,
+    "value": 20.926,
     "properties": {
       "persistent": true
     }
@@ -378,7 +378,7 @@
   {
     "name": "/Shuffleboard/Climber/Hook Right Amp",
     "type": "double",
-    "value": 0.5099999904632568,
+    "value": 0.51,
     "properties": {
       "persistent": true
     }
@@ -394,7 +394,7 @@
   {
     "name": "/Shuffleboard/Shooter/Auto Angle Deg",
     "type": "double",
-    "value": 55.5,
+    "value": 52.0,
     "properties": {
       "persistent": true
     }
@@ -402,7 +402,7 @@
   {
     "name": "/Shuffleboard/Shooter/Auto RPM",
     "type": "double",
-    "value": 1211.8636024781656,
+    "value": 1422.781,
     "properties": {
       "persistent": true
     }
@@ -410,7 +410,7 @@
   {
     "name": "/Shuffleboard/Drive/Yaw",
     "type": "double",
-    "value": -24.91424560546875,
+    "value": 20.926,
     "properties": {
       "persistent": true
     }

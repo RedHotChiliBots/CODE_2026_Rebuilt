@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utils.Library;
 
 //CLASS DEFINITION
 public class Climber extends SubsystemBase {
@@ -74,6 +75,8 @@ public class Climber extends SubsystemBase {
 
   private final ServoHubConfig hubConfig = new ServoHubConfig();
 
+  private Library lib = new Library();
+  
   // ==============================================================
   // Define motor and servo pos enums
   // ==============================================================
@@ -235,8 +238,6 @@ public class Climber extends SubsystemBase {
     ClimberCommands.add("Hooks Deploy", this.deployHooks())
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
-    System.out.println("<<<<<<<<<<<<<<<<<<<<<<TESTINGs>>>>>>>>>>>>>>>>>>>>>>>");
-
     System.out.println("+++++ End of Climber Constructor +++++");
   }
 
@@ -337,12 +338,12 @@ public class Climber extends SubsystemBase {
   public void periodic() {
     sbClimberOnTgt.setBoolean(onClimberTarget());
     sbClimberSP.setString(getClimberSP().name());
-    sbClimberSPPos.setDouble(getClimberSP().getValue());
+    sbClimberSPPos.setDouble(lib.SBFormat(getClimberSP().getValue()));
     sbHookOnTgt.setBoolean(onHookTarget());
     sbHookSP.setString(getHookSP().name());
-    sbHookSPSpd.setDouble(getHookSP().getSpd());
-    sbLeftHookAmp.setDouble(getChannelAmps(leftHook));
-    sbRightHookAmp.setDouble(getChannelAmps(rightHook));
+    sbHookSPSpd.setDouble(lib.SBFormat(getHookSP().getSpd()));
+    sbLeftHookAmp.setDouble(lib.SBFormat(getChannelAmps(leftHook)));
+    sbRightHookAmp.setDouble(lib.SBFormat(getChannelAmps(rightHook)));
   }
 
   @Override

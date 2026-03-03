@@ -24,8 +24,6 @@ public class VisionConstants {
     public static String camera2Name = "front-right";
     public static String camera3Name = "front-left";
 
-    // Robot to camera transforms
-    // (Not used by Limelight, configure in web UI instead)
     // Robot to camera transforms (Where the camera is relative to front left corner
     // of the robot)
     // These will need to be adjusted as the robot is constructed
@@ -38,26 +36,26 @@ public class VisionConstants {
                     Units.degreesToRadians(30.0))); // yaw
 
     public static Transform3d robotToCamera1 = new Transform3d(new Translation3d( // rear left
-            Units.inchesToMeters(10.4574), // x
-            Units.inchesToMeters(-10.9114), // z
-            Units.inchesToMeters(3.6433)), // y
+            Units.inchesToMeters(-10.4574), // x
+            Units.inchesToMeters(-10.9114), // y
+            Units.inchesToMeters(3.6433)), // z
             new Rotation3d(0.0, // roll
                     Units.degreesToRadians(-15.0), // pitch
                     Units.degreesToRadians(30.0))); // yaw
 
     public static Transform3d robotToCamera2 = new Transform3d(new Translation3d( // front right
             Units.inchesToMeters(11.05), // x
-            Units.inchesToMeters(-7.3158), // z
+            Units.inchesToMeters(-7.3158), // y
             Units.inchesToMeters(25.5050)), // z
-            new Rotation3d(0.0, // roll
+            new Rotation3d(Units.degreesToRadians(180.0), // roll
                     Units.degreesToRadians(-15.0), // pitch
                     Units.degreesToRadians(30.0))); // yaw
 
     public static Transform3d robotToCamera3 = new Transform3d(new Translation3d( // front left
-            Units.inchesToMeters(11.05), // x
-            Units.inchesToMeters(25.5050), // y
-            Units.inchesToMeters(-7.3158)), // z
-            new Rotation3d(0.0, // roll
+            Units.inchesToMeters(-11.05), // x
+            Units.inchesToMeters(-7.3158), // y
+            Units.inchesToMeters(25.5050)), // z
+            new Rotation3d(Units.degreesToRadians(180.0), // roll
                     Units.degreesToRadians(-15.0), // pitch
                     Units.degreesToRadians(-30.0))); // yaw
 

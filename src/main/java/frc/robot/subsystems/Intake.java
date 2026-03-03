@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utils.Library;
 
 public class Intake extends SubsystemBase {
 
@@ -41,6 +42,8 @@ public class Intake extends SubsystemBase {
 
   private RelativeEncoder intakeEncoder = intake.getEncoder();
   private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
+
+  private Library lib = new Library();
 
   // ==============================================================
   // Define motor vel and pos enums
@@ -210,15 +213,15 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     sbIntakeOnTgt.setBoolean(onIntakeTarget());
     sbIntakeSP.setString(getIntakeSP().name());
-    sbIntakeSPPct.setDouble(getIntakeSP(false));
-    sbIntakeSPRPM.setDouble(getIntakeSP(true));
-    sbIntakeVelPct.setDouble(getIntakeVel(false));
-    sbIntakeVelRPM.setDouble(getIntakeVel(true));
+    sbIntakeSPPct.setDouble(lib.SBFormat(getIntakeSP(false)));
+    sbIntakeSPRPM.setDouble(lib.SBFormat(getIntakeSP(true)));
+    sbIntakeVelPct.setDouble(lib.SBFormat(getIntakeVel(false)));
+    sbIntakeVelRPM.setDouble(lib.SBFormat(getIntakeVel(true)));
 
     sbTiltOnTgt.setBoolean(onTiltTarget());
     sbTiltSP.setString(getTiltSP().name());
-    sbTiltSPPos.setDouble(getTiltSP().getPos());
-    sbTiltPos.setDouble(getTiltPos());
+    sbTiltSPPos.setDouble(lib.SBFormat(getTiltSP().getPos()));
+    sbTiltPos.setDouble(lib.SBFormat(getTiltPos()));
 
   }
 

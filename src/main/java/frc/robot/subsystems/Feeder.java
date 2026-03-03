@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utils.Library;
 
 
 public class Feeder extends SubsystemBase {
@@ -42,6 +43,8 @@ public class Feeder extends SubsystemBase {
   // Define trigger inputs
 	// =============================================================
   private final AnalogInput fuelSensor = new AnalogInput(Constants.AIOId.kFuelSensor);
+
+  private Library lib = new Library();
 
 	// ==============================================================
   // Define motor vel enum
@@ -161,13 +164,13 @@ public class Feeder extends SubsystemBase {
   public void periodic() {
     sbFeederOnTgt.setBoolean(onFeederTarget());
     sbFuelAvail.setBoolean(isFuelAvail());
-    sbFuelVolts.setDouble(getFuelVolts());
-    sbFuelDist.setDouble(getFuelDist());
+    sbFuelVolts.setDouble(lib.SBFormat(getFuelVolts()));
+    sbFuelDist.setDouble(lib.SBFormat(getFuelDist()));
     sbFeederSP.setString(getFeederSP().name());
-    sbFeederSPPct.setDouble(getFeederSP(false));
-    sbFeederSPRPM.setDouble(getFeederSP(true));
-    sbFeederVelPct.setDouble(getFeederVel(false));
-    sbFeederVelRPM.setDouble(getFeederVel(true));
+    sbFeederSPPct.setDouble(lib.SBFormat(getFeederSP(false)));
+    sbFeederSPRPM.setDouble(lib.SBFormat(getFeederSP(true)));
+    sbFeederVelPct.setDouble(lib.SBFormat(getFeederVel(false)));
+    sbFeederVelRPM.setDouble(lib.SBFormat(getFeederVel(true)));
   }
 
   @Override

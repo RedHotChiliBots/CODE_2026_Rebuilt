@@ -1,6 +1,5 @@
 package frc.robot.utils;
 
-
 public class Library {
 
    private double prevGap = 0.0;
@@ -10,8 +9,8 @@ public class Library {
       boolean moving = currGap < prevGap;
       // System.out.println(
       // "pos/sp: " + pos + "/" + sp +
-      //       " prevGap: " + prevGap + " currGap: " + currGap +
-      //       " Moving: " + moving);
+      // " prevGap: " + prevGap + " currGap: " + currGap +
+      // " Moving: " + moving);
       prevGap = currGap;
       return moving;
    }
@@ -22,5 +21,9 @@ public class Library {
 
    public double getPrevGap() {
       return this.prevGap;
+   }
+
+   public double SBFormat(double in) {
+      return Math.round(in * 1000.0) / 1000.0;
    }
 }
