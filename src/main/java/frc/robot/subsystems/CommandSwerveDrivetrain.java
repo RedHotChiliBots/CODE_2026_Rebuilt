@@ -429,9 +429,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // The values here represent the axis that points forward/up/left in the robot's
         // reference frame.
         configs.MountPose = new MountPoseConfigs()
-                .withMountPoseYaw(0) // Degrees offset for Yaw
-                .withMountPosePitch(0) // Degrees offset for Pitch
-                .withMountPoseRoll(0); // Degrees offset for Roll
+                .withMountPoseYaw(-90.0) // Degrees offset for Yaw
+                .withMountPosePitch(0.0) // Degrees offset for Pitch
+                .withMountPoseRoll(0.0); // Degrees offset for Roll
 
         // Apply the configurations to the device
         // It's good practice to check the status code for errors

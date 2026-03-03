@@ -24,8 +24,6 @@ public class VisionConstants {
     public static String camera2Name = "front-right";
     public static String camera3Name = "front-left";
 
-    // Robot to camera transforms
-    // (Not used by Limelight, configure in web UI instead)
     // Robot to camera transforms (Where the camera is relative to front left corner
     // of the robot)
     // These will need to be adjusted as the robot is constructed
@@ -49,7 +47,7 @@ public class VisionConstants {
             Units.inchesToMeters(11.05), // x
             Units.inchesToMeters(-7.3158), // y
             Units.inchesToMeters(25.5050)), // z
-            new Rotation3d(0.0, // roll
+            new Rotation3d(Units.degreesToRadians(180.0), // roll
                     Units.degreesToRadians(-15.0), // pitch
                     Units.degreesToRadians(30.0))); // yaw
 
@@ -57,7 +55,7 @@ public class VisionConstants {
             Units.inchesToMeters(-11.05), // x
             Units.inchesToMeters(-7.3158), // y
             Units.inchesToMeters(25.5050)), // z
-            new Rotation3d(0.0, // roll
+            new Rotation3d(Units.degreesToRadians(180.0), // roll
                     Units.degreesToRadians(-15.0), // pitch
                     Units.degreesToRadians(-30.0))); // yaw
 

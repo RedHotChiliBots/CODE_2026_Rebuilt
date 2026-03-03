@@ -49,7 +49,7 @@ public class RobotContainer {
 	private final SwerveRequest.FieldCentricFacingAngle driveAngle = new SwerveRequest.FieldCentricFacingAngle()
 			.withDeadband(MaxSpeed * 0.1) // .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
 			.withDriveRequestType(DriveRequestType.OpenLoopVoltage) // Use open-loop control for drive motors
-			.withHeadingPID(100.0, 0.0, 0.5);
+			.withHeadingPID(50.0, 0.0, 0.0);
 	// .Position); // Use position control for steer motors
 
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
