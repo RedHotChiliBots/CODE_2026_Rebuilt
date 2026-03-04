@@ -133,9 +133,9 @@ public class RobotContainer {
 				// Drivetrain will execute this command periodically
 				drivetrain.applyRequest(() -> drive
 						// Drive forward with negative Y (forward)
-						.withVelocityX(-driverController.getLeftY() * MaxSpeed)
+						.withVelocityX(driverController.getLeftY() * MaxSpeed)
 						// Drive left with negative X (left)
-						.withVelocityY(-driverController.getLeftX() * MaxSpeed)
+						.withVelocityY(driverController.getLeftX() * MaxSpeed)
 						// Drive counterclockwise with negative X (left)
 						.withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
 
@@ -146,9 +146,9 @@ public class RobotContainer {
 								shooter.setTilt(shooter.getAutoTilt())),
 						drivetrain.applyRequest(() -> driveAngle
 								// Drive forward with negative Y (forward)
-								.withVelocityX(-driverController.getLeftY() * MaxSpeed)
+								.withVelocityX(driverController.getLeftY() * MaxSpeed)
 								// Drive left with negative X (left)
-								.withVelocityY(-driverController.getLeftX() * MaxSpeed)
+								.withVelocityY(driverController.getLeftX() * MaxSpeed)
 								// Drive pointing to hub
 								.withTargetDirection(drivetrain.bearingToHub.minus(new Rotation2d(Math.PI))))));
 
