@@ -2,7 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-
 package frc.robot.subsystems;
 
 import java.util.Map;
@@ -25,11 +24,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.Library;
 
-
 public class Feeder extends SubsystemBase {
-	// ==============================================================
+  // ==============================================================
   // Define Feeder Motor
-	// ==============================================================
+  // ==============================================================
   private final SparkMax feeder = new SparkMax(
       Constants.CANId.kFeederCanId, MotorType.kBrushless);
 
@@ -38,51 +36,51 @@ public class Feeder extends SubsystemBase {
   private SparkClosedLoopController feederController = feeder.getClosedLoopController();
 
   private RelativeEncoder feederEncoder = feeder.getEncoder();
-  
-	// ==============================================================
+
+  // ==============================================================
   // Define trigger inputs
-	// =============================================================
+  // =============================================================
   private final AnalogInput fuelSensor = new AnalogInput(Constants.AIOId.kFuelSensor);
 
   private Library lib = new Library();
 
-	// ==============================================================
+  // ==============================================================
   // Define motor vel enum
-	// ==============================================================
+  // ==============================================================
   // The Feeder SP is stored as a percentage of RPMs
   public enum FeederSP {
     OFF(0.0),
-    LOW(25.0),
-    MED(50.0),
-    HI(75.0);
+    LOW(50.0),
+    MED(75.0),
+    HI(100.0);
 
-    private double vel;
+    private double pct;
 
-    FeederSP(double vel) {
-      this.vel = vel;
+    FeederSP(double pct) {
+      this.pct = pct;
     }
 
     public double getVel(boolean rpm) {
       if (rpm) {
-        return vel * Constants.MotorConstants.kNeoFreeSpeedRpm / 100.0;
+        return pct * Constants.MotorConstants.kNeoFreeSpeedRpm / 100.0;
       } else {
-        return vel;
+        return pct;
       }
     }
   }
 
   // ==============================================================
   // Initialize motor setpoints
-	// ==============================================================
+  // ==============================================================
   private FeederSP feederSP = FeederSP.OFF;
 
-	// ==============================================================
+  // ==============================================================
   // Initialize Dashboard entries
-	// ==============================================================
+  // ==============================================================
   // private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
   // private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
   private final ShuffleboardTab feederTab = Shuffleboard.getTab("Feeder");
-	private final ShuffleboardTab FeederCommands = Shuffleboard.getTab("Feeder Commands");
+  private final ShuffleboardTab FeederCommands = Shuffleboard.getTab("Feeder Commands");
 
   private final GenericEntry sbFuelAvail = feederTab.addPersistent("Fuel Avail", false)
       .withWidget("Boolean Box").withPosition(0, 0).withSize(2, 1).getEntry();
@@ -105,15 +103,16 @@ public class Feeder extends SubsystemBase {
   private final GenericEntry sbFeederVelRPM = feederTab.addPersistent("Feeder Vel RPM", 0)
       .withWidget("Text View").withPosition(4, 1).withSize(2, 1).getEntry();
 
-	// ==============================================================
+  // ==============================================================
   // Constructor
-	// ==============================================================
+  // ==============================================================
   public Feeder() {
     System.out.println("+++++ Starting Feeder Constructor +++++");
     // Configure Feeder motor
     feederConfig
         .idleMode(Constants.Feeder.kFeederIdleMode)
-        .smartCurrentLimit(Constants.Feeder.kFeederCurrentLimit);
+        .smartCurrentLimit(Constants.Feeder.kFeederCurrentLimit)
+				.inverted(Constants.Feeder.kFeederMotorInverted);
     feederConfig.encoder
         .positionConversionFactor(Constants.Feeder.kFeederPositionFactor)
         .velocityConversionFactor(Constants.Feeder.kFeederVelocityFactor);
@@ -133,28 +132,27 @@ public class Feeder extends SubsystemBase {
         com.revrobotics.PersistMode.kPersistParameters);
 
     // Add commands to Dashboard
-		FeederCommands.add("Shoot Off", this.setFeeder(FeederSP.OFF))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		FeederCommands.add("Shoot Hi", this.setFeeder(FeederSP.HI))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		FeederCommands.add("Shoot Med", this.setFeeder(FeederSP.MED))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		FeederCommands.add("Shoot Low", this.setFeeder(FeederSP.LOW))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    FeederCommands.add("Feed Off", this.setFeeder(FeederSP.OFF))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    FeederCommands.add("Feed Hi", this.setFeeder(FeederSP.HI))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    FeederCommands.add("Feed Med", this.setFeeder(FeederSP.MED))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    FeederCommands.add("Feed Low", this.setFeeder(FeederSP.LOW))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
-		// Initialize intake start positions
-    setFeederSP(FeederSP.LOW);
-    //setFeederVel(feederSP);
+    // Initialize intake start positions
+    setFeederSP(FeederSP.OFF);
+    setFeederVel(feederSP);
 
     System.out.println("----- Ending Feeder Constructor -----");
   }
 
-
-	// ==============================================================
+  // ==============================================================
   // Define subsystem commands
   // ==============================================================
   public Command setFeeder(FeederSP sp) {
-    return runOnce(() -> setFeederSP(sp));
+    return run(() -> setFeederVel(sp));
   }
 
   // ==============================================================
@@ -178,7 +176,7 @@ public class Feeder extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
   }
 
-	// ==============================================================
+  // ==============================================================
   // Define subsystem methods
   // ==============================================================
   public void setFeederSP(FeederSP sp) {
@@ -195,7 +193,7 @@ public class Feeder extends SubsystemBase {
 
   public void setFeederVel(FeederSP sp) {
     setFeederSP(sp);
-    feederController.setSetpoint(getFeederSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
+    feederController.setSetpoint(getFeederSP(true), SparkBase.ControlType.kVelocity);
   }
 
   public double getFeederVel(boolean rpm) {

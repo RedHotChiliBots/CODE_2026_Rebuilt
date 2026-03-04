@@ -51,21 +51,21 @@ public class Intake extends SubsystemBase {
   // The Feeder SP is stored as a percentage of RPMs
   public enum IntakeSP {
     OFF(0.0),
-    LOW(25.0),
-    MED(50.0),
-    HI(75.0);
+    LOW(50.0),
+    MED(75.0),
+    HI(100.0);
 
-    private double vel;
+    private double pct;
 
-    IntakeSP(double vel) {
-      this.vel = vel;
+    IntakeSP(double pct) {
+      this.pct = pct;
     }
 
     public double getVel(boolean rpm) {
       if (rpm) {
-        return vel * Constants.MotorConstants.kNeoFreeSpeedRpm / 100.0;
+        return pct * Constants.MotorConstants.kNeoFreeSpeedRpm / 100.0;
       } else {
-        return vel;
+        return pct;
       }
     }
   }
@@ -131,7 +131,8 @@ public class Intake extends SubsystemBase {
     // Configure Intake motor
     intakeConfig
         .idleMode(Constants.Intake.kIntakeIdleMode)
-        .smartCurrentLimit(Constants.Intake.kIntakeCurrentLimit);
+        .smartCurrentLimit(Constants.Intake.kIntakeCurrentLimit)
+				.inverted(Constants.Intake.kIntakeMotorInverted);
     intakeConfig.encoder
         .positionConversionFactor(Constants.Intake.kIntakePositionFactor)
         .velocityConversionFactor(Constants.Intake.kIntakeVelocityFactor);
@@ -199,7 +200,7 @@ public class Intake extends SubsystemBase {
   // Define subsystem commands
   // ==============================================================
   public Command setIntake(IntakeSP sp) {
-    return runOnce(() -> setIntakeVel(sp));
+    return run(() -> setIntakeVel(sp));
   }
 
   public Command setTilt(TiltSP sp) {
@@ -266,7 +267,7 @@ public class Intake extends SubsystemBase {
 
   public void setIntakeVel(IntakeSP sp) {
     setIntakeSP(sp);
-    intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
+    intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kVelocity);
   }
 
   public double getIntakeVel(boolean rpm) {
