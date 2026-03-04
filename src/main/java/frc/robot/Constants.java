@@ -203,7 +203,7 @@ public final class Constants {
 
 		public static final double kLeftZeroOffset = 0.6643792;
 		public static final boolean kLeftZeroCentered = true;
-		public static final boolean kLeftMotorInverted = true;
+		public static final boolean kLeftMotorInverted = false;
 		public static final boolean kLeftEncoderInverted = true;
 
 		public static final double kRightZeroOffset = 0.4019657;
@@ -211,7 +211,7 @@ public final class Constants {
 		public static final boolean kRightMotorInverted = false;
 		public static final boolean kRightEncoderInverted = false;
 
-		public static final double ktiltZeroOffset = 0.6643792;
+		public static final double ktiltZeroOffset = 0.22696681;
 		public static final boolean ktiltZeroCentered = true;
 		public static final boolean ktiltMotorInverted = true;
 		public static final boolean ktiltEncoderInverted = true;
@@ -241,8 +241,8 @@ public final class Constants {
 		public static final double kPosMaxAccel = 40000.0; // 5000.0
 		public static final double kPosAllowedErr = 0.1;
 
-		public static final IdleMode kLeftIdleMode = IdleMode.kBrake;
-		public static final IdleMode kRightIdleMode = IdleMode.kBrake;
+		public static final IdleMode kLeftIdleMode = IdleMode.kCoast;
+		public static final IdleMode kRightIdleMode = IdleMode.kCoast;
 		public static final IdleMode ktiltIdleMode = IdleMode.kBrake;
 
 		public static final int kLeftCurrentLimit = 50; // amps
@@ -372,14 +372,14 @@ public final class Constants {
 		public static final double kFeederZeroOffset = 0.6643792;
 		public static final boolean kFeederZeroCentered = true;
 		public static final boolean kFeederMotorInverted = true;
-		public static final boolean kFeederEncoderInverted = true;
+		public static final boolean kFeederEncoderInverted = false;
 		public static final double kFeederVelFF = 0.0;
 
 		public static final boolean kFeederEncodeWrapping = false;
 		public static final IdleMode kFeederIdleMode = IdleMode.kBrake;
 
 		public static final double kFeederGearRatio = (GearBox.Max3 * GearBox.Max4);
-												
+
 		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
 		public static final double kFeederPositionFactor = 1.0 / kFeederGearRatio;	// RPMs
 		public static final double kFeederVelocityFactor = kFeederPositionFactor / 60.0; // Revs per second
