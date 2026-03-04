@@ -430,7 +430,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // reference frame.
         configs.MountPose = new MountPoseConfigs()
                 .withMountPoseYaw(-90.0) // Degrees offset for Yaw
-                .withMountPosePitch(0.0) // Degrees offset for Pitch
+                .withMountPosePitch(90.0) // Degrees offset for Pitch
                 .withMountPoseRoll(0.0); // Degrees offset for Roll
 
         // Apply the configurations to the device
