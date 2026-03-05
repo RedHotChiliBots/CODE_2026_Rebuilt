@@ -132,13 +132,13 @@ public class Feeder extends SubsystemBase {
         com.revrobotics.PersistMode.kPersistParameters);
 
     // Add commands to Dashboard
-    FeederCommands.add("Feed Off", this.setFeeder(FeederSP.OFF))
+    FeederCommands.add("Feeder Off", this.setFeeder(FeederSP.OFF))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    FeederCommands.add("Feed Hi", this.setFeeder(FeederSP.HI))
+    FeederCommands.add("Feeder Hi", this.setFeeder(FeederSP.HI))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    FeederCommands.add("Feed Med", this.setFeeder(FeederSP.MED))
+    FeederCommands.add("Feeder Med", this.setFeeder(FeederSP.MED))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    FeederCommands.add("Feed Low", this.setFeeder(FeederSP.LOW))
+    FeederCommands.add("Feeder Low", this.setFeeder(FeederSP.LOW))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
     // Initialize intake start positions

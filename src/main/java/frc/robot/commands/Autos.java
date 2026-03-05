@@ -104,7 +104,6 @@ public class Autos {
     NamedCommands.registerCommand("ShooterLow", shooter.setShooter(Shooter.ShooterSP.LOW));
     NamedCommands.registerCommand("ShooterMed", shooter.setShooter(Shooter.ShooterSP.MED));
     NamedCommands.registerCommand("ShooterHi", shooter.setShooter(Shooter.ShooterSP.HI));
-    NamedCommands.registerCommand("TiltOff", shooter.setTilt(Shooter.TiltSP.OFF));
     NamedCommands.registerCommand("TiltLow", shooter.setTilt(Shooter.TiltSP.LOW));
     NamedCommands.registerCommand("TiltMed", shooter.setTilt(Shooter.TiltSP.MED));
     NamedCommands.registerCommand("TiltHi", shooter.setTilt(Shooter.TiltSP.HI));

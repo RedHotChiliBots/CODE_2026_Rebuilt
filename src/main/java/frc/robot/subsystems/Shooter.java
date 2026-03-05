@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
@@ -22,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.Intake.IntakeSP;
 import frc.robot.utils.Library;
 import frc.robot.utils.ShooterBallistics;
 
@@ -81,17 +81,15 @@ public class Shooter extends SubsystemBase {
 
 	// The Tilt SP is in degrees
 	public enum TiltSP {
-		OFF(0.0),
-		LOW(25.0),
-		MED(50.0),
-		HI(75.0);
+		LOW(10.5),
+		MED((10.5 + 50.0) / 2.0),
+		HI(50.0);
 
 		private double pos;
 
 		TiltSP(double pos) {
 			this.pos = pos;
 		}
-
 		public double getPos() {
 			return pos;
 		}
@@ -101,10 +99,11 @@ public class Shooter extends SubsystemBase {
 	// Initialize motor setpoints
 	// ==============================================================
 	private ShooterSP shooterSP = ShooterSP.OFF;
+	private double shooterSPDbl = 0.0;
 	private boolean shooterSpIsCustom = false;
-	private double shooterSetpointRpm = 0.0;
 
-	private TiltSP tiltSP = TiltSP.OFF;
+	private TiltSP tiltSP = TiltSP.LOW;
+	private double tiltSPDbl = 0;
 	private boolean tiltSpIsCustom = false;
 	private double tiltSetpointDeg = 0.0;
 
@@ -225,8 +224,6 @@ public class Shooter extends SubsystemBase {
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
 		ShooterCommands.add("Shoot Low", this.setShooter(ShooterSP.LOW))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		ShooterCommands.add("Tilt Off", this.setTilt(TiltSP.OFF))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
 		ShooterCommands.add("Tilt Hi", this.setTilt(TiltSP.HI))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
 		ShooterCommands.add("Tilt Med", this.setTilt(TiltSP.MED))
@@ -236,7 +233,7 @@ public class Shooter extends SubsystemBase {
 
 		// Initialize intake start positions
 		setShooterVel(ShooterSP.OFF);
-		setTiltPos(TiltSP.OFF);
+		setTiltPos(TiltSP.LOW);
 
 		System.out.println("----- Ending Shooter Constructor -----");
 	}
@@ -286,7 +283,7 @@ public class Shooter extends SubsystemBase {
 
 		sbTiltOnTgt.setBoolean(onTiltTarget());
 		sbTiltSP.setString(getTiltSPName());
-		sbTiltSPPos.setDouble(lib.SBFormat(getTiltSPDeg()));
+		sbTiltSPPos.setDouble(lib.SBFormat(getTiltSPDbl()));
 		sbTiltPos.setDouble(lib.SBFormat(getTiltPos()));
 
 		// Gives you live visibility of what the solver wants to do,
@@ -347,11 +344,21 @@ public class Shooter extends SubsystemBase {
 	 * If a custom RPM is active, we return "CUSTOM" since there is no enum value.
 	 */
 	public String getShooterSPName() {
-		return shooterSpIsCustom ? "CUSTOM" : shooterSP.name();
+		return shooterSpIsCustom ? "Velocity" : shooterSP.name();
 	}
 
 	public void setShooterSP(ShooterSP sp) {
+		shooterSpIsCustom = false;
 		shooterSP = sp;
+	}
+
+	public void setShooterSPDbl(double sp) {
+		shooterSpIsCustom = true;
+		shooterSPDbl = sp;
+	}
+
+	public double getShooterSPDbl() {
+		return shooterSPDbl;
 	}
 
 	public ShooterSP getShooterSP() {
@@ -364,13 +371,11 @@ public class Shooter extends SubsystemBase {
 
 	public void setShooterVel(ShooterSP sp) {
 		setShooterSP(sp);
-		shooterSpIsCustom = false;
 		leftController.setSetpoint(sp.getVel(true), SparkBase.ControlType.kVelocity);
 	}
 
 	public void setShooterVel(double sp) {
-		shooterSpIsCustom = true;
-		shooterSetpointRpm = sp;
+		setShooterSPDbl(sp);
 		leftController.setSetpoint(sp, SparkBase.ControlType.kVelocity);
 	}
 
@@ -383,28 +388,39 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public String getTiltSPName() {
-		return tiltSpIsCustom ? "CUSTOM" : tiltSP.name();
+		return tiltSpIsCustom ? "Degrees" : tiltSP.name();
 	}
 
-	public double getTiltSPDeg() {
-		return tiltSetpointDeg;
-	}
-
-	public void setTiltPos(TiltSP sp) {
-		tiltSP = sp;
+	public void setTiltSP(TiltSP sp) {
 		tiltSpIsCustom = false;
-		tiltSetpointDeg = sp.getPos();
-		tiltController.setSetpoint(tiltSetpointDeg, SparkBase.ControlType.kMAXMotionPositionControl);
+		tiltSP = sp;
 	}
 
-	public void setTiltPos(double sp) {
+	public void setTiltSPDbl(double sp) {
 		tiltSpIsCustom = true;
-		tiltSetpointDeg = sp;
-		tiltController.setSetpoint(sp, SparkBase.ControlType.kMAXMotionPositionControl);
+		tiltSPDbl = sp;
+	}
+
+	public double getTiltSPDbl() {
+		return tiltSPDbl;
+	}
+
+	public double getTiltSPPos() {
+		return tiltSP.getPos();
 	}
 
 	public TiltSP getTiltSP() {
 		return tiltSP;
+	}
+
+	public void setTiltPos(TiltSP sp) {
+		setTiltSP(sp);
+		tiltController.setSetpoint(sp.getPos(), SparkBase.ControlType.kPosition);
+	}
+
+	public void setTiltPos(double sp) {
+		setTiltSPDbl(sp);
+		tiltController.setSetpoint(sp, SparkBase.ControlType.kPosition);
 	}
 
 	public double getTiltPos() {

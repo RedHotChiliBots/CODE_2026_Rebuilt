@@ -72,8 +72,8 @@ public class Intake extends SubsystemBase {
 
   // The Tilt SP is in degrees
   public enum TiltSP {
-    STOW(25.0),
-    DEPLOY(75.0);
+    STOW(0.0),
+    DEPLOY(80.0);
 
     private double pos;
 
@@ -176,17 +176,17 @@ public class Intake extends SubsystemBase {
         com.revrobotics.PersistMode.kPersistParameters);
 
     // Add commands to Dashboard
-		IntakeCommands.add("Shoot Off", this.setIntake(IntakeSP.OFF))
+		IntakeCommands.add("Intake Off", this.setIntake(IntakeSP.OFF))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Shoot Hi", this.setIntake(IntakeSP.HI))
+		IntakeCommands.add("Intake Hi", this.setIntake(IntakeSP.HI))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Shoot Med", this.setIntake(IntakeSP.MED))
+		IntakeCommands.add("Intake Med", this.setIntake(IntakeSP.MED))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Shoot Low", this.setIntake(IntakeSP.LOW))
+		IntakeCommands.add("Intake Low", this.setIntake(IntakeSP.LOW))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Tilt Off", this.setTilt(TiltSP.STOW))
+		IntakeCommands.add("Tilt Stow", this.setTilt(TiltSP.STOW))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Tilt Hi", this.setTilt(TiltSP.DEPLOY))
+		IntakeCommands.add("Tilt Deploy", this.setTilt(TiltSP.DEPLOY))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
 				
     // Initialize intake start positions
@@ -223,7 +223,6 @@ public class Intake extends SubsystemBase {
     sbTiltSP.setString(getTiltSP().name());
     sbTiltSPPos.setDouble(lib.SBFormat(getTiltSP().getPos()));
     sbTiltPos.setDouble(lib.SBFormat(getTiltPos()));
-
   }
 
   @Override
@@ -292,7 +291,7 @@ public class Intake extends SubsystemBase {
 
   public void setTiltPos(TiltSP sp) {
     setTiltSP(sp);
-    tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kMAXMotionPositionControl);
+    tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kPosition);
   }
 
   public TiltSP getTiltSP() {
