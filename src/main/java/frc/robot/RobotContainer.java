@@ -124,10 +124,6 @@ public class RobotContainer {
 
 		configureBindings();
 
-		// Run rumble updater continuously.
-		// .ignoringDisable(true) allows the function to run while disabled so we can
-		// force rumble OFF and keep the pulse timer state clean.
-		Commands.run(this::updateOperatorRumble).ignoringDisable(true).schedule();
 	}
 
 	private void configureBindings() {
@@ -282,7 +278,7 @@ public class RobotContainer {
 	 * Safety:
 	 * - Never rumble while disabled.
 	 */
-	private void updateOperatorRumble() {
+	public void updateOperatorRumble() {
 		// Absolute safety: never rumble while disabled.
 		if (!DriverStation.isEnabled()) {
 			setOperatorRumble(0.0);

@@ -170,7 +170,13 @@ public class Feeder extends SubsystemBase {
     sbFuelAvail.setBoolean(isFuelAvail());
     sbFuelVolts.setDouble(lib.SBFormat(getFuelVolts()));
     sbFuelDist.setDouble(lib.SBFormat(getFuelDist()));
+    sbFuelVolts.setDouble(lib.SBFormat(getFuelVolts()));
+    sbFuelDist.setDouble(lib.SBFormat(getFuelDist()));
     sbFeederSP.setString(getFeederSP().name());
+    sbFeederSPPct.setDouble(lib.SBFormat(getFeederSP(false)));
+    sbFeederSPRPM.setDouble(lib.SBFormat(getFeederSP(true)));
+    sbFeederVelPct.setDouble(lib.SBFormat(getFeederVel(false)));
+    sbFeederVelRPM.setDouble(lib.SBFormat(getFeederVel(true)));
     sbFeederSPPct.setDouble(lib.SBFormat(getFeederSP(false)));
     sbFeederSPRPM.setDouble(lib.SBFormat(getFeederSP(true)));
     sbFeederVelPct.setDouble(lib.SBFormat(getFeederVel(false)));

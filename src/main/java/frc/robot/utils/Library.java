@@ -11,6 +11,8 @@ public class Library {
       // "pos/sp: " + pos + "/" + sp +
       // " prevGap: " + prevGap + " currGap: " + currGap +
       // " Moving: " + moving);
+      // " prevGap: " + prevGap + " currGap: " + currGap +
+      // " Moving: " + moving);
       prevGap = currGap;
       return moving;
    }

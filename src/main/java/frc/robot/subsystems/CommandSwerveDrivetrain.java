@@ -35,6 +35,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -44,6 +46,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.CANId;
 import frc.robot.Constants.CANId;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
@@ -144,7 +147,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final Library lib = new Library();
 
     private final Pigeon2 pigeon = new Pigeon2(TunerConstants.kPigeonId, TunerConstants.kCANBus);
-    
+
     // Create field and pose related vars
     private final Field2d m_field = new Field2d();
 
@@ -203,6 +206,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putData("Field", m_field);
 
         configPDH();
+        configPDH();
         configPigeon();
         setupAutoBuilder();
     }
@@ -234,6 +238,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
 
+        configPDH();
         configPDH();
         configPigeon();
         setupAutoBuilder();
@@ -281,6 +286,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(startPose);
         SmartDashboard.putData("Field", m_field);
 
+        configPDH();
         configPDH();
         configPigeon();
         setupAutoBuilder();
@@ -344,10 +350,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         bearingToHub = getBearingToHub(); // Update bearing to hub
         sbBearingToHub.setDouble(lib.SBFormat(bearingToHub.getDegrees()));
+        sbBearingToHub.setDouble(lib.SBFormat(bearingToHub.getDegrees()));
         distToHub = getDistToHub(); // Update distance to hub
         sbDistToHub.setDouble(lib.SBFormat(distToHub));
         sbCurrHeading.setDouble(lib.SBFormat(getHeading()));
+        sbDistToHub.setDouble(lib.SBFormat(distToHub));
+        sbCurrHeading.setDouble(lib.SBFormat(getHeading()));
 
+        sbYaw.setDouble(lib.SBFormat(pigeon.getYaw().getValueAsDouble()));
+        sbPitch.setDouble(lib.SBFormat(pigeon.getPitch().getValueAsDouble()));
+        sbRoll.setDouble(lib.SBFormat(pigeon.getRoll().getValueAsDouble()));
         sbYaw.setDouble(lib.SBFormat(pigeon.getYaw().getValueAsDouble()));
         sbPitch.setDouble(lib.SBFormat(pigeon.getPitch().getValueAsDouble()));
         sbRoll.setDouble(lib.SBFormat(pigeon.getRoll().getValueAsDouble()));
@@ -425,7 +437,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         // Configure the mount pose to match the physical orientation on the robot.
         // For example, if the Pigeon 2 is mounted flat, use default values.
+        // For example, if the Pigeon 2 is mounted flat, use default values.
         // If it's on its side, you would specify the roll, pitch, or yaw.
+        // The values here represent the axis that points forward/up/left in the robot's
+        // reference frame.
         // The values here represent the axis that points forward/up/left in the robot's
         // reference frame.
         configs.MountPose = new MountPoseConfigs()

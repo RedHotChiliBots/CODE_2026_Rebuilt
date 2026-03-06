@@ -294,6 +294,8 @@ public class Shooter extends SubsystemBase {
 		sbAutoFeasible.setBoolean(auto.feasible());
 		sbAutoAngleDeg.setDouble(lib.SBFormat(auto.feasible() ? auto.angleDeg() : ShooterBallistics.kMinAngleDeg));
 		sbAutoRpm.setDouble(lib.SBFormat(auto.feasible() ? auto.wheelRpm() : 0.0));
+		sbAutoAngleDeg.setDouble(lib.SBFormat(auto.feasible() ? auto.angleDeg() : ShooterBallistics.kMinAngleDeg));
+		sbAutoRpm.setDouble(lib.SBFormat(auto.feasible() ? auto.wheelRpm() : 0.0));
 	}
 
 	@Override
@@ -373,14 +375,14 @@ public class Shooter extends SubsystemBase {
 
 	public void setShooterVel(ShooterSP sp) {
 		setShooterSP(sp);
-		leftController.setSetpoint(sp.getVel(false)/100.0*12.0, SparkBase.ControlType.kVoltage);
-			//true), SparkBase.ControlType.kMAXMotionVelocityControl);
+		leftController.setSetpoint(sp.getVel(false) / 100.0 * 12.0, SparkBase.ControlType.kVoltage);
+		// true), SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
 	public void setShooterVel(double sp) {
 		setShooterSPDbl(sp);
-		leftController.setSetpoint(sp/MotorConstants.kVortexFreeSpeedRpm*12.0, SparkBase.ControlType.kVoltage);
-			// SparkBase.ControlType.kMAXMotionVelocityControl);
+		leftController.setSetpoint(sp / MotorConstants.kVortexFreeSpeedRpm * 12.0, SparkBase.ControlType.kVoltage);
+		// SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
 	public double getShooterVel(boolean rpm) {

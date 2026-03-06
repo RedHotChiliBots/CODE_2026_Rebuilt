@@ -7,6 +7,8 @@ package frc.robot;
 import com.ctre.phoenix6.HootAutoReplay;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -27,7 +29,8 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
-        CommandScheduler.getInstance().run(); 
+        CommandScheduler.getInstance().run();
+        m_robotContainer.updateOperatorRumble();
     }
 
     @Override
@@ -78,6 +81,22 @@ public class Robot extends TimedRobot {
     @Override
     public void testExit() {}
 
+    private double simStart = -1;
+
     @Override
-    public void simulationPeriodic() {}
+    public void simulationPeriodic() {
+      if (simStart < 0) simStart = Timer.getFPGATimestamp();
+    
+      double remaining = Math.max(0.0, 30.0 - (Timer.getFPGATimestamp() - simStart));
+      
+      // Simulate TELEOP: autonomous=false and test=false
+      DriverStationSim.setAutonomous(false);
+      DriverStationSim.setTest(false);
+      
+      DriverStationSim.setEnabled(true);
+      DriverStationSim.setMatchTime(remaining);
+      DriverStationSim.notifyNewData();
+      
+      if (remaining <= 0.0) simStart = Timer.getFPGATimestamp();
+    }
 }

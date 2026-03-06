@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.Library;
+import frc.robot.utils.Library;
 
 public class Intake extends SubsystemBase {
 
@@ -177,7 +178,7 @@ public class Intake extends SubsystemBase {
         .cruiseVelocity(Constants.Intake.kIntakeMaxVel)
         .maxAcceleration(Constants.Intake.kIntakeMaxAccel)
         .allowedProfileError(Constants.Intake.kIntakeAllowedErr);
-        
+
     tilt.configure(
         tiltConfig,
         com.revrobotics.ResetMode.kResetSafeParameters,
@@ -222,6 +223,10 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     sbIntakeOnTgt.setBoolean(onIntakeTarget());
     sbIntakeSP.setString(getIntakeSP().name());
+    sbIntakeSPPct.setDouble(lib.SBFormat(getIntakeSP(false)));
+    sbIntakeSPRPM.setDouble(lib.SBFormat(getIntakeSP(true)));
+    sbIntakeVelPct.setDouble(lib.SBFormat(getIntakeVel(false)));
+    sbIntakeVelRPM.setDouble(lib.SBFormat(getIntakeVel(true)));
     sbIntakeSPPct.setDouble(lib.SBFormat(getIntakeSP(false)));
     sbIntakeSPRPM.setDouble(lib.SBFormat(getIntakeSP(true)));
     sbIntakeVelPct.setDouble(lib.SBFormat(getIntakeVel(false)));
