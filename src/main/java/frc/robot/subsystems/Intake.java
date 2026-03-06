@@ -2,7 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-
 package frc.robot.subsystems;
 
 import java.util.Map;
@@ -14,6 +13,7 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.networktables.GenericEntry;
@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utils.Library;
 import frc.robot.utils.Library;
 
 public class Intake extends SubsystemBase {
@@ -51,29 +52,29 @@ public class Intake extends SubsystemBase {
   // The Feeder SP is stored as a percentage of RPMs
   public enum IntakeSP {
     OFF(0.0),
-    LOW(25.0),
-    MED(50.0),
-    HI(75.0);
+    LOW(50.0),
+    MED(75.0),
+    HI(100.0);
 
-    private double vel;
+    private double pct;
 
-    IntakeSP(double vel) {
-      this.vel = vel;
+    IntakeSP(double pct) {
+      this.pct = pct;
     }
 
     public double getVel(boolean rpm) {
       if (rpm) {
-        return vel * Constants.MotorConstants.kNeoFreeSpeedRpm / 100.0;
+        return pct * Constants.MotorConstants.kNeoFreeSpeedRpm / 100.0;
       } else {
-        return vel;
+        return pct;
       }
     }
   }
 
   // The Tilt SP is in degrees
   public enum TiltSP {
-    STOW(25.0),
-    DEPLOY(75.0);
+    STOW(0.0),
+    DEPLOY(80.0);
 
     private double pos;
 
@@ -131,7 +132,8 @@ public class Intake extends SubsystemBase {
     // Configure Intake motor
     intakeConfig
         .idleMode(Constants.Intake.kIntakeIdleMode)
-        .smartCurrentLimit(Constants.Intake.kIntakeCurrentLimit);
+        .smartCurrentLimit(Constants.Intake.kIntakeCurrentLimit)
+        .inverted(Constants.Intake.kIntakeMotorInverted);
     intakeConfig.encoder
         .positionConversionFactor(Constants.Intake.kIntakePositionFactor)
         .velocityConversionFactor(Constants.Intake.kIntakeVelocityFactor);
@@ -140,10 +142,14 @@ public class Intake extends SubsystemBase {
         .p(Constants.Intake.kIntakeP)
         .i(Constants.Intake.kIntakeI)
         .d(Constants.Intake.kIntakeD)
-        .outputRange(Constants.Intake.kIntakeMinOutput, Constants.Intake.kIntakeMaxOutput)
-        .positionWrappingEnabled(Constants.Intake.kIntakeEncodeWrapping);
+        .outputRange(Constants.Intake.kIntakeMinOutput, Constants.Intake.kIntakeMaxOutput);
     intakeConfig.closedLoop.feedForward
-        .kA(Constants.Intake.kIntakeVelFF);
+        .kA(Constants.Intake.kVelFF);
+    intakeConfig.closedLoop.maxMotion
+        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+        .cruiseVelocity(Constants.Intake.kIntakeMaxVel)
+        .maxAcceleration(Constants.Intake.kIntakeMaxAccel)
+        .allowedProfileError(Constants.Intake.kIntakeAllowedErr);
 
     intake.configure(
         intakeConfig,
@@ -166,8 +172,12 @@ public class Intake extends SubsystemBase {
         .p(Constants.Intake.kTiltP)
         .i(Constants.Intake.kTiltI)
         .d(Constants.Intake.kTiltD)
-        .outputRange(Constants.Intake.kTiltMinOutput, Constants.Intake.kTiltMaxOutput)
-        .positionWrappingEnabled(Constants.Intake.kTiltEncodeWrapping);
+        .outputRange(Constants.Intake.kTiltMinOutput, Constants.Intake.kTiltMaxOutput);
+    intakeConfig.closedLoop.maxMotion
+        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+        .cruiseVelocity(Constants.Intake.kIntakeMaxVel)
+        .maxAcceleration(Constants.Intake.kIntakeMaxAccel)
+        .allowedProfileError(Constants.Intake.kIntakeAllowedErr);
 
     tilt.configure(
         tiltConfig,
@@ -175,19 +185,19 @@ public class Intake extends SubsystemBase {
         com.revrobotics.PersistMode.kPersistParameters);
 
     // Add commands to Dashboard
-		IntakeCommands.add("Shoot Off", this.setIntake(IntakeSP.OFF))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Shoot Hi", this.setIntake(IntakeSP.HI))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Shoot Med", this.setIntake(IntakeSP.MED))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Shoot Low", this.setIntake(IntakeSP.LOW))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Tilt Off", this.setTilt(TiltSP.STOW))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		IntakeCommands.add("Tilt Hi", this.setTilt(TiltSP.DEPLOY))
-				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-				
+    IntakeCommands.add("Intake Off", this.setIntake(IntakeSP.OFF))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    IntakeCommands.add("Intake Hi", this.setIntake(IntakeSP.HI))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    IntakeCommands.add("Intake Med", this.setIntake(IntakeSP.MED))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    IntakeCommands.add("Intake Low", this.setIntake(IntakeSP.LOW))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    IntakeCommands.add("Tilt Stow", this.setTilt(TiltSP.STOW))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+    IntakeCommands.add("Tilt Deploy", this.setTilt(TiltSP.DEPLOY))
+        .withProperties(Map.of("show_type", false, "maximize_button_space", false));
+
     // Initialize intake start positions
     setIntakeVel(IntakeSP.OFF);
     setTiltSP(TiltSP.STOW);
@@ -199,11 +209,11 @@ public class Intake extends SubsystemBase {
   // Define subsystem commands
   // ==============================================================
   public Command setIntake(IntakeSP sp) {
-    return runOnce(() -> setIntakeVel(sp));
+    return run(() -> this.setIntakeVel(sp));
   }
 
   public Command setTilt(TiltSP sp) {
-    return runOnce(() -> setTiltPos(sp));
+    return runOnce(() -> this.setTiltPos(sp));
   }
 
   // ==============================================================
@@ -217,12 +227,15 @@ public class Intake extends SubsystemBase {
     sbIntakeSPRPM.setDouble(lib.SBFormat(getIntakeSP(true)));
     sbIntakeVelPct.setDouble(lib.SBFormat(getIntakeVel(false)));
     sbIntakeVelRPM.setDouble(lib.SBFormat(getIntakeVel(true)));
+    sbIntakeSPPct.setDouble(lib.SBFormat(getIntakeSP(false)));
+    sbIntakeSPRPM.setDouble(lib.SBFormat(getIntakeSP(true)));
+    sbIntakeVelPct.setDouble(lib.SBFormat(getIntakeVel(false)));
+    sbIntakeVelRPM.setDouble(lib.SBFormat(getIntakeVel(true)));
 
     sbTiltOnTgt.setBoolean(onTiltTarget());
     sbTiltSP.setString(getTiltSP().name());
     sbTiltSPPos.setDouble(lib.SBFormat(getTiltSP().getPos()));
     sbTiltPos.setDouble(lib.SBFormat(getTiltPos()));
-
   }
 
   @Override
@@ -266,7 +279,8 @@ public class Intake extends SubsystemBase {
 
   public void setIntakeVel(IntakeSP sp) {
     setIntakeSP(sp);
-    intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
+    intakeController.setSetpoint(getIntakeSP(false) / 100.0 * 12.0, SparkBase.ControlType.kVoltage);
+    // , SparkBase.ControlType.kVelocity);
   }
 
   public double getIntakeVel(boolean rpm) {

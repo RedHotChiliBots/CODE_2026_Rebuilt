@@ -21,8 +21,12 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Feeder;
+import frc.robot.subsystems.Feeder.FeederSP;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake.IntakeSP;
+import frc.robot.subsystems.Intake.TiltSP;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.ShooterSP;
 import frc.robot.subsystems.Vision.VisionConstants;
 import frc.robot.subsystems.Vision.VisionIOPhotonVision;
 import frc.robot.subsystems.Vision.Vision;
@@ -129,25 +133,41 @@ public class RobotContainer {
 				// Drivetrain will execute this command periodically
 				drivetrain.applyRequest(() -> drive
 						// Drive forward with negative Y (forward)
-						.withVelocityX(-driverController.getLeftY() * MaxSpeed)
+						.withVelocityX(driverController.getLeftY() * MaxSpeed)
 						// Drive left with negative X (left)
-						.withVelocityY(-driverController.getLeftX() * MaxSpeed)
+						.withVelocityY(driverController.getLeftX() * MaxSpeed)
 						// Drive counterclockwise with negative X (left)
 						.withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
 
 		// Track Hub when A button is held
-		driverController.a().whileTrue(
+		driverController.leftBumper().toggleOnTrue(
 				new ParallelCommandGroup(
-						shooter.setShooter(shooter.getAutoShoot()).andThen(
-								shooter.setTilt(shooter.getAutoTilt())),
+						// shooter.setShooter(shooter.getAutoShoot()).andThen(
+						// 		shooter.setTilt(shooter.getAutoTilt())),
 						drivetrain.applyRequest(() -> driveAngle
 								// Drive forward with negative Y (forward)
-								.withVelocityX(-driverController.getLeftY() * MaxSpeed)
+								.withVelocityX(driverController.getLeftY() * MaxSpeed)
 								// Drive left with negative X (left)
-								.withVelocityY(-driverController.getLeftX() * MaxSpeed)
+								.withVelocityY(driverController.getLeftX() * MaxSpeed)
 								// Drive pointing to hub
 								.withTargetDirection(drivetrain.bearingToHub.minus(new Rotation2d(Math.PI))))));
 
+		// operatorController.x().onTrue(intake.setTilt(TiltSP.DEPLOY));
+
+		// operatorController.b().onTrue(intake.setTilt(TiltSP.STOW));
+
+		operatorController.y().onTrue(intake.setIntake(IntakeSP.HI));
+		operatorController.a().onTrue(intake.setIntake(IntakeSP.OFF));
+
+		operatorController.leftBumper().onTrue(shooter.setShooter(ShooterSP.MED));
+		operatorController.x().onTrue(shooter.setShooter(ShooterSP.OFF));
+	//	operatorController.left
+	// Bumper().onFalse(shooter.setShooter(ShooterSP.OFF));
+		
+		operatorController.rightBumper().onTrue(feeder.setFeeder(FeederSP.HI));
+		operatorController.b().onTrue(feeder.setFeeder(FeederSP.OFF));
+	//	operatorController.rightBumper().onFalse(feeder.setFeeder(FeederSP.OFF));
+		
 		// Idle while the robot is disabled. This ensures the configured
 		// neutral mode is applied to the drive motors while disabled.
 		final var idle = new SwerveRequest.Idle();
@@ -161,16 +181,16 @@ public class RobotContainer {
 				Commands.runOnce(() -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
 
 		// joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-		driverController.b().whileTrue(drivetrain.applyRequest(
-				() -> point.withModuleDirection(
-						new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
+		// driverController.b().whileTrue(drivetrain.applyRequest(
+		// 		() -> point.withModuleDirection(
+		// 				new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
 		// Run SysId routines when holding back/start and X/Y.
 		// Note that each routine should be run exactly once in a single log.
-		driverController.back().and(driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-		driverController.back().and(driverController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-		driverController.start().and(driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-		driverController.start().and(driverController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+		// driverController.back().and(driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+		// driverController.back().and(driverController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+		// driverController.start().and(driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+		// driverController.start().and(driverController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
 		// Reset the field-centric heading on left bumper press.
 		driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
