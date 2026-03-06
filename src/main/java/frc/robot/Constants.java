@@ -223,8 +223,11 @@ public final class Constants {
 		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
 		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5 * 3.0);	// 3.0 is pully ratio
 
-		public static final double kTiltPositionFactor = 360.0 / kTiltGearRatio; // degrees
-		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
+		public static final double kShooterPositionFactor = 1.0;
+		public static final double kShooterVelocityFactor = kShooterPositionFactor / 60.0; // RPMs per second
+
+		public static final double kTiltPositionFactor = 360 / kTiltGearRatio;
+		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0;
 
 		// Unsure if this needs to be uncommented out
 		// public static final double kTiltPosP = 0.002;
@@ -241,7 +244,7 @@ public final class Constants {
 
 		public static final double kMaxVel = 100000.0; // 5000.0
 		public static final double kMaxAccel = 40000.0; // 5000.0
-		public static final double kAllowedErr = 0.1;
+		public static final double kAllowedErr = 1.0;
 
 		public static final double kPosP = 0.01; // maxmotion 0.025;
 		public static final double kPosI = 0.0; // maxmotion 0.0
@@ -253,7 +256,7 @@ public final class Constants {
 
 		public static final double kPosMaxVel = 100000.0; // 5000.0
 		public static final double kPosMaxAccel = 40000.0; // 5000.0
-		public static final double kPosAllowedErr = 0.1;
+		public static final double kPosAllowedErr = 1.0;
 
 		public static final IdleMode kLeftIdleMode = IdleMode.kCoast;
 		public static final IdleMode kRightIdleMode = IdleMode.kCoast;
@@ -262,6 +265,7 @@ public final class Constants {
 		public static final int kLeftCurrentLimit = 50; // amps
 		public static final int kRightCurrentLimit = 50; // amps
 		public static final int ktiltCurrentLimit = 50; // amps
+
 	}
 
 	public static final class Climber {
@@ -337,6 +341,9 @@ public final class Constants {
 		public static final boolean kTiltZeroCentered = true;
 		public static final boolean kTiltMotorInverted = false;
 		public static final boolean kTiltEncoderInverted = false;
+		public static final double kTiltMaxVel = 100000.0;
+		public static final double kTiltMaxAccel = 40000.0; // 5000.0
+		public static final double kTiltAllowedErr = 1.0;
 
 		public static final boolean kIntakeEncodeWrapping = false;
 		public static final boolean kTiltEncodeWrapping = false;
@@ -368,10 +375,6 @@ public final class Constants {
 		public static final double kTiltD = 0.0; // maxmotion 0.0
 		public static final double kTiltMinOutput = -0.5; // maxmotion -1.0
 		public static final double kTiltMaxOutput = 0.5; // maxmotion 1.0
-
-		// public static final double kTiltMaxVel = 100000.0; // 5000.0
-		// public static final double kTiltMaxAccel = 40000.0; // 5000.0
-		public static final double kTiltAllowedErr = 1.0;
 
 		public static final IdleMode kIntakeIdleMode = IdleMode.kBrake;
 		public static final IdleMode kTiltIdleMode = IdleMode.kBrake;

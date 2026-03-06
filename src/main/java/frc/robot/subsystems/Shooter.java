@@ -164,8 +164,8 @@ public class Shooter extends SubsystemBase {
 				.idleMode(Constants.Shooter.kLeftIdleMode)
 				.smartCurrentLimit(Constants.Shooter.kLeftCurrentLimit);
 		leftConfig.encoder
-				.positionConversionFactor(Constants.Shooter.kTiltPositionFactor)
-				.velocityConversionFactor(Constants.Shooter.kTiltVelocityFactor);
+				.positionConversionFactor(Constants.Shooter.kShooterPositionFactor)
+				.velocityConversionFactor(Constants.Shooter.kShooterVelocityFactor);
 		leftConfig.closedLoop
 				.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
 				.p(Constants.Shooter.kP)
@@ -212,7 +212,12 @@ public class Shooter extends SubsystemBase {
 				.d(Constants.Shooter.kPosD)
 				.outputRange(Constants.Shooter.kPosMinOutput, Constants.Shooter.kPosMaxOutput)
 				.positionWrappingEnabled(Constants.Shooter.kLeftEncodeWrapping);
-
+		tiltConfig.closedLoop.maxMotion
+			    .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+			    .cruiseVelocity(Constants.Shooter.kPosMaxVel)
+			    .maxAcceleration(Constants.Shooter.kPosMaxAccel)
+			    .allowedProfileError(Constants.Shooter.kPosAllowedErr);
+		
 		tilt.configure(tiltConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
 				com.revrobotics.PersistMode.kPersistParameters);
@@ -285,15 +290,15 @@ public class Shooter extends SubsystemBase {
 
 		sbTiltOnTgt.setBoolean(onTiltTarget());
 		sbTiltSP.setString(getTiltSPName());
-		sbTiltSPPos.setDouble(lib.SBFormat(getTiltSPDbl()));
+		// sbTiltSPPos.setDouble(lib.SBFormat(getTiltSPDbl()));
+		double tiltTarget = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
+		sbTiltSPPos.setDouble(lib.SBFormat(tiltTarget));
 		sbTiltPos.setDouble(lib.SBFormat(getTiltPos()));
 
 		// Gives you live visibility of what the solver wants to do,
 		// without actually commanding anything unless you call autoShoot().
 		var auto = ShooterBallistics.solveStationary(drivetrain.getDistToHub(), 0.5);
 		sbAutoFeasible.setBoolean(auto.feasible());
-		sbAutoAngleDeg.setDouble(lib.SBFormat(auto.feasible() ? auto.angleDeg() : ShooterBallistics.kMinAngleDeg));
-		sbAutoRpm.setDouble(lib.SBFormat(auto.feasible() ? auto.wheelRpm() : 0.0));
 		sbAutoAngleDeg.setDouble(lib.SBFormat(auto.feasible() ? auto.angleDeg() : ShooterBallistics.kMinAngleDeg));
 		sbAutoRpm.setDouble(lib.SBFormat(auto.feasible() ? auto.wheelRpm() : 0.0));
 	}
@@ -369,7 +374,14 @@ public class Shooter extends SubsystemBase {
 		return shooterSP;
 	}
 
+	// public double getShooterSP(boolean rpm) {
+	// 	return shooterSP.getVel(rpm);
+	// }
 	public double getShooterSP(boolean rpm) {
+		if (shooterSpIsCustom) {
+			if (rpm) return shooterSPDbl;
+			return shooterSPDbl / Constants.MotorConstants.kVortexFreeSpeedRpm * 100.0;
+		}
 		return shooterSP.getVel(rpm);
 	}
 
@@ -436,7 +448,8 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public boolean onTiltTarget() {
-		return Math.abs(getTiltPos() - tiltSetpointDeg) < Constants.Shooter.kTiltTollerance;
+		double target = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
+		return Math.abs(getTiltPos() - target) < Constants.Shooter.kTiltTollerance;
 	}
 
 	public boolean onShooterTarget() {

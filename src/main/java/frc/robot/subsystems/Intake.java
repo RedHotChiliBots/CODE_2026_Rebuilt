@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.Library;
-import frc.robot.utils.Library;
 
 public class Intake extends SubsystemBase {
 
@@ -53,7 +52,7 @@ public class Intake extends SubsystemBase {
   public enum IntakeSP {
     OFF(0.0),
     LOW(50.0),
-    MED(75.0),
+    MED(90.0),
     HI(100.0);
 
     private double pct;
@@ -173,10 +172,10 @@ public class Intake extends SubsystemBase {
         .i(Constants.Intake.kTiltI)
         .d(Constants.Intake.kTiltD)
         .outputRange(Constants.Intake.kTiltMinOutput, Constants.Intake.kTiltMaxOutput);
-    intakeConfig.closedLoop.maxMotion
+    tiltConfig.closedLoop.maxMotion
         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-        .cruiseVelocity(Constants.Intake.kIntakeMaxVel)
-        .maxAcceleration(Constants.Intake.kIntakeMaxAccel)
+        .cruiseVelocity(Constants.Intake.kTiltMaxVel)
+        .maxAcceleration(Constants.Intake.kTiltMaxAccel)
         .allowedProfileError(Constants.Intake.kIntakeAllowedErr);
 
     tilt.configure(
@@ -200,7 +199,7 @@ public class Intake extends SubsystemBase {
 
     // Initialize intake start positions
     setIntakeVel(IntakeSP.OFF);
-    setTiltSP(TiltSP.STOW);
+    setTiltPos(TiltSP.STOW);
 
     System.out.println("----- Ending Intake Constructor -----");
   }
@@ -223,10 +222,6 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     sbIntakeOnTgt.setBoolean(onIntakeTarget());
     sbIntakeSP.setString(getIntakeSP().name());
-    sbIntakeSPPct.setDouble(lib.SBFormat(getIntakeSP(false)));
-    sbIntakeSPRPM.setDouble(lib.SBFormat(getIntakeSP(true)));
-    sbIntakeVelPct.setDouble(lib.SBFormat(getIntakeVel(false)));
-    sbIntakeVelRPM.setDouble(lib.SBFormat(getIntakeVel(true)));
     sbIntakeSPPct.setDouble(lib.SBFormat(getIntakeSP(false)));
     sbIntakeSPRPM.setDouble(lib.SBFormat(getIntakeSP(true)));
     sbIntakeVelPct.setDouble(lib.SBFormat(getIntakeVel(false)));
