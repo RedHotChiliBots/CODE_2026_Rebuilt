@@ -91,10 +91,11 @@ public class Autos {
     // this.autoLeave = new ChassisDriveDist(chassis, -0.5, 1.0);
     this.autoShoot = 
     new SequentialCommandGroup(
-      shooter.setShooter(Shooter.ShooterSP.HI),
-      new WaitCommand(3.0),
+      shooter.setShooter(Shooter.ShooterSP.MED),
+      new WaitCommand(5.0),
       feeder.setFeeder(Feeder.FeederSP.HI),
-      new WaitCommand(10.0)
+      new WaitCommand(7.0),
+      shooter.setShooter(Shooter.ShooterSP.OFF).andThen(feeder.setFeeder(Feeder.FeederSP.OFF))
     );
     
     // ********************************************

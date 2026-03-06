@@ -2,7 +2,7 @@
   {
     "name": "/Shuffleboard/Drive/BearingToHub",
     "type": "double",
-    "value": 43.612,
+    "value": 41.62,
     "properties": {
       "persistent": true
     }
@@ -10,7 +10,7 @@
   {
     "name": "/Shuffleboard/Drive/DistToHub",
     "type": "double",
-    "value": 4.553,
+    "value": 6.2,
     "properties": {
       "persistent": true
     }
@@ -58,7 +58,7 @@
   {
     "name": "/Shuffleboard/Intake/Tilt OnTgt",
     "type": "boolean",
-    "value": false,
+    "value": true,
     "properties": {
       "persistent": true
     }
@@ -74,7 +74,7 @@
   {
     "name": "/Shuffleboard/Intake/Tilt SP Pos",
     "type": "double",
-    "value": 25.0,
+    "value": 0.0,
     "properties": {
       "persistent": true
     }
@@ -146,7 +146,7 @@
   {
     "name": "/Shuffleboard/Feeder/Feeder OnTgt",
     "type": "boolean",
-    "value": false,
+    "value": true,
     "properties": {
       "persistent": true
     }
@@ -154,7 +154,7 @@
   {
     "name": "/Shuffleboard/Feeder/Feeder SP",
     "type": "string",
-    "value": "LOW",
+    "value": "OFF",
     "properties": {
       "persistent": true
     }
@@ -162,7 +162,7 @@
   {
     "name": "/Shuffleboard/Feeder/Feeder SP Pct",
     "type": "double",
-    "value": 25.0,
+    "value": 0.0,
     "properties": {
       "persistent": true
     }
@@ -170,7 +170,7 @@
   {
     "name": "/Shuffleboard/Feeder/Feeder SP RPM",
     "type": "double",
-    "value": 1419.0,
+    "value": 0.0,
     "properties": {
       "persistent": true
     }
@@ -194,7 +194,7 @@
   {
     "name": "/Shuffleboard/Shooter/Shooter OnTgt",
     "type": "boolean",
-    "value": false,
+    "value": true,
     "properties": {
       "persistent": true
     }
@@ -202,7 +202,7 @@
   {
     "name": "/Shuffleboard/Shooter/Shooter SP",
     "type": "string",
-    "value": "CUSTOM",
+    "value": "OFF",
     "properties": {
       "persistent": true
     }
@@ -210,7 +210,7 @@
   {
     "name": "/Shuffleboard/Shooter/Shooter SP Pct",
     "type": "double",
-    "value": 23.686,
+    "value": 0.0,
     "properties": {
       "persistent": true
     }
@@ -218,7 +218,7 @@
   {
     "name": "/Shuffleboard/Shooter/Shooter SP RPM",
     "type": "double",
-    "value": 1606.872,
+    "value": 0.0,
     "properties": {
       "persistent": true
     }
@@ -242,7 +242,7 @@
   {
     "name": "/Shuffleboard/Shooter/Tilt OnTgt",
     "type": "boolean",
-    "value": false,
+    "value": true,
     "properties": {
       "persistent": true
     }
@@ -250,7 +250,7 @@
   {
     "name": "/Shuffleboard/Shooter/Tilt SP",
     "type": "string",
-    "value": "CUSTOM",
+    "value": "LOW",
     "properties": {
       "persistent": true
     }
@@ -258,7 +258,7 @@
   {
     "name": "/Shuffleboard/Shooter/Tilt SP Pos",
     "type": "double",
-    "value": 50.0,
+    "value": 0.0,
     "properties": {
       "persistent": true
     }
@@ -346,7 +346,7 @@
   {
     "name": "/Shuffleboard/Drive/CurrHeading",
     "type": "double",
-    "value": 43.514,
+    "value": 0.0,
     "properties": {
       "persistent": true
     }
@@ -394,7 +394,7 @@
   {
     "name": "/Shuffleboard/Shooter/Auto Angle Deg",
     "type": "double",
-    "value": 52.0,
+    "value": 50.0,
     "properties": {
       "persistent": true
     }
@@ -402,7 +402,7 @@
   {
     "name": "/Shuffleboard/Shooter/Auto RPM",
     "type": "double",
-    "value": 1423.433,
+    "value": 1606.872,
     "properties": {
       "persistent": true
     }
@@ -410,7 +410,7 @@
   {
     "name": "/Shuffleboard/Drive/Yaw",
     "type": "double",
-    "value": 43.514,
+    "value": 0.0,
     "properties": {
       "persistent": true
     }

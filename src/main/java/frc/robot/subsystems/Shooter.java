@@ -7,13 +7,14 @@ package frc.robot.subsystems;
 import java.util.Map;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.FeedbackSensor;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.networktables.GenericEntry;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.MotorConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.ShooterBallistics;
 
@@ -46,7 +48,7 @@ public class Shooter extends SubsystemBase {
 	// rightShooter.getClosedLoopController();
 	private SparkClosedLoopController tiltController = tilt.getClosedLoopController();
 
-	private AbsoluteEncoder leftEncoder = leftShooter.getAbsoluteEncoder();
+	private RelativeEncoder leftEncoder = leftShooter.getEncoder();
 	// private AbsoluteEncoder rightEncoder = rightShooter.getAbsoluteEncoder();
 	private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
@@ -90,6 +92,7 @@ public class Shooter extends SubsystemBase {
 		TiltSP(double pos) {
 			this.pos = pos;
 		}
+
 		public double getPos() {
 			return pos;
 		}
@@ -160,24 +163,23 @@ public class Shooter extends SubsystemBase {
 				.inverted(Constants.Shooter.kLeftMotorInverted)
 				.idleMode(Constants.Shooter.kLeftIdleMode)
 				.smartCurrentLimit(Constants.Shooter.kLeftCurrentLimit);
-		leftConfig.absoluteEncoder
-				.zeroOffset(Constants.Shooter.kLeftZeroOffset)
-				.zeroCentered(Constants.Shooter.kLeftZeroCentered)
-				.inverted(Constants.Shooter.kLeftEncoderInverted)
+		leftConfig.encoder
 				.positionConversionFactor(Constants.Shooter.kTiltPositionFactor)
 				.velocityConversionFactor(Constants.Shooter.kTiltVelocityFactor);
 		leftConfig.closedLoop
-				.feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-				.p(Constants.Shooter.kPosP)
-				.i(Constants.Shooter.kPosI)
-				.d(Constants.Shooter.kPosD)
+				.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+				.p(Constants.Shooter.kP)
+				.i(Constants.Shooter.kI)
+				.d(Constants.Shooter.kD)
 				.outputRange(Constants.Shooter.kPosMinOutput, Constants.Shooter.kPosMaxOutput)
 				.positionWrappingEnabled(Constants.Shooter.kLeftEncodeWrapping);
-		// leftConfig.closedLoop.maxMotion
-		// .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-		// .maxVelocity(Constants.Climber.kPosMaxVel)
-		// .maxAcceleration(Constants.Climber.kPosMaxAccel)
-		// .allowedClosedLoopError(Constants.Shooter.kPosAllowedErr);
+		leftConfig.closedLoop.feedForward
+				.kA(Constants.Shooter.kVelFF);
+		leftConfig.closedLoop.maxMotion
+				.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+				.cruiseVelocity(Constants.Shooter.kMaxVel)
+				.maxAcceleration(Constants.Shooter.kMaxAccel)
+				.allowedProfileError(Constants.Shooter.kAllowedErr);
 
 		leftShooter.configure(leftConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
@@ -242,11 +244,11 @@ public class Shooter extends SubsystemBase {
 	// Define subsystem commands
 	// ==============================================================
 	public Command setShooter(ShooterSP sp) {
-		return run(() -> this.setShooterVel(sp));
+		return runOnce(() -> this.setShooterVel(sp));
 	}
 
 	public Command setShooter(double sp) {
-		return run(() -> this.setShooterVel(sp));
+		return runOnce(() -> this.setShooterVel(sp));
 	}
 
 	public Command setTilt(TiltSP sp) {
@@ -371,12 +373,14 @@ public class Shooter extends SubsystemBase {
 
 	public void setShooterVel(ShooterSP sp) {
 		setShooterSP(sp);
-		leftController.setSetpoint(sp.getVel(true), SparkBase.ControlType.kVelocity);
+		leftController.setSetpoint(sp.getVel(false)/100.0*12.0, SparkBase.ControlType.kVoltage);
+			//true), SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
 	public void setShooterVel(double sp) {
 		setShooterSPDbl(sp);
-		leftController.setSetpoint(sp, SparkBase.ControlType.kVelocity);
+		leftController.setSetpoint(sp/MotorConstants.kVortexFreeSpeedRpm*12.0, SparkBase.ControlType.kVoltage);
+			// SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
 	public double getShooterVel(boolean rpm) {
@@ -415,12 +419,14 @@ public class Shooter extends SubsystemBase {
 
 	public void setTiltPos(TiltSP sp) {
 		setTiltSP(sp);
-		tiltController.setSetpoint(sp.getPos(), SparkBase.ControlType.kPosition);
+		System.out.println("+++++++++++++++++  setTilt: " + sp.getPos());
+		tiltController.setSetpoint(sp.getPos(), SparkBase.ControlType.kMAXMotionPositionControl);
 	}
 
 	public void setTiltPos(double sp) {
+		sp = lib.clamp(sp, TiltSP.LOW.getPos(), TiltSP.HI.getPos());
 		setTiltSPDbl(sp);
-		tiltController.setSetpoint(sp, SparkBase.ControlType.kPosition);
+		tiltController.setSetpoint(sp, SparkBase.ControlType.kMAXMotionPositionControl);
 	}
 
 	public double getTiltPos() {

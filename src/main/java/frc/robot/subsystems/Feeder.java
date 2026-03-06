@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.networktables.GenericEntry;
@@ -62,7 +63,8 @@ public class Feeder extends SubsystemBase {
 
     public double getVel(boolean rpm) {
       if (rpm) {
-        return pct * Constants.MotorConstants.kNeoFreeSpeedRpm / 100.0;
+
+        return (pct / 100.0) * Constants.MotorConstants.kNeoFreeSpeedRpm;
       } else {
         return pct;
       }
@@ -125,6 +127,11 @@ public class Feeder extends SubsystemBase {
         .positionWrappingEnabled(Constants.Feeder.kFeederEncodeWrapping);
     feederConfig.closedLoop.feedForward
         .kA(Constants.Feeder.kFeederVelFF);
+    feederConfig.closedLoop.maxMotion
+        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+				.cruiseVelocity(Constants.Feeder.kFeederMaxVel)
+				.maxAcceleration(Constants.Feeder.kFeederMaxAccel)
+				.allowedProfileError(Constants.Feeder.kFeederAllowedErr);
 
     feeder.configure(
         feederConfig,
@@ -142,8 +149,7 @@ public class Feeder extends SubsystemBase {
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
     // Initialize intake start positions
-    setFeederSP(FeederSP.OFF);
-    setFeederVel(feederSP);
+    setFeederVel(FeederSP.OFF);
 
     System.out.println("----- Ending Feeder Constructor -----");
   }
@@ -152,10 +158,10 @@ public class Feeder extends SubsystemBase {
   // Define subsystem commands
   // ==============================================================
   public Command setFeeder(FeederSP sp) {
-    return run(() -> setFeederVel(sp));
+    return runOnce(() -> this.setFeederVel(sp));
   }
 
-  // ==============================================================
+  // ========()======================================================
   // Periodic methods
   // ==============================================================
   @Override
@@ -193,7 +199,9 @@ public class Feeder extends SubsystemBase {
 
   public void setFeederVel(FeederSP sp) {
     setFeederSP(sp);
-    feederController.setSetpoint(getFeederSP(true), SparkBase.ControlType.kVelocity);
+    feederController.setSetpoint(getFeederSP(false)/100.0*12.0, SparkBase.ControlType.kVoltage);
+  //  .kMAXMotionVelocityControl);
+//    feederController.setSetpoint(Constants.MotorConstants.kNeoFreeSpeedRpm * .80, SparkBase.ControlType.kMAXMotionVelocityControl);
   }
 
   public double getFeederVel(boolean rpm) {

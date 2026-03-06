@@ -231,9 +231,23 @@ public final class Constants {
 		// public static final double kTiltPosI = 0.000001;
 		// public static final double kTiltPosD = 0.0;
 
+		public static final double kP = 0.01; // maxmotion 0.025;
+		public static final double kI = 0.0; // maxmotion 0.0
+		public static final double kD = 0.0; // maxmotion 0.0
+		public static final double kVelFF = 0.0000037;
+
+		public static final double kMinOutput = -0.5; // maxmotion -1.0
+		public static final double kMaxOutput = 0.5; // maxmotion 1.0
+
+		public static final double kMaxVel = 100000.0; // 5000.0
+		public static final double kMaxAccel = 40000.0; // 5000.0
+		public static final double kAllowedErr = 0.1;
+
 		public static final double kPosP = 0.01; // maxmotion 0.025;
 		public static final double kPosI = 0.0; // maxmotion 0.0
 		public static final double kPosD = 0.0; // maxmotion 0.0
+		public static final double kPosFF = 0.0000037;
+
 		public static final double kPosMinOutput = -0.5; // maxmotion -1.0
 		public static final double kPosMaxOutput = 0.5; // maxmotion 1.0
 
@@ -318,7 +332,6 @@ public final class Constants {
 		public static final boolean kIntakeZeroCentered = true;
 		public static final boolean kIntakeMotorInverted = true;
 		public static final boolean kIntakeEncoderInverted = true;
-		public static final double kIntakeVelFF = 0.0;
 
 		public static final double kTiltZeroOffset = 0.4019657;
 		public static final boolean kTiltZeroCentered = true;
@@ -342,12 +355,13 @@ public final class Constants {
 		public static final double kIntakeP = 0.01; // maxmotion 0.025;
 		public static final double kIntakeI = 0.0; // maxmotion 0.0
 		public static final double kIntakeD = 0.0; // maxmotion 0.0
+		public static final double kVelFF = 0.0;
 		public static final double kIntakeMinOutput = -0.5; // maxmotion -1.0
 		public static final double kIntakeMaxOutput = 0.5; // maxmotion 1.0
 
 		public static final double kIntakeMaxVel = 100000.0; // 5000.0
 		public static final double kIntakeMaxAccel = 40000.0; // 5000.0
-		public static final double kIntakeAllowedErr = 0.1;
+		public static final double kIntakeAllowedErr = 1.0;
 
 		public static final double kTiltP = 0.01; // maxmotion 0.025;
 		public static final double kTiltI = 0.0; // maxmotion 0.0
@@ -355,9 +369,9 @@ public final class Constants {
 		public static final double kTiltMinOutput = -0.5; // maxmotion -1.0
 		public static final double kTiltMaxOutput = 0.5; // maxmotion 1.0
 
-		public static final double kTiltMaxVel = 100000.0; // 5000.0
-		public static final double kTiltMaxAccel = 40000.0; // 5000.0
-		public static final double kTiltAllowedErr = 0.1;
+		// public static final double kTiltMaxVel = 100000.0; // 5000.0
+		// public static final double kTiltMaxAccel = 40000.0; // 5000.0
+		public static final double kTiltAllowedErr = 1.0;
 
 		public static final IdleMode kIntakeIdleMode = IdleMode.kBrake;
 		public static final IdleMode kTiltIdleMode = IdleMode.kBrake;
@@ -373,7 +387,6 @@ public final class Constants {
 		public static final boolean kFeederZeroCentered = true;
 		public static final boolean kFeederMotorInverted = true;
 		public static final boolean kFeederEncoderInverted = false;
-		public static final double kFeederVelFF = 0.0;
 
 		public static final boolean kFeederEncodeWrapping = false;
 		public static final IdleMode kFeederIdleMode = IdleMode.kBrake;
@@ -381,14 +394,16 @@ public final class Constants {
 		public static final double kFeederGearRatio = (GearBox.Max3 * GearBox.Max4);
 
 		// Position is returned in native units of rotations and will be multiplied by this conversion factor.
-		public static final double kFeederPositionFactor = 1.0 / kFeederGearRatio;	// RPMs
-		public static final double kFeederVelocityFactor = kFeederPositionFactor / 60.0; // Revs per second
+		public static final double kFeederPositionFactor = 1.0;	// / kFeederGearRatio;	// RPMs
+		public static final double kFeederVelocityFactor = 1.0;	// kFeederPositionFactor / 60.0; // Revs per second
 
-		public static final double kFeederP = 0.01; // maxmotion 0.025;
-		public static final double kFeederI = 0.0; // maxmotion 0.0
-		public static final double kFeederD = 0.0; // maxmotion 0.0
-		public static final double kFeederMinOutput = -0.5; // maxmotion -1.0
-		public static final double kFeederMaxOutput = 0.5; // maxmotion 1.0
+		public static final double kFeederP = 0.00009;
+		public static final double kFeederI = 0.0;//000001;
+		public static final double kFeederD = 0.0;//1;
+		public static final double kFeederVelFF = 0.0;//0000037;
+
+		public static final double kFeederMinOutput = -1.0;
+		public static final double kFeederMaxOutput =  1.0;
 
 		public static final double kFeederMaxVel = 100000.0; // 5000.0
 		public static final double kFeederMaxAccel = 40000.0; // 5000.0

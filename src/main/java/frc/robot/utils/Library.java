@@ -7,7 +7,7 @@ public class Library {
    public boolean isMoving(double pos, double sp) {
       double currGap = Math.abs(pos - sp);
       boolean moving = currGap < prevGap;
-      // System.out.println(
+      // System.out.prdoubleln(
       // "pos/sp: " + pos + "/" + sp +
       // " prevGap: " + prevGap + " currGap: " + currGap +
       // " Moving: " + moving);
@@ -25,5 +25,10 @@ public class Library {
 
    public double SBFormat(double in) {
       return Math.round(in * 1000.0) / 1000.0;
+   }
+
+   public double clamp(double value, double min, double max) {
+      // Ensures the value is not less than min, and not greater than max
+      return Math.min(max, Math.max(min, value));
    }
 }
