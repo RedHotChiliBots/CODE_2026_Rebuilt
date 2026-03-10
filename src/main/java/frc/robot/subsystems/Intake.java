@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -73,7 +74,7 @@ public class Intake extends SubsystemBase {
   // The Tilt SP is in degrees
   public enum TiltSP {
     STOW(0.0),
-    DEPLOY(80.0);
+    DEPLOY(0.9);
 
     private double pos;
 
@@ -165,7 +166,8 @@ public class Intake extends SubsystemBase {
         .zeroCentered(Constants.Intake.kTiltZeroCentered)
         .inverted(Constants.Intake.kTiltEncoderInverted)
         .positionConversionFactor(Constants.Intake.kTiltPositionFactor)
-        .velocityConversionFactor(Constants.Intake.kTiltVelocityFactor);
+        .velocityConversionFactor(Constants.Intake.kTiltVelocityFactor)
+				.apply(AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoderV2);
     tiltConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .p(Constants.Intake.kTiltP)
@@ -300,7 +302,7 @@ public class Intake extends SubsystemBase {
 
   public void setTiltPos(TiltSP sp) {
     setTiltSP(sp);
-    tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kMAXMotionPositionControl);
+    tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kPosition);  //kMAXMotionPositionControl);
   }
 
   public TiltSP getTiltSP() {

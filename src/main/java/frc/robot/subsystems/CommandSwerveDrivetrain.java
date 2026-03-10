@@ -432,6 +432,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     private void configPigeon() {
+        Optional<Alliance> ally = DriverStation.getAlliance();
         // Create a configuration object
         Pigeon2Configuration configs = new Pigeon2Configuration();
 
@@ -459,7 +460,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         // zero yaww for field relative
-        pigeon.setYaw(0.0);
+        // if (ally.get() == DriverStation.Alliance.Red) {
+            pigeon.setYaw(0.0);
+        // } else {
+        //     pigeon.setYaw(180);
+        // }
     }
 
     public PowerDistribution getPDH() {

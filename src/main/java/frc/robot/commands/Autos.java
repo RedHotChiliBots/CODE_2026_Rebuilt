@@ -2,7 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-
 package frc.robot.commands;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -66,7 +65,8 @@ public class Autos {
   // climber));
   // }
 
-  public Autos(RobotContainer robotContainer, CommandSwerveDrivetrain drivetrain, Intake intake, Feeder feeder, Shooter shooter,
+  public Autos(RobotContainer robotContainer, CommandSwerveDrivetrain drivetrain, Intake intake, Feeder feeder,
+      Shooter shooter,
       Climber climber) {
 
     System.out.println("+++++ Starting Autos Constructor +++++");
@@ -89,15 +89,17 @@ public class Autos {
     // this.resetOdo = new InstantCommand(() -> drive.resetOdometry(startPose));
 
     // this.autoLeave = new ChassisDriveDist(chassis, -0.5, 1.0);
-    this.autoShoot = 
-    new SequentialCommandGroup(
-      shooter.setShooter(Shooter.ShooterSP.MED),
-      new WaitCommand(5.0),
-      feeder.setFeeder(Feeder.FeederSP.HI),
-      new WaitCommand(7.0),
-      shooter.setShooter(Shooter.ShooterSP.OFF).andThen(feeder.setFeeder(Feeder.FeederSP.OFF))
-    );
-    
+    this.autoShoot = new SequentialCommandGroup(
+        shooter.setShooter(Shooter.ShooterSP.MED),
+        new WaitCommand(7.0),
+        feeder.setFeeder(Feeder.FeederSP.HI),
+        new WaitCommand(3.0),
+        feeder.setFeeder(Feeder.FeederSP.OFF),
+        new WaitCommand(2.0),
+        feeder.setFeeder(Feeder.FeederSP.HI),
+        new WaitCommand(5.0),
+        shooter.setShooter(Shooter.ShooterSP.OFF).andThen(feeder.setFeeder(Feeder.FeederSP.OFF)));
+
     // ********************************************
     // Generate Auto commands
     // Note: Named commands used in Auto command must be defined
@@ -143,7 +145,7 @@ public class Autos {
         .withWidget("ComboBox Chooser")
         .withPosition(0, 0)
         .withSize(3, 1);
-        
+
     String temp = AutoBuilder.isConfigured() ? "IS" : "IS NOT";
     DriverStation.reportWarning("AutoBuilder " + temp + " configured", false);
     temp = AutoBuilder.isPathfindingConfigured() ? "IS" : "IS NOT";
@@ -153,20 +155,20 @@ public class Autos {
   }
 
   // public Command getAutonomousCommand() {
-	// 	// Simple drive forward auton
-	// 	final var idle = new SwerveRequest.Idle();
-	// 	return Commands.sequence(
-	// 			// Reset our field centric heading to match the robot
-	// 			// facing away from our alliance station wall (0 deg).
-	// 			drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-	// 			// Then slowly drive forward (away from us) for 5 seconds.
-	// 			drivetrain.applyRequest(() -> drive.withVelocityX(0.5)
-	// 					.withVelocityY(0)
-	// 					.withRotationalRate(0))
-	// 					.withTimeout(5.0),
-	// 			// Finally idle for the rest of auton
-	// 			drivetrain.applyRequest(() -> idle));
-	// }
+  // // Simple drive forward auton
+  // final var idle = new SwerveRequest.Idle();
+  // return Commands.sequence(
+  // // Reset our field centric heading to match the robot
+  // // facing away from our alliance station wall (0 deg).
+  // drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
+  // // Then slowly drive forward (away from us) for 5 seconds.
+  // drivetrain.applyRequest(() -> drive.withVelocityX(0.5)
+  // .withVelocityY(0)
+  // .withRotationalRate(0))
+  // .withTimeout(5.0),
+  // // Finally idle for the rest of auton
+  // drivetrain.applyRequest(() -> idle));
+  // }
 
   public SendableChooser<Command> getAutoChooser() {
     return autoChooser;

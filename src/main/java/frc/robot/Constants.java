@@ -363,14 +363,14 @@ public final class Constants {
 		public static final double kIntakeI = 0.0; // maxmotion 0.0
 		public static final double kIntakeD = 0.0; // maxmotion 0.0
 		public static final double kVelFF = 0.0;
-		public static final double kIntakeMinOutput = -0.5; // maxmotion -1.0
-		public static final double kIntakeMaxOutput = 0.5; // maxmotion 1.0
+		public static final double kIntakeMinOutput = -0.5; // maxmotion -1.0;
+		public static final double kIntakeMaxOutput = 0.5; // maxmotion 1.0;
 
 		public static final double kIntakeMaxVel = 100000.0; // 5000.0
 		public static final double kIntakeMaxAccel = 40000.0; // 5000.0
 		public static final double kIntakeAllowedErr = 1.0;
 
-		public static final double kTiltP = 0.01; // maxmotion 0.025;
+		public static final double kTiltP = 1.0; // maxmotion 0.025;
 		public static final double kTiltI = 0.0; // maxmotion 0.0
 		public static final double kTiltD = 0.0; // maxmotion 0.0
 		public static final double kTiltMinOutput = -0.5; // maxmotion -1.0
