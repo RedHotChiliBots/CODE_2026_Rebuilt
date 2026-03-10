@@ -240,24 +240,26 @@ public final class Constants {
 		public static final double kD = 0.0; // maxmotion 0.0
 		public static final double kVelFF = 0.0000037;
 
-		public static final double kMinOutput = -0.5; // maxmotion -1.0
-		public static final double kMaxOutput = 0.5; // maxmotion 1.0
+		public static final double kMinOutput = -1.0;
+		public static final double kMaxOutput = 1.0;
 
-		public static final double kMaxVel = 100000.0; // 5000.0
-		public static final double kMaxAccel = 40000.0; // 5000.0
-		public static final double kAllowedErr = 1.0;
+		// Moderate (Balanced)
+		public static final double kMaxVel = 6000.0; // RPM (~88% of Vortex max)
+		public static final double kMaxAccel = 15000.0; // RPM/sec (0.4 sec to full speed)
+		public static final double kAllowedErr = 75.0; // RPM
 
 		public static final double kPosP = 0.01; // maxmotion 0.025;
 		public static final double kPosI = 0.0; // maxmotion 0.0
 		public static final double kPosD = 0.0; // maxmotion 0.0
 		public static final double kPosFF = 0.0000037;
 
-		public static final double kPosMinOutput = -0.5; // maxmotion -1.0
-		public static final double kPosMaxOutput = 0.5; // maxmotion 1.0
+		public static final double kPosMinOutput = -1.0;
+		public static final double kPosMaxOutput = 1.0;
 
-		public static final double kPosMaxVel = 100000.0; // 5000.0
-		public static final double kPosMaxAccel = 40000.0; // 5000.0
-		public static final double kPosAllowedErr = 1.0;
+		// Moderate (Balanced)
+		public static final double kPosMaxVel = 90.0; // degrees/sec (~1.1 sec for 40° travel)
+		public static final double kPosMaxAccel = 180.0; // degrees/sec² (0.5 sec to max speed)
+		public static final double kPosAllowedErr = 0.5; // degrees
 
 		public static final IdleMode kLeftIdleMode = IdleMode.kCoast;
 		public static final IdleMode kRightIdleMode = IdleMode.kCoast;
@@ -424,7 +426,7 @@ public final class Constants {
 		public static final double kFeederMaxVel = 4000.0; // RPM (~70% of NEO max)
 		public static final double kFeederMaxAccel = 10000.0; // RPM/sec (0.4 sec to full speed)
 		public static final double kFeederAllowedErr = 75.0; // RPM
-	
+
 		public static final int kFeederCurrentLimit = 50; // amps
 	}
 }
