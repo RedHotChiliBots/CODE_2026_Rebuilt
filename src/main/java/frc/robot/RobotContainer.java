@@ -133,22 +133,22 @@ public class RobotContainer {
 				// Drivetrain will execute this command periodically
 				drivetrain.applyRequest(() -> drive
 						// Drive forward with negative Y (forward)
-						.withVelocityX(driverController.getLeftY() * MaxSpeed)
+						.withVelocityX(-driverController.getLeftY() * MaxSpeed)
 						// Drive left with negative X (left)
-						.withVelocityY(driverController.getLeftX() * MaxSpeed)
+						.withVelocityY(-driverController.getLeftX() * MaxSpeed)
 						// Drive counterclockwise with negative X (left)
-						.withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
+						.withRotationalRate(driverController.getRightX() * MaxAngularRate)));
 
 		// Track Hub when A button is held
 		driverController.leftBumper().toggleOnTrue(
 				new ParallelCommandGroup(
 						// shooter.setShooter(shooter.getAutoShoot()).andThen(
-						// 		shooter.setTilt(shooter.getAutoTilt())),
+						// shooter.setTilt(shooter.getAutoTilt())),
 						drivetrain.applyRequest(() -> driveAngle
 								// Drive forward with negative Y (forward)
-								.withVelocityX(driverController.getLeftY() * MaxSpeed)
+								.withVelocityX(-driverController.getLeftY() * MaxSpeed)
 								// Drive left with negative X (left)
-								.withVelocityY(driverController.getLeftX() * MaxSpeed)
+								.withVelocityY(-driverController.getLeftX() * MaxSpeed)
 								// Drive pointing to hub
 								.withTargetDirection(drivetrain.bearingToHub.minus(new Rotation2d(Math.PI))))));
 
@@ -161,13 +161,13 @@ public class RobotContainer {
 
 		operatorController.leftBumper().onTrue(shooter.setShooter(ShooterSP.MED));
 		operatorController.x().onTrue(shooter.setShooter(ShooterSP.OFF));
-	//	operatorController.left
-	// Bumper().onFalse(shooter.setShooter(ShooterSP.OFF));
-		
+		// operatorController.left
+		// Bumper().onFalse(shooter.setShooter(ShooterSP.OFF));
+
 		operatorController.rightBumper().onTrue(feeder.setFeeder(FeederSP.HI));
 		operatorController.b().onTrue(feeder.setFeeder(FeederSP.OFF));
-	//	operatorController.rightBumper().onFalse(feeder.setFeeder(FeederSP.OFF));
-		
+		// operatorController.rightBumper().onFalse(feeder.setFeeder(FeederSP.OFF));
+
 		// Idle while the robot is disabled. This ensures the configured
 		// neutral mode is applied to the drive motors while disabled.
 		final var idle = new SwerveRequest.Idle();
@@ -182,8 +182,9 @@ public class RobotContainer {
 
 		// joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
 		// driverController.b().whileTrue(drivetrain.applyRequest(
-		// 		() -> point.withModuleDirection(
-		// 				new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
+		// () -> point.withModuleDirection(
+		// new Rotation2d(-driverController.getLeftY(),
+		// -driverController.getLeftX()))));
 
 		// Run SysId routines when holding back/start and X/Y.
 		// Note that each routine should be run exactly once in a single log.

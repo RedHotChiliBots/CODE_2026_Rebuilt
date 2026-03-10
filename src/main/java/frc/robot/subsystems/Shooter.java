@@ -15,6 +15,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.networktables.GenericEntry;
@@ -204,7 +205,8 @@ public class Shooter extends SubsystemBase {
 				.zeroCentered(Constants.Shooter.ktiltZeroCentered)
 				.inverted(Constants.Shooter.ktiltEncoderInverted)
 				.positionConversionFactor(Constants.Shooter.kTiltPositionFactor)
-				.velocityConversionFactor(Constants.Shooter.kTiltVelocityFactor);
+				.velocityConversionFactor(Constants.Shooter.kTiltVelocityFactor)
+				.apply(AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoderV2);
 		tiltConfig.closedLoop
 				.feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
 				.p(Constants.Shooter.kPosP)
