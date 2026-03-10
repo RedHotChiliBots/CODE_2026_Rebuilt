@@ -215,11 +215,11 @@ public class Shooter extends SubsystemBase {
 				.outputRange(Constants.Shooter.kPosMinOutput, Constants.Shooter.kPosMaxOutput)
 				.positionWrappingEnabled(Constants.Shooter.kLeftEncodeWrapping);
 		tiltConfig.closedLoop.maxMotion
-			    .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-			    .cruiseVelocity(Constants.Shooter.kPosMaxVel)
-			    .maxAcceleration(Constants.Shooter.kPosMaxAccel)
-			    .allowedProfileError(Constants.Shooter.kPosAllowedErr);
-		
+				.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+				.cruiseVelocity(Constants.Shooter.kPosMaxVel)
+				.maxAcceleration(Constants.Shooter.kPosMaxAccel)
+				.allowedProfileError(Constants.Shooter.kPosAllowedErr);
+
 		tilt.configure(tiltConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
 				com.revrobotics.PersistMode.kPersistParameters);
@@ -377,11 +377,12 @@ public class Shooter extends SubsystemBase {
 	}
 
 	// public double getShooterSP(boolean rpm) {
-	// 	return shooterSP.getVel(rpm);
+	// return shooterSP.getVel(rpm);
 	// }
 	public double getShooterSP(boolean rpm) {
 		if (shooterSpIsCustom) {
-			if (rpm) return shooterSPDbl;
+			if (rpm)
+				return shooterSPDbl;
 			return shooterSPDbl / Constants.MotorConstants.kVortexFreeSpeedRpm * 100.0;
 		}
 		return shooterSP.getVel(rpm);
