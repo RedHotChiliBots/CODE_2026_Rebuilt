@@ -43,8 +43,6 @@ public class Feeder extends SubsystemBase {
   // =============================================================
   private final AnalogInput fuelSensor = new AnalogInput(Constants.AIOId.kFuelSensor);
 
-  private Library lib = new Library();
-
   // ==============================================================
   // Define motor vel enum
   // ==============================================================
@@ -63,7 +61,6 @@ public class Feeder extends SubsystemBase {
 
     public double getVel(boolean rpm) {
       if (rpm) {
-
         return (pct / 100.0) * Constants.MotorConstants.kNeoFreeSpeedRpm;
       } else {
         return pct;
@@ -79,10 +76,9 @@ public class Feeder extends SubsystemBase {
   // ==============================================================
   // Initialize Dashboard entries
   // ==============================================================
-  // private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
   // private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
-  private final ShuffleboardTab feederTab = Shuffleboard.getTab("Feeder");
-  private final ShuffleboardTab FeederCommands = Shuffleboard.getTab("Feeder Commands");
+  private final ShuffleboardTab feederTab = Shuffleboard.getTab("Feeder Methods");
+  private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Feeder Commands");
 
   private final GenericEntry sbFuelAvail = feederTab.addPersistent("Fuel Avail", false)
       .withWidget("Boolean Box").withPosition(0, 0).withSize(2, 1).getEntry();
@@ -114,7 +110,7 @@ public class Feeder extends SubsystemBase {
     feederConfig
         .idleMode(Constants.Feeder.kFeederIdleMode)
         .smartCurrentLimit(Constants.Feeder.kFeederCurrentLimit)
-				.inverted(Constants.Feeder.kFeederMotorInverted);
+        .inverted(Constants.Feeder.kFeederMotorInverted);
     feederConfig.encoder
         .positionConversionFactor(Constants.Feeder.kFeederPositionFactor)
         .velocityConversionFactor(Constants.Feeder.kFeederVelocityFactor);
@@ -129,9 +125,9 @@ public class Feeder extends SubsystemBase {
         .kA(Constants.Feeder.kFeederVelFF);
     feederConfig.closedLoop.maxMotion
         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-				.cruiseVelocity(Constants.Feeder.kFeederMaxVel)
-				.maxAcceleration(Constants.Feeder.kFeederMaxAccel)
-				.allowedProfileError(Constants.Feeder.kFeederAllowedErr);
+        .cruiseVelocity(Constants.Feeder.kFeederMaxVel)
+        .maxAcceleration(Constants.Feeder.kFeederMaxAccel)
+        .allowedProfileError(Constants.Feeder.kFeederAllowedErr);
 
     feeder.configure(
         feederConfig,
@@ -139,13 +135,13 @@ public class Feeder extends SubsystemBase {
         com.revrobotics.PersistMode.kPersistParameters);
 
     // Add commands to Dashboard
-    FeederCommands.add("Feeder Off", this.setFeeder(FeederSP.OFF))
+    cmdTab.add("Feeder Off", this.setFeeder(FeederSP.OFF))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    FeederCommands.add("Feeder Hi", this.setFeeder(FeederSP.HI))
+    cmdTab.add("Feeder Hi", this.setFeeder(FeederSP.HI))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    FeederCommands.add("Feeder Med", this.setFeeder(FeederSP.MED))
+    cmdTab.add("Feeder Med", this.setFeeder(FeederSP.MED))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    FeederCommands.add("Feeder Low", this.setFeeder(FeederSP.LOW))
+    cmdTab.add("Feeder Low", this.setFeeder(FeederSP.LOW))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
     // Initialize intake start positions
@@ -161,26 +157,20 @@ public class Feeder extends SubsystemBase {
     return runOnce(() -> this.setFeederVel(sp));
   }
 
-  // ========()======================================================
+  // ==============================================================
   // Periodic methods
   // ==============================================================
   @Override
   public void periodic() {
     sbFeederOnTgt.setBoolean(onFeederTarget());
     sbFuelAvail.setBoolean(isFuelAvail());
-    sbFuelVolts.setDouble(lib.SBFormat(getFuelVolts()));
-    sbFuelDist.setDouble(lib.SBFormat(getFuelDist()));
-    sbFuelVolts.setDouble(lib.SBFormat(getFuelVolts()));
-    sbFuelDist.setDouble(lib.SBFormat(getFuelDist()));
+    sbFuelVolts.setDouble(Library.SBFormat(getFuelVolts()));
+    sbFuelDist.setDouble(Library.SBFormat(getFuelDist()));
     sbFeederSP.setString(getFeederSP().name());
-    sbFeederSPPct.setDouble(lib.SBFormat(getFeederSP(false)));
-    sbFeederSPRPM.setDouble(lib.SBFormat(getFeederSP(true)));
-    sbFeederVelPct.setDouble(lib.SBFormat(getFeederVel(false)));
-    sbFeederVelRPM.setDouble(lib.SBFormat(getFeederVel(true)));
-    sbFeederSPPct.setDouble(lib.SBFormat(getFeederSP(false)));
-    sbFeederSPRPM.setDouble(lib.SBFormat(getFeederSP(true)));
-    sbFeederVelPct.setDouble(lib.SBFormat(getFeederVel(false)));
-    sbFeederVelRPM.setDouble(lib.SBFormat(getFeederVel(true)));
+    sbFeederSPPct.setDouble(Library.SBFormat(getFeederSP(false)));
+    sbFeederSPRPM.setDouble(Library.SBFormat(getFeederSP(true)));
+    sbFeederVelPct.setDouble(Library.SBFormat(getFeederVel(false)));
+    sbFeederVelRPM.setDouble(Library.SBFormat(getFeederVel(true)));
   }
 
   @Override
@@ -205,21 +195,24 @@ public class Feeder extends SubsystemBase {
 
   public void setFeederVel(FeederSP sp) {
     setFeederSP(sp);
-    feederController.setSetpoint(getFeederSP(false)/100.0*12.0, SparkBase.ControlType.kVoltage);
-  //  .kMAXMotionVelocityControl);
-//    feederController.setSetpoint(Constants.MotorConstants.kNeoFreeSpeedRpm * .80, SparkBase.ControlType.kMAXMotionVelocityControl);
+    feederController.setSetpoint(getFeederSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
+  }
+
+  // Add helper methods
+  private double pctToRpm(double pct) {
+    return (pct / 100.0) * Constants.MotorConstants.kNeoFreeSpeedRpm;
+  }
+
+  private double rpmToPct(double rpm) {
+    return (rpm / Constants.MotorConstants.kNeoFreeSpeedRpm) * 100.0;
   }
 
   public double getFeederVel(boolean rpm) {
-    if (rpm) {
-      return feederEncoder.getVelocity();
-    } else {
-      return feederEncoder.getVelocity() / Constants.MotorConstants.kNeoFreeSpeedRpm * 100.0;
-    }
+    return rpm ? feederEncoder.getVelocity() : rpmToPct(feederEncoder.getVelocity());
   }
 
   public boolean onFeederTarget() {
-    return Math.abs(getFeederVel(true) - getFeederSP(true)) < Constants.Feeder.kTollerance;
+    return Math.abs(getFeederVel(true) - getFeederSP(true)) < Constants.Feeder.kTolerance;
   }
 
   public double getFuelVolts() {
@@ -231,6 +224,6 @@ public class Feeder extends SubsystemBase {
   }
 
   public boolean isFuelAvail() {
-    return !(getFuelDist() > 21.0 && getFuelDist() < 30.0);
+    return (getFuelDist() <= 21.0 || getFuelDist() >= 30.0);
   }
 }

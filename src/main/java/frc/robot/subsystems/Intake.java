@@ -44,12 +44,10 @@ public class Intake extends SubsystemBase {
   private RelativeEncoder intakeEncoder = intake.getEncoder();
   private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
-  private Library lib = new Library();
-
   // ==============================================================
   // Define motor vel and pos enums
   // ==============================================================
-  // The Feeder SP is stored as a percentage of RPMs
+  // The Intake SP is stored as a percentage of max RPMs for motor
   public enum IntakeSP {
     OFF(0.0),
     LOW(50.0),
@@ -74,7 +72,7 @@ public class Intake extends SubsystemBase {
   // The Tilt SP is in degrees
   public enum TiltSP {
     STOW(0.0),
-    DEPLOY(0.9);
+    DEPLOY(80.0);
 
     private double pos;
 
@@ -94,10 +92,9 @@ public class Intake extends SubsystemBase {
   // ==============================================================
   // Initialize Dashboard entries
   // ==============================================================
-  // private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
   // private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
-  private final ShuffleboardTab intakeTab = Shuffleboard.getTab("Intake");
-  private final ShuffleboardTab IntakeCommands = Shuffleboard.getTab("Intake Commands");
+  private final ShuffleboardTab intakeTab = Shuffleboard.getTab("Intake Methods");
+  private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Intake Commands");
 
   private final GenericEntry sbTiltOnTgt = intakeTab.addPersistent("Tilt OnTgt", false)
       .withWidget("Boolean Box").withPosition(0, 1).withSize(2, 1).getEntry();
@@ -167,7 +164,7 @@ public class Intake extends SubsystemBase {
         .inverted(Constants.Intake.kTiltEncoderInverted)
         .positionConversionFactor(Constants.Intake.kTiltPositionFactor)
         .velocityConversionFactor(Constants.Intake.kTiltVelocityFactor)
-				.apply(AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoderV2);
+        .apply(AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoderV2);
     tiltConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .p(Constants.Intake.kTiltP)
@@ -178,7 +175,7 @@ public class Intake extends SubsystemBase {
         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
         .cruiseVelocity(Constants.Intake.kTiltMaxVel)
         .maxAcceleration(Constants.Intake.kTiltMaxAccel)
-        .allowedProfileError(Constants.Intake.kIntakeAllowedErr);
+        .allowedProfileError(Constants.Intake.kTiltAllowedErr);
 
     tilt.configure(
         tiltConfig,
@@ -186,17 +183,17 @@ public class Intake extends SubsystemBase {
         com.revrobotics.PersistMode.kPersistParameters);
 
     // Add commands to Dashboard
-    IntakeCommands.add("Intake Off", this.setIntake(IntakeSP.OFF))
+    cmdTab.add("Intake Off", this.setIntake(IntakeSP.OFF))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    IntakeCommands.add("Intake Hi", this.setIntake(IntakeSP.HI))
+    cmdTab.add("Intake Hi", this.setIntake(IntakeSP.HI))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    IntakeCommands.add("Intake Med", this.setIntake(IntakeSP.MED))
+    cmdTab.add("Intake Med", this.setIntake(IntakeSP.MED))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    IntakeCommands.add("Intake Low", this.setIntake(IntakeSP.LOW))
+    cmdTab.add("Intake Low", this.setIntake(IntakeSP.LOW))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    IntakeCommands.add("Tilt Stow", this.setTilt(TiltSP.STOW))
+    cmdTab.add("Tilt Stow", this.setTilt(TiltSP.STOW))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    IntakeCommands.add("Tilt Deploy", this.setTilt(TiltSP.DEPLOY))
+    cmdTab.add("Tilt Deploy", this.setTilt(TiltSP.DEPLOY))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
     // Initialize intake start positions
@@ -210,7 +207,7 @@ public class Intake extends SubsystemBase {
   // Define subsystem commands
   // ==============================================================
   public Command setIntake(IntakeSP sp) {
-    return run(() -> this.setIntakeVel(sp));
+    return runOnce(() -> this.setIntakeVel(sp));
   }
 
   public Command setTilt(TiltSP sp) {
@@ -224,15 +221,15 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     sbIntakeOnTgt.setBoolean(onIntakeTarget());
     sbIntakeSP.setString(getIntakeSP().name());
-    sbIntakeSPPct.setDouble(lib.SBFormat(getIntakeSP(false)));
-    sbIntakeSPRPM.setDouble(lib.SBFormat(getIntakeSP(true)));
-    sbIntakeVelPct.setDouble(lib.SBFormat(getIntakeVel(false)));
-    sbIntakeVelRPM.setDouble(lib.SBFormat(getIntakeVel(true)));
+    sbIntakeSPPct.setDouble(Library.SBFormat(getIntakeSP(false)));
+    sbIntakeSPRPM.setDouble(Library.SBFormat(getIntakeSP(true)));
+    sbIntakeVelPct.setDouble(Library.SBFormat(getIntakeVel(false)));
+    sbIntakeVelRPM.setDouble(Library.SBFormat(getIntakeVel(true)));
 
     sbTiltOnTgt.setBoolean(onTiltTarget());
     sbTiltSP.setString(getTiltSP().name());
-    sbTiltSPPos.setDouble(lib.SBFormat(getTiltSP().getPos()));
-    sbTiltPos.setDouble(lib.SBFormat(getTiltPos()));
+    sbTiltSPPos.setDouble(Library.SBFormat(getTiltSP().getPos()));
+    sbTiltPos.setDouble(Library.SBFormat(getTiltPos()));
   }
 
   @Override
@@ -274,22 +271,26 @@ public class Intake extends SubsystemBase {
     return intakeSP.getVel(rpm);
   }
 
+  // Helper methods
+  private double pctToRpm(double pct) {
+    return (pct / 100.0) * Constants.MotorConstants.kNeoFreeSpeedRpm;
+  }
+
+  private double rpmToPct(double rpm) {
+    return (rpm / Constants.MotorConstants.kNeoFreeSpeedRpm) * 100.0;
+  }
+
   public void setIntakeVel(IntakeSP sp) {
     setIntakeSP(sp);
-    intakeController.setSetpoint(getIntakeSP(false) / 100.0 * 12.0, SparkBase.ControlType.kVoltage);
-    // , SparkBase.ControlType.kVelocity);
+    intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
   }
 
   public double getIntakeVel(boolean rpm) {
-    if (rpm) {
-      return intakeEncoder.getVelocity();
-    } else {
-      return intakeEncoder.getVelocity() / Constants.MotorConstants.kNeoFreeSpeedRpm * 100.0;
-    }
+    return rpm ? intakeEncoder.getVelocity() : rpmToPct(intakeEncoder.getVelocity());
   }
 
   public boolean onIntakeTarget() {
-    return Math.abs(getIntakeVel(true) - getIntakeSP(true)) < Constants.Intake.kIntakeTollerance;
+    return Math.abs(getIntakeVel(true) - getIntakeSP(true)) < Constants.Intake.kIntakeTolerance;
   }
 
   public double getTiltPos() {
@@ -302,7 +303,7 @@ public class Intake extends SubsystemBase {
 
   public void setTiltPos(TiltSP sp) {
     setTiltSP(sp);
-    tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kPosition);  //kMAXMotionPositionControl);
+    tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kMAXMotionPositionControl);
   }
 
   public TiltSP getTiltSP() {
@@ -310,6 +311,6 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean onTiltTarget() {
-    return Math.abs(getTiltPos() - getTiltSP().getPos()) < Constants.Intake.kTiltTollerance;
+    return Math.abs(getTiltPos() - getTiltSP().getPos()) < Constants.Intake.kTiltTolerance;
   }
 }

@@ -452,10 +452,10 @@ public class Shooter extends SubsystemBase {
 
 	public boolean onTiltTarget() {
 		double target = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
-		return Math.abs(getTiltPos() - target) < Constants.Shooter.kTiltTollerance;
+		return Math.abs(getTiltPos() - target) < Constants.Shooter.kTiltTolerance;
 	}
 
 	public boolean onShooterTarget() {
-		return Math.abs(getShooterVel(true) - getShooterSP(true)) < Constants.Shooter.kShooterTollerance;
+		return Math.abs(getShooterVel(true) - getShooterSP(true)) < Constants.Shooter.kShooterTolerance;
 	}
 }

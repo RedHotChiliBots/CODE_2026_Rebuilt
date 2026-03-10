@@ -76,7 +76,7 @@ public class Climber extends SubsystemBase {
   private final ServoHubConfig hubConfig = new ServoHubConfig();
 
   private Library lib = new Library();
-  
+
   // ==============================================================
   // Define motor and servo pos enums
   // ==============================================================
@@ -261,13 +261,15 @@ public class Climber extends SubsystemBase {
           timer.start();
         },
         // Execute - do nothing
-        () -> {},
+        () -> {
+        },
         // End
         // Stop the servo
         interrupted -> this.setHook(leftHook, HookSP.STOP),
         // Is finished
         // Timer has expired and amps are higher than threshold
-        () -> ((this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit) && timer.hasElapsed(Constants.Climber.kServoTimeout)));
+        () -> ((this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit)
+            && timer.hasElapsed(Constants.Climber.kServoTimeout)));
   }
 
   public Command stowRightHook() {
@@ -282,13 +284,15 @@ public class Climber extends SubsystemBase {
           timer.start();
         },
         // Execute - do nothing
-        () -> {},
+        () -> {
+        },
         // End
         // Stop the servo
         interrupted -> this.setHook(rightHook, HookSP.STOP),
         // Is finished
         // Timer has expired and amps are higher than threshold
-        () -> ((this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit) && timer.hasElapsed(Constants.Climber.kServoTimeout)));
+        () -> ((this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit)
+            && timer.hasElapsed(Constants.Climber.kServoTimeout)));
   }
 
   public Command stowLeftHook1() {
@@ -384,7 +388,7 @@ public class Climber extends SubsystemBase {
   }
 
   public boolean onClimberTarget() {
-    return Math.abs(getClimberPos() - getClimberSP().getValue()) < Constants.Climber.kClimberTollerance;
+    return Math.abs(getClimberPos() - getClimberSP().getValue()) < Constants.Climber.kClimberTolerance;
   }
   // End of Climber Methods
   // Start of Servo Methods
@@ -402,7 +406,7 @@ public class Climber extends SubsystemBase {
   }
 
   public boolean onHookTarget() {
-    return Math.abs(getHookSpd() - getHookSP().getSpd()) < Constants.Climber.kHookTollerance;
+    return Math.abs(getHookSpd() - getHookSP().getSpd()) < Constants.Climber.kHookTolerance;
   }
 
   public void setHook(ServoChannel channel, HookSP sp) {
