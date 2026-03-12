@@ -1,7 +1,5 @@
 package frc.robot.utils;
 
-import frc.robot.Constants;
-
 public class Library {
 
    private static double prevGap = 0.0;
