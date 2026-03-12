@@ -119,8 +119,7 @@ public class Feeder extends SubsystemBase {
         .p(Constants.Feeder.kFeederP)
         .i(Constants.Feeder.kFeederI)
         .d(Constants.Feeder.kFeederD)
-        .outputRange(Constants.Feeder.kFeederMinOutput, Constants.Feeder.kFeederMaxOutput)
-        .positionWrappingEnabled(Constants.Feeder.kFeederEncodeWrapping);
+        .outputRange(Constants.Feeder.kFeederMinOutput, Constants.Feeder.kFeederMaxOutput);
     feederConfig.closedLoop.feedForward
         .kA(Constants.Feeder.kFeederVelFF);
     feederConfig.closedLoop.maxMotion
@@ -212,7 +211,7 @@ public class Feeder extends SubsystemBase {
   }
 
   public boolean onFeederTarget() {
-    return Math.abs(getFeederVel(true) - getFeederSP(true)) < Constants.Feeder.kTolerance;
+    return Math.abs(getFeederVel(true) - getFeederSP(true)) < Constants.Feeder.kFeederAllowedErr;
   }
 
   public double getFuelVolts() {

@@ -198,6 +198,8 @@ public final class Constants {
 	}
 
 	public static final class Shooter {
+		public static final double kBallisticsCoefficient = 0.5; // Drag coefficient for projectile
+
 		public static final double kShooterTolerance = 0.5; // degrees
 		public static final double kTiltTolerance = 0.5; // degrees
 
@@ -211,21 +213,21 @@ public final class Constants {
 		public static final boolean kRightMotorInverted = false;
 		public static final boolean kRightEncoderInverted = false;
 
-		public static final double ktiltZeroOffset = 0.22696681;
-		public static final boolean ktiltZeroCentered = true;
-		public static final boolean ktiltMotorInverted = true;
-		public static final boolean ktiltEncoderInverted = true;
+		public static final double kTiltZeroOffset = 0.22696681;
+		public static final boolean kTiltZeroCentered = true;
+		public static final boolean kTiltMotorInverted = true;
+		public static final boolean kTiltEncoderInverted = true;
 
 		public static final boolean kLeftEncodeWrapping = false;
 		public static final boolean kRightEncodeWrapping = false;
-		public static final boolean ktiltEncodeWrapping = false;
-
+		public static final boolean kTiltEncodeWrapping = false;
+		
 		// Position is returned in native units of rotations and will be multiplied by
 		// this conversion factor.
 		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5 * 3.0); // 3.0 is pully ratio
 
 		public static final double kShooterPositionFactor = 1.0;
-		public static final double kShooterVelocityFactor = kShooterPositionFactor / 60.0; // RPMs per second
+		public static final double kShooterVelocityFactor = 1.0; // Keep at 1.0 to match RPM units
 
 		public static final double kTiltPositionFactor = 360 / kTiltGearRatio;
 		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0;
@@ -235,10 +237,10 @@ public final class Constants {
 		// public static final double kTiltPosI = 0.000001;
 		// public static final double kTiltPosD = 0.0;
 
-		public static final double kP = 0.01; // maxmotion 0.025;
+		public static final double kP = 0.0001; // maxmotion 0.025;
 		public static final double kI = 0.0; // maxmotion 0.0
 		public static final double kD = 0.0; // maxmotion 0.0
-		public static final double kVelFF = 0.0000037;
+		public static final double kVelFF = (1.0 / 5700.0);
 
 		public static final double kMinOutput = -1.0;
 		public static final double kMaxOutput = 1.0;
@@ -248,26 +250,26 @@ public final class Constants {
 		public static final double kMaxAccel = 15000.0; // RPM/sec (0.4 sec to full speed)
 		public static final double kAllowedErr = 75.0; // RPM
 
-		public static final double kPosP = 0.01; // maxmotion 0.025;
+		public static final double kPosP = 0.01;	// maxmotion 0.025;
 		public static final double kPosI = 0.0; // maxmotion 0.0
 		public static final double kPosD = 0.0; // maxmotion 0.0
-		public static final double kPosFF = 0.0000037;
+//		public static final double kPosFF = 0.0000037;
 
 		public static final double kPosMinOutput = -1.0;
 		public static final double kPosMaxOutput = 1.0;
 
 		// Moderate (Balanced)
-		public static final double kPosMaxVel = 90.0; // degrees/sec (~1.1 sec for 40° travel)
-		public static final double kPosMaxAccel = 180.0; // degrees/sec² (0.5 sec to max speed)
-		public static final double kPosAllowedErr = 0.5; // degrees
+		public static final double kPosMaxVel = 2000.0;	//90.0; // degrees/sec (~1.1 sec for 40° travel)
+		public static final double kPosMaxAccel = 1000.0;	//180.0; // degrees/sec² (0.5 sec to max speed)
+		public static final double kPosAllowedErr = 0.1;	//0.5; // degrees
 
 		public static final IdleMode kLeftIdleMode = IdleMode.kCoast;
 		public static final IdleMode kRightIdleMode = IdleMode.kCoast;
-		public static final IdleMode ktiltIdleMode = IdleMode.kBrake;
+		public static final IdleMode kTiltIdleMode = IdleMode.kBrake;
 
 		public static final int kLeftCurrentLimit = 50; // amps
 		public static final int kRightCurrentLimit = 50; // amps
-		public static final int ktiltCurrentLimit = 50; // amps
+		public static final int kTiltCurrentLimit = 50; // amps
 
 	}
 
@@ -340,7 +342,7 @@ public final class Constants {
 
 		// Position is returned in native units of rotations and will be multiplied by
 		// this conversion factor.
-		public static final double kIntakePositionFactor = 1.0 / kIntakeGearRatio; // RPM
+		public static final double kIntakePositionFactor = kIntakeGearRatio; // RPM
 		public static final double kIntakeVelocityFactor = kIntakePositionFactor / 60.0; // Revs per second
 
 		public static final double kIntakeZeroOffset = 0.6643792;
@@ -351,9 +353,9 @@ public final class Constants {
 		public static final IdleMode kIntakeIdleMode = IdleMode.kBrake;
 		public static final boolean kIntakeEncodeWrapping = false;
 
-		public static final double kIntakeP = 0.01; // maxmotion 0.025;
+		public static final double kIntakeP = 0.001; // maxmotion 0.025;
 		public static final double kIntakeI = 0.0; // maxmotion 0.0
-		public static final double kIntakeD = 0.0; // maxmotion 0.0
+		public static final double kIntakeD = 0.001; // maxmotion 0.0
 		public static final double kVelFF = 0.0;
 		public static final double kIntakeMinOutput = -1.0;
 		public static final double kIntakeMaxOutput = 1.0;

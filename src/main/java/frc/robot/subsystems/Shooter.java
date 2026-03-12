@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
+import java.util.Objects;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
@@ -15,6 +16,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -25,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.MotorConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.ShooterBallistics;
 
@@ -40,17 +41,14 @@ public class Shooter extends SubsystemBase {
 	private final SparkMax tilt = new SparkMax(
 			Constants.CANId.kShooterTiltCanId, MotorType.kBrushless);
 
-	private final SparkMaxConfig leftConfig = new SparkMaxConfig();
-	private final SparkMaxConfig rightConfig = new SparkMaxConfig();
+	private final SparkFlexConfig leftConfig = new SparkFlexConfig();
+	private final SparkFlexConfig rightConfig = new SparkFlexConfig();
 	private final SparkMaxConfig tiltConfig = new SparkMaxConfig();
 
 	private SparkClosedLoopController leftController = leftShooter.getClosedLoopController();
-	// private SparkClosedLoopController rightController =
-	// rightShooter.getClosedLoopController();
 	private SparkClosedLoopController tiltController = tilt.getClosedLoopController();
 
 	private RelativeEncoder leftEncoder = leftShooter.getEncoder();
-	// private AbsoluteEncoder rightEncoder = rightShooter.getAbsoluteEncoder();
 	private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
 	private CommandSwerveDrivetrain drivetrain = null;
@@ -154,7 +152,8 @@ public class Shooter extends SubsystemBase {
 	public Shooter(CommandSwerveDrivetrain drivetrain) {
 		System.out.println("+++++ Starting Shooter Constructor +++++");
 
-		this.drivetrain = drivetrain;
+//		this.drivetrain = drivetrain;
+    	this.drivetrain = Objects.requireNonNull(drivetrain, "drivetrain cannot be null");
 
 		// Configure Left Shooter motor
 		leftConfig
@@ -169,8 +168,7 @@ public class Shooter extends SubsystemBase {
 				.p(Constants.Shooter.kP)
 				.i(Constants.Shooter.kI)
 				.d(Constants.Shooter.kD)
-				.outputRange(Constants.Shooter.kPosMinOutput, Constants.Shooter.kPosMaxOutput)
-				.positionWrappingEnabled(Constants.Shooter.kLeftEncodeWrapping);
+				.outputRange(Constants.Shooter.kMinOutput, Constants.Shooter.kMaxOutput);
 		leftConfig.closedLoop.feedForward
 				.kA(Constants.Shooter.kVelFF);
 		leftConfig.closedLoop.maxMotion
@@ -194,13 +192,13 @@ public class Shooter extends SubsystemBase {
 
 		// Configure Tilt motor
 		tiltConfig
-				.inverted(Constants.Shooter.ktiltMotorInverted)
-				.idleMode(Constants.Shooter.ktiltIdleMode)
-				.smartCurrentLimit(Constants.Shooter.ktiltCurrentLimit);
+				.inverted(Constants.Shooter.kTiltMotorInverted)
+				.idleMode(Constants.Shooter.kTiltIdleMode)
+				.smartCurrentLimit(Constants.Shooter.kTiltCurrentLimit);
 		tiltConfig.absoluteEncoder
-				.zeroOffset(Constants.Shooter.ktiltZeroOffset)
-				.zeroCentered(Constants.Shooter.ktiltZeroCentered)
-				.inverted(Constants.Shooter.ktiltEncoderInverted)
+				.zeroOffset(Constants.Shooter.kTiltZeroOffset)
+				.zeroCentered(Constants.Shooter.kTiltZeroCentered)
+				.inverted(Constants.Shooter.kTiltEncoderInverted)
 				.positionConversionFactor(Constants.Shooter.kTiltPositionFactor)
 				.velocityConversionFactor(Constants.Shooter.kTiltVelocityFactor)
 				.apply(AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoderV2);
@@ -210,7 +208,7 @@ public class Shooter extends SubsystemBase {
 				.i(Constants.Shooter.kPosI)
 				.d(Constants.Shooter.kPosD)
 				.outputRange(Constants.Shooter.kPosMinOutput, Constants.Shooter.kPosMaxOutput)
-				.positionWrappingEnabled(Constants.Shooter.kLeftEncodeWrapping);
+				.positionWrappingEnabled(Constants.Shooter.kTiltEncodeWrapping);
 		tiltConfig.closedLoop.maxMotion
 				.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
 				.cruiseVelocity(Constants.Shooter.kPosMaxVel)
@@ -297,7 +295,7 @@ public class Shooter extends SubsystemBase {
 		// Gives you live visibility of what the solver wants to do,
 		// without actually commanding anything unless you call autoShoot().
 		if (drivetrain != null) {
-			var auto = ShooterBallistics.solveStationary(drivetrain.getDistToHub(), 0.5);
+			var auto = ShooterBallistics.solveStationary(drivetrain.getDistToHub(), Constants.Shooter.kBallisticsCoefficient);
 			sbAutoFeasible.setBoolean(auto.feasible());
 			sbAutoAngleDeg
 					.setDouble(Library.SBFormat(auto.feasible() ? auto.angleDeg() : ShooterBallistics.kMinAngleDeg));
@@ -318,7 +316,7 @@ public class Shooter extends SubsystemBase {
 		if (drivetrain == null)
 			return 0.0;
 		double distToHubM = drivetrain.getDistToHub(); // already returns meters
-		var sp = ShooterBallistics.solveStationary(distToHubM, 0.5);
+		var sp = ShooterBallistics.solveStationary(distToHubM, Constants.Shooter.kBallisticsCoefficient);
 
 		if (!sp.feasible())
 			return 0.0; // or hold last good value if you prefer
@@ -335,7 +333,7 @@ public class Shooter extends SubsystemBase {
 		if (drivetrain == null)
 			return ShooterBallistics.kMinAngleDeg;
 		double distToHubM = drivetrain.getDistToHub();
-		var sp = ShooterBallistics.solveStationary(distToHubM, 0.5);
+		var sp = ShooterBallistics.solveStationary(distToHubM, Constants.Shooter.kBallisticsCoefficient);
 
 		double angleDeg = sp.feasible()
 				? sp.angleDeg()
@@ -455,10 +453,10 @@ public class Shooter extends SubsystemBase {
 
 	public boolean onTiltTarget() {
 		double target = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
-		return Math.abs(getTiltPos() - target) < Constants.Shooter.kTiltTolerance;
+		return Math.abs(getTiltPos() - target) < Constants.Shooter.kPosAllowedErr;
 	}
 
 	public boolean onShooterTarget() {
-		return Math.abs(getShooterVel(true) - getShooterSP(true)) < Constants.Shooter.kShooterTolerance;
+		return Math.abs(getShooterVel(true) - getShooterSP(true)) < Constants.Shooter.kAllowedErr;
 	}
 }

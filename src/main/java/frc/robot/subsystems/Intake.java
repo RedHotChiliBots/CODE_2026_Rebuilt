@@ -51,7 +51,7 @@ public class Intake extends SubsystemBase {
   public enum IntakeSP {
     OFF(0.0),
     LOW(50.0),
-    MED(90.0),
+    MED(75.0),
     HI(100.0);
 
     private double pct;
@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase {
 
     public double getVel(boolean rpm) {
       if (rpm) {
-        return pct * Constants.MotorConstants.kNeoFreeSpeedRpm / 100.0;
+        return (pct / 100.0) * (Constants.MotorConstants.kNeoFreeSpeedRpm * Constants.Intake.kIntakeVelocityFactor);
       } else {
         return pct;
       }
@@ -170,7 +170,8 @@ public class Intake extends SubsystemBase {
         .p(Constants.Intake.kTiltP)
         .i(Constants.Intake.kTiltI)
         .d(Constants.Intake.kTiltD)
-        .outputRange(Constants.Intake.kTiltMinOutput, Constants.Intake.kTiltMaxOutput);
+        .outputRange(Constants.Intake.kTiltMinOutput, Constants.Intake.kTiltMaxOutput)
+				.positionWrappingEnabled(Constants.Intake.kTiltEncodeWrapping);
     tiltConfig.closedLoop.maxMotion
         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
         .cruiseVelocity(Constants.Intake.kTiltMaxVel)
@@ -290,7 +291,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean onIntakeTarget() {
-    return Math.abs(getIntakeVel(true) - getIntakeSP(true)) < Constants.Intake.kIntakeTolerance;
+    return Math.abs(getIntakeVel(true) - getIntakeSP(true)) < Constants.Intake.kIntakeAllowedErr;
   }
 
   public double getTiltPos() {
@@ -311,6 +312,6 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean onTiltTarget() {
-    return Math.abs(getTiltPos() - getTiltSP().getPos()) < Constants.Intake.kTiltTolerance;
+    return Math.abs(getTiltPos() - getTiltSP().getPos()) < Constants.Intake.kTiltAllowedErr;
   }
 }

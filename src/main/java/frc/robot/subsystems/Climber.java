@@ -75,7 +75,6 @@ public class Climber extends SubsystemBase {
 
   private final ServoHubConfig hubConfig = new ServoHubConfig();
 
-  private Library lib = new Library();
 
   // ==============================================================
   // Define motor and servo pos enums
@@ -342,12 +341,12 @@ public class Climber extends SubsystemBase {
   public void periodic() {
     sbClimberOnTgt.setBoolean(onClimberTarget());
     sbClimberSP.setString(getClimberSP().name());
-    sbClimberSPPos.setDouble(lib.SBFormat(getClimberSP().getValue()));
+    sbClimberSPPos.setDouble(Library.SBFormat(getClimberSP().getValue()));
     sbHookOnTgt.setBoolean(onHookTarget());
     sbHookSP.setString(getHookSP().name());
-    sbHookSPSpd.setDouble(lib.SBFormat(getHookSP().getSpd()));
-    sbLeftHookAmp.setDouble(lib.SBFormat(getChannelAmps(leftHook)));
-    sbRightHookAmp.setDouble(lib.SBFormat(getChannelAmps(rightHook)));
+    sbHookSPSpd.setDouble(Library.SBFormat(getHookSP().getSpd()));
+    sbLeftHookAmp.setDouble(Library.SBFormat(getChannelAmps(leftHook)));
+    sbRightHookAmp.setDouble(Library.SBFormat(getChannelAmps(rightHook)));
   }
 
   @Override
