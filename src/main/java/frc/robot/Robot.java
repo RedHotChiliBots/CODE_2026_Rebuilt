@@ -81,22 +81,10 @@ public class Robot extends TimedRobot {
     @Override
     public void testExit() {}
 
-    private double simStart = -1;
-
     @Override
     public void simulationPeriodic() {
-      if (simStart < 0) simStart = Timer.getFPGATimestamp();
-    
-      double remaining = Math.max(0.0, 30.0 - (Timer.getFPGATimestamp() - simStart));
-      
-      // Simulate TELEOP: autonomous=false and test=false
-      DriverStationSim.setAutonomous(false);
-      DriverStationSim.setTest(false);
-      
-      DriverStationSim.setEnabled(true);
-      DriverStationSim.setMatchTime(remaining);
-      DriverStationSim.notifyNewData();
-      
-      if (remaining <= 0.0) simStart = Timer.getFPGATimestamp();
+      // This method is called once per scheduler run during simulation
+      // The Driver Station will control enable/disable and mode selection
+      // Remove any DriverStationSim calls to allow real Driver Station control
     }
 }

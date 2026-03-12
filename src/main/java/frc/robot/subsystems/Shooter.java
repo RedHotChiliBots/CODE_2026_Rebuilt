@@ -29,6 +29,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.Library;
 import frc.robot.utils.ShooterBallistics;
+import frc.robot.utils.SparkMaxSimulation;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 public class Shooter extends SubsystemBase {
 	// ==============================================================
@@ -52,6 +54,10 @@ public class Shooter extends SubsystemBase {
 	private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
 	private CommandSwerveDrivetrain drivetrain = null;
+
+	// Simulation objects
+	private SparkMaxSimulation leftShooterSim;
+	private SparkMaxSimulation tiltSim;
 
 	// ==============================================================
 	// Define motor vel and pos enums
@@ -239,6 +245,29 @@ public class Shooter extends SubsystemBase {
 		setShooterVel(ShooterSP.OFF);
 		setTiltPos(TiltSP.LOW);
 
+		// Initialize simulation
+		if (Constants.currentMode == Constants.Mode.SIM) {
+			// Left shooter motor simulation (velocity control) - right follows
+			leftShooterSim = SparkMaxSimulation.createVelocitySim(
+					leftShooter,
+					DCMotor.getNeoVortex(1),
+					1.0, // Direct drive, no gearing
+					0.01 // MOI in kg*m^2 for flywheel
+			);
+
+			// Tilt motor simulation (position control)
+			tiltSim = SparkMaxSimulation.createPositionSim(
+					tilt,
+					DCMotor.getNEO(1),
+					Constants.Shooter.kTiltGearRatio,
+					0.6, // arm length in meters
+					TiltSP.LOW.getPos(), // min angle
+					TiltSP.HI.getPos(), // max angle
+					true, // simulate gravity
+					TiltSP.LOW.getPos() // starting angle
+			);
+		}
+
 		System.out.println("----- Ending Shooter Constructor -----");
 	}
 
@@ -305,7 +334,15 @@ public class Shooter extends SubsystemBase {
 
 	@Override
 	public void simulationPeriodic() {
-		// This method will be called once per scheduler run during simulation
+		// Update motor simulations
+		if (leftShooterSim != null) {
+			leftShooterSim.update(getShooterSP(true), 0.02);
+		}
+		
+		if (tiltSim != null) {
+			double target = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
+			tiltSim.update(target, 0.02);
+		}
 	}
 
 	// ==============================================================

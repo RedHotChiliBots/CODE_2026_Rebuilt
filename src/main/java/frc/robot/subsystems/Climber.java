@@ -30,6 +30,8 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.Library;
+import frc.robot.utils.SparkMaxSimulation;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 //CLASS DEFINITION
 public class Climber extends SubsystemBase {
@@ -74,6 +76,9 @@ public class Climber extends SubsystemBase {
   private final ServoChannel rightHook = servoHub.getServoChannel(ChannelId.kChannelId1);
 
   private final ServoHubConfig hubConfig = new ServoHubConfig();
+
+  // Simulation objects
+  private SparkMaxSimulation climber1Sim;
 
 
   // ==============================================================
@@ -237,6 +242,21 @@ public class Climber extends SubsystemBase {
     ClimberCommands.add("Hooks Deploy", this.deployHooks())
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
+    // Initialize simulation
+    if (Constants.currentMode == Constants.Mode.SIM) {
+      // Climber motor simulation (position control)
+      climber1Sim = SparkMaxSimulation.createPositionSim(
+          climber1,
+          DCMotor.getNEO(1),
+          Constants.Climber.kClimberGearRatio,
+          0.3, // arm length in meters
+          ClimberSP.BOT.getValue(), // min position
+          ClimberSP.TOP.getValue(), // max position
+          false, // don't simulate gravity for vertical climber
+          ClimberSP.STOW.getValue() // starting position
+      );
+    }
+
     System.out.println("+++++ End of Climber Constructor +++++");
   }
 
@@ -351,7 +371,10 @@ public class Climber extends SubsystemBase {
 
   @Override
   public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
+    // Update motor simulation
+    if (climber1Sim != null) {
+      climber1Sim.update(getClimberSP().getValue(), 0.02);
+    }
   }
 
   // ==============================================================

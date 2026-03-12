@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.Library;
+import frc.robot.utils.SparkMaxSimulation;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 public class Intake extends SubsystemBase {
 
@@ -43,6 +45,10 @@ public class Intake extends SubsystemBase {
 
   private RelativeEncoder intakeEncoder = intake.getEncoder();
   private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
+
+  // Simulation objects
+  private SparkMaxSimulation intakeSim;
+  private SparkMaxSimulation tiltSim;
 
   // ==============================================================
   // Define motor vel and pos enums
@@ -201,6 +207,29 @@ public class Intake extends SubsystemBase {
     setIntakeVel(IntakeSP.OFF);
     setTiltPos(TiltSP.STOW);
 
+    // Initialize simulation
+    if (Constants.currentMode == Constants.Mode.SIM) {
+      // Intake motor simulation (velocity control)
+      intakeSim = SparkMaxSimulation.createVelocitySim(
+          intake,
+          DCMotor.getNEO(1),
+          Constants.Intake.kIntakeGearRatio,
+          0.005 // MOI in kg*m^2
+      );
+
+      // Tilt motor simulation (position control)
+      tiltSim = SparkMaxSimulation.createPositionSim(
+          tilt,
+          DCMotor.getNEO(1),
+          Constants.Intake.kTiltGearRatio,
+          0.5, // arm length in meters
+          TiltSP.STOW.getPos(), // min angle
+          TiltSP.DEPLOY.getPos(), // max angle
+          true, // simulate gravity
+          TiltSP.STOW.getPos() // starting angle
+      );
+    }
+
     System.out.println("----- Ending Intake Constructor -----");
   }
 
@@ -235,7 +264,17 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
+    // Update motor simulations
+    if (intakeSim != null) {
+      intakeSim.update(getIntakeSP(true), 0.02);
+      // Note: In real simulation, you would update the encoder values here
+      // For now, the simulation tracks state internally
+    }
+    
+    if (tiltSim != null) {
+      tiltSim.update(getTiltSP().getPos(), 0.02);
+      // Note: In real simulation, you would update the encoder values here
+    }
   }
 
   // ==============================================================

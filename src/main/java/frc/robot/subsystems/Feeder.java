@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.Library;
+import frc.robot.utils.SparkMaxSimulation;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 public class Feeder extends SubsystemBase {
   // ==============================================================
@@ -37,6 +39,9 @@ public class Feeder extends SubsystemBase {
   private SparkClosedLoopController feederController = feeder.getClosedLoopController();
 
   private RelativeEncoder feederEncoder = feeder.getEncoder();
+
+  // Simulation objects
+  private SparkMaxSimulation feederSim;
 
   // ==============================================================
   // Define trigger inputs
@@ -146,6 +151,17 @@ public class Feeder extends SubsystemBase {
     // Initialize intake start positions
     setFeederVel(FeederSP.OFF);
 
+    // Initialize simulation
+    if (Constants.currentMode == Constants.Mode.SIM) {
+      // Feeder motor simulation (velocity control)
+      feederSim = SparkMaxSimulation.createVelocitySim(
+          feeder,
+          DCMotor.getNEO(1),
+          Constants.Feeder.kFeederGearRatio,
+          0.003 // MOI in kg*m^2 for roller
+      );
+    }
+
     System.out.println("----- Ending Feeder Constructor -----");
   }
 
@@ -174,7 +190,10 @@ public class Feeder extends SubsystemBase {
 
   @Override
   public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
+    // Update motor simulation
+    if (feederSim != null) {
+      feederSim.update(getFeederSP(true), 0.02);
+    }
   }
 
   // ==============================================================

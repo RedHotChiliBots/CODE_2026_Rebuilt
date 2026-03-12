@@ -237,10 +237,10 @@ public final class Constants {
 		// public static final double kTiltPosI = 0.000001;
 		// public static final double kTiltPosD = 0.0;
 
-		public static final double kP = 0.0001; // maxmotion 0.025;
+		public static final double kP = 0.0002; // maxmotion 0.025;
 		public static final double kI = 0.0; // maxmotion 0.0
 		public static final double kD = 0.0; // maxmotion 0.0
-		public static final double kVelFF = (1.0 / 5700.0);
+		public static final double kVelFF = (1.0 / MotorConstants.kVortexFreeSpeedRpm);
 
 		public static final double kMinOutput = -1.0;
 		public static final double kMaxOutput = 1.0;
@@ -250,9 +250,9 @@ public final class Constants {
 		public static final double kMaxAccel = 15000.0; // RPM/sec (0.4 sec to full speed)
 		public static final double kAllowedErr = 75.0; // RPM
 
-		public static final double kPosP = 0.01;	// maxmotion 0.025;
+		public static final double kPosP = 0.05;	// maxmotion 0.025;
 		public static final double kPosI = 0.0; // maxmotion 0.0
-		public static final double kPosD = 0.0; // maxmotion 0.0
+		public static final double kPosD = 0.005; // maxmotion 0.0
 //		public static final double kPosFF = 0.0000037;
 
 		public static final double kPosMinOutput = -1.0;
@@ -342,8 +342,8 @@ public final class Constants {
 
 		// Position is returned in native units of rotations and will be multiplied by
 		// this conversion factor.
-		public static final double kIntakePositionFactor = kIntakeGearRatio; // RPM
-		public static final double kIntakeVelocityFactor = kIntakePositionFactor / 60.0; // Revs per second
+		public static final double kIntakePositionFactor = 1.0;	//kIntakeGearRatio; // RPM
+		public static final double kIntakeVelocityFactor = 1.0;	//kIntakePositionFactor / 60.0; // Revs per second
 
 		public static final double kIntakeZeroOffset = 0.6643792;
 		public static final boolean kIntakeZeroCentered = true;
@@ -353,10 +353,10 @@ public final class Constants {
 		public static final IdleMode kIntakeIdleMode = IdleMode.kBrake;
 		public static final boolean kIntakeEncodeWrapping = false;
 
-		public static final double kIntakeP = 0.001; // maxmotion 0.025;
+		public static final double kIntakeP = 0.0002; // maxmotion 0.025;
 		public static final double kIntakeI = 0.0; // maxmotion 0.0
-		public static final double kIntakeD = 0.001; // maxmotion 0.0
-		public static final double kVelFF = 0.0;
+		public static final double kIntakeD = 0.0; // maxmotion 0.0
+		public static final double kVelFF = 1.0 / MotorConstants.kNeoFreeSpeedRpm;
 		public static final double kIntakeMinOutput = -1.0;
 		public static final double kIntakeMaxOutput = 1.0;
 
@@ -381,9 +381,9 @@ public final class Constants {
 		public static final boolean kTiltMotorInverted = false;
 		public static final boolean kTiltEncoderInverted = false;
 
-		public static final double kTiltP = 1.0; // maxmotion 0.025;
+		public static final double kTiltP = 0.8; // maxmotion 0.025;
 		public static final double kTiltI = 0.0; // maxmotion 0.0
-		public static final double kTiltD = 0.0; // maxmotion 0.0
+		public static final double kTiltD = 0.1; // maxmotion 0.0
 		public static final double kTiltMinOutput = -1.0;
 		public static final double kTiltMaxOutput = 1.0;
 
@@ -416,10 +416,10 @@ public final class Constants {
 		public static final double kFeederPositionFactor = 1.0; // / kFeederGearRatio; // RPMs
 		public static final double kFeederVelocityFactor = 1.0; // kFeederPositionFactor / 60.0; // Revs per second
 
-		public static final double kFeederP = 0.00009;
+		public static final double kFeederP = 0.0002;
 		public static final double kFeederI = 0.0;// 000001;
 		public static final double kFeederD = 0.0;// 1;
-		public static final double kFeederVelFF = 0.0;// 0000037;
+		public static final double kFeederVelFF = 1.0 / MotorConstants.kNeoFreeSpeedRpm;// 0000037;
 
 		public static final double kFeederMinOutput = -1.0;
 		public static final double kFeederMaxOutput = 1.0;
