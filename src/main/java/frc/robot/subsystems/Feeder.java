@@ -117,7 +117,7 @@ public class Feeder extends SubsystemBase {
         .smartCurrentLimit(Constants.Feeder.kFeederCurrentLimit)
         .inverted(Constants.Feeder.kFeederMotorInverted);
     feederConfig.encoder
-        .positionConversionFactor(Constants.Feeder.kFeederPositionFactor)
+//        .positionConversionFactor(Constants.Feeder.kFeederPositionFactor)
         .velocityConversionFactor(Constants.Feeder.kFeederVelocityFactor);
     feederConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)

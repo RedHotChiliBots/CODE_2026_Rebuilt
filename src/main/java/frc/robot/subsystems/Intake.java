@@ -138,7 +138,7 @@ public class Intake extends SubsystemBase {
         .smartCurrentLimit(Constants.Intake.kIntakeCurrentLimit)
         .inverted(Constants.Intake.kIntakeMotorInverted);
     intakeConfig.encoder
-        .positionConversionFactor(Constants.Intake.kIntakePositionFactor)
+//        .positionConversionFactor(Constants.Intake.kIntakePositionFactor)
         .velocityConversionFactor(Constants.Intake.kIntakeVelocityFactor);
     intakeConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)

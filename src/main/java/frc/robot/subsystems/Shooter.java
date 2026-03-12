@@ -86,9 +86,9 @@ public class Shooter extends SubsystemBase {
 
 	// The Tilt SP is in degrees
 	public enum TiltSP {
-		LOW(10.5),
-		MED((10.5 + 50.0) / 2.0),
-		HI(50.0);
+		LOW(-10.0),
+		MED(0.0),
+		HI(10.0);
 
 		private double pos;
 
@@ -108,8 +108,8 @@ public class Shooter extends SubsystemBase {
 	private double shooterSPDbl = 0.0;
 	private boolean shooterSpIsCustom = false;
 
-	private TiltSP tiltSP = TiltSP.LOW;
-	private double tiltSPDbl = 0;
+	private TiltSP tiltSP = TiltSP.MED;
+	private double tiltSPDbl = 0.0;
 	private boolean tiltSpIsCustom = false;
 
 	// ==============================================================
@@ -167,7 +167,7 @@ public class Shooter extends SubsystemBase {
 				.idleMode(Constants.Shooter.kLeftIdleMode)
 				.smartCurrentLimit(Constants.Shooter.kLeftCurrentLimit);
 		leftConfig.encoder
-				.positionConversionFactor(Constants.Shooter.kShooterPositionFactor)
+//				.positionConversionFactor(Constants.Shooter.kShooterPositionFactor)
 				.velocityConversionFactor(Constants.Shooter.kShooterVelocityFactor);
 		leftConfig.closedLoop
 				.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -243,7 +243,7 @@ public class Shooter extends SubsystemBase {
 
 		// Initialize intake start positions
 		setShooterVel(ShooterSP.OFF);
-		setTiltPos(TiltSP.LOW);
+		setTiltPos(TiltSP.MED);
 
 		// Initialize simulation
 		if (Constants.currentMode == Constants.Mode.SIM) {

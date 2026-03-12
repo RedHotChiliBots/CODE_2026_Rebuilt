@@ -200,9 +200,6 @@ public final class Constants {
 	public static final class Shooter {
 		public static final double kBallisticsCoefficient = 0.5; // Drag coefficient for projectile
 
-		public static final double kShooterTolerance = 0.5; // degrees
-		public static final double kTiltTolerance = 0.5; // degrees
-
 		public static final double kLeftZeroOffset = 0.6643792;
 		public static final boolean kLeftZeroCentered = true;
 		public static final boolean kLeftMotorInverted = false;
@@ -213,7 +210,7 @@ public final class Constants {
 		public static final boolean kRightMotorInverted = false;
 		public static final boolean kRightEncoderInverted = false;
 
-		public static final double kTiltZeroOffset = 0.22696681;
+		public static final double kTiltZeroOffset = 0.59196;
 		public static final boolean kTiltZeroCentered = true;
 		public static final boolean kTiltMotorInverted = true;
 		public static final boolean kTiltEncoderInverted = true;
@@ -224,23 +221,22 @@ public final class Constants {
 		
 		// Position is returned in native units of rotations and will be multiplied by
 		// this conversion factor.
-		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5 * 3.0); // 3.0 is pully ratio
+		public static final double kShooterGearRatio = 1.0; // 1.0 is no reduction
 
-		public static final double kShooterPositionFactor = 1.0;
+//		public static final double kShooterPositionFactor = 1.0;
 		public static final double kShooterVelocityFactor = 1.0; // Keep at 1.0 to match RPM units
 
-		public static final double kTiltPositionFactor = 360 / kTiltGearRatio;
-		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0;
+		// Position is returned in native units of rotations and will be multiplied by
+		// this conversion factor.
+		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5 * 3.0); // 3.0 is pully ratio
 
-		// Unsure if this needs to be uncommented out
-		// public static final double kTiltPosP = 0.002;
-		// public static final double kTiltPosI = 0.000001;
-		// public static final double kTiltPosD = 0.0;
+		public static final double kTiltPositionFactor = 180.0 / kTiltGearRatio;
+		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0;
 
 		public static final double kP = 0.0002; // maxmotion 0.025;
 		public static final double kI = 0.0; // maxmotion 0.0
 		public static final double kD = 0.0; // maxmotion 0.0
-		public static final double kVelFF = (1.0 / MotorConstants.kVortexFreeSpeedRpm);
+		public static final double kVelFF = 1.0 / MotorConstants.kVortexFreeSpeedRpm;	// / Constants.Shooter.kShooterGearRatio));
 
 		public static final double kMinOutput = -1.0;
 		public static final double kMaxOutput = 1.0;
@@ -250,7 +246,7 @@ public final class Constants {
 		public static final double kMaxAccel = 15000.0; // RPM/sec (0.4 sec to full speed)
 		public static final double kAllowedErr = 75.0; // RPM
 
-		public static final double kPosP = 0.05;	// maxmotion 0.025;
+		public static final double kPosP = 0.75;	// maxmotion 0.025;
 		public static final double kPosI = 0.0; // maxmotion 0.0
 		public static final double kPosD = 0.005; // maxmotion 0.0
 //		public static final double kPosFF = 0.0000037;
@@ -336,14 +332,15 @@ public final class Constants {
 	}
 
 	public static final class Intake {
-		public static final double kIntakeTolerance = 50.0; // rpms
+//		public static final double kIntakeTolerance = 50.0; // rpms
 
 		public static final double kIntakeGearRatio = (GearBox.Max3 * GearBox.Max4);
 
 		// Position is returned in native units of rotations and will be multiplied by
 		// this conversion factor.
-		public static final double kIntakePositionFactor = 1.0;	//kIntakeGearRatio; // RPM
-		public static final double kIntakeVelocityFactor = 1.0;	//kIntakePositionFactor / 60.0; // Revs per second
+		// Divide by gear ratio to convert motor shaft rotations to output shaft rotations
+		public static final double kIntakePositionFactor = 1.0 / kIntakeGearRatio;  // Output rotations per motor rotation
+		public static final double kIntakeVelocityFactor = kIntakePositionFactor;   // Output RPM per motor RPM
 
 		public static final double kIntakeZeroOffset = 0.6643792;
 		public static final boolean kIntakeZeroCentered = true;
@@ -356,7 +353,7 @@ public final class Constants {
 		public static final double kIntakeP = 0.0002; // maxmotion 0.025;
 		public static final double kIntakeI = 0.0; // maxmotion 0.0
 		public static final double kIntakeD = 0.0; // maxmotion 0.0
-		public static final double kVelFF = 1.0 / MotorConstants.kNeoFreeSpeedRpm;
+		public static final double kVelFF = 1.0 / MotorConstants.kNeoFreeSpeedRpm;	// / Constants.Intake.kIntakeGearRatio);
 		public static final double kIntakeMinOutput = -1.0;
 		public static final double kIntakeMaxOutput = 1.0;
 
@@ -367,7 +364,7 @@ public final class Constants {
 
 		public static final int kIntakeCurrentLimit = 50; // amps
 
-		public static final double kTiltTolerance = 1.0; // degrees
+//		public static final double kTiltTolerance = 1.0; // degrees
 
 		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5);
 
@@ -399,7 +396,7 @@ public final class Constants {
 	}
 
 	public static final class Feeder {
-		public static final double kTolerance = 75.0; // RPMs
+//		public static final double kTolerance = 75.0; // RPMs
 
 		public static final double kFeederZeroOffset = 0.6643792;
 		public static final boolean kFeederZeroCentered = true;
@@ -413,13 +410,14 @@ public final class Constants {
 
 		// Position is returned in native units of rotations and will be multiplied by
 		// this conversion factor.
-		public static final double kFeederPositionFactor = 1.0; // / kFeederGearRatio; // RPMs
-		public static final double kFeederVelocityFactor = 1.0; // kFeederPositionFactor / 60.0; // Revs per second
+		// Divide by gear ratio to convert motor shaft rotations to output shaft rotations
+		public static final double kFeederPositionFactor = 1.0 / kFeederGearRatio;  // Output rotations per motor rotation
+		public static final double kFeederVelocityFactor = kFeederPositionFactor;   // Output RPM per motor RPM
 
 		public static final double kFeederP = 0.0002;
 		public static final double kFeederI = 0.0;// 000001;
 		public static final double kFeederD = 0.0;// 1;
-		public static final double kFeederVelFF = 1.0 / MotorConstants.kNeoFreeSpeedRpm;// 0000037;
+		public static final double kFeederVelFF = 1.0 / MotorConstants.kNeoFreeSpeedRpm;	// / Constants.Feeder.kFeederGearRatio);// 0000037;
 
 		public static final double kFeederMinOutput = -1.0;
 		public static final double kFeederMaxOutput = 1.0;
