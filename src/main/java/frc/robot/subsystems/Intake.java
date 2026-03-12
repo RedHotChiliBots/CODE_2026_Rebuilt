@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase {
 
     public double getVel(boolean rpm) {
       if (rpm) {
-        return (Library.pctToRpm(pct, Constants.MotorConstants.kNeoFreeSpeedRpm) * Constants.Intake.kIntakeVelocityFactor);
+        return (Library.pctToRpm(pct, Constants.MotorConstants.kNeoFreeSpeedRpm));  // * Constants.Intake.kIntakeVelocityFactor);
       } else {
         return pct;
       }
