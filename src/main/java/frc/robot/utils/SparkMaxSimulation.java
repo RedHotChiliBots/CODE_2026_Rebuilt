@@ -4,8 +4,6 @@
 
 package frc.robot.utils;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase;
 import edu.wpi.first.math.system.plant.DCMotor;
 
