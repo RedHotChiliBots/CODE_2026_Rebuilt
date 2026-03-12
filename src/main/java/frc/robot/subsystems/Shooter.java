@@ -71,7 +71,7 @@ public class Shooter extends SubsystemBase {
 
 		public double getVel(boolean rpm) {
 			if (rpm) {
-				return (pct / 100.0) * Constants.MotorConstants.kVortexFreeSpeedRpm;
+				return Library.pctToRpm(pct, Constants.MotorConstants.kVortexFreeSpeedRpm);
 			} else {
 				return pct;
 			}
@@ -378,18 +378,10 @@ public class Shooter extends SubsystemBase {
 		return shooterSP;
 	}
 
-	// Add helper methods
-	private double pctToRpm(double pct) {
-		return (pct / 100.0) * Constants.MotorConstants.kVortexFreeSpeedRpm;
-	}
-
-	private double rpmToPct(double rpm) {
-		return (rpm / Constants.MotorConstants.kVortexFreeSpeedRpm) * 100.0;
-	}
-
 	public double getShooterSP(boolean rpm) {
 		if (shooterSpIsCustom) {
-			return rpm ? shooterSPDbl : rpmToPct(shooterSPDbl);
+			return rpm ? shooterSPDbl : Library.rpmToPct(shooterSPDbl, Constants.MotorConstants.kVortexFreeSpeedRpm);
+
 		}
 		return shooterSP.getVel(rpm);
 	}
@@ -405,7 +397,7 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public double getShooterVel(boolean rpm) {
-		return rpm ? leftEncoder.getVelocity() : rpmToPct(leftEncoder.getVelocity());
+		return rpm ? leftEncoder.getVelocity() : Library.rpmToPct(leftEncoder.getVelocity(), Constants.MotorConstants.kVortexFreeSpeedRpm);
 	}
 
 	public String getTiltSPName() {

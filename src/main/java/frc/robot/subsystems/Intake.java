@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase {
 
     public double getVel(boolean rpm) {
       if (rpm) {
-        return (pct / 100.0) * (Constants.MotorConstants.kNeoFreeSpeedRpm * Constants.Intake.kIntakeVelocityFactor);
+        return (Library.pctToRpm(pct, Constants.MotorConstants.kNeoFreeSpeedRpm) * Constants.Intake.kIntakeVelocityFactor);
       } else {
         return pct;
       }
@@ -272,22 +272,13 @@ public class Intake extends SubsystemBase {
     return intakeSP.getVel(rpm);
   }
 
-  // Helper methods
-  private double pctToRpm(double pct) {
-    return (pct / 100.0) * Constants.MotorConstants.kNeoFreeSpeedRpm;
-  }
-
-  private double rpmToPct(double rpm) {
-    return (rpm / Constants.MotorConstants.kNeoFreeSpeedRpm) * 100.0;
-  }
-
   public void setIntakeVel(IntakeSP sp) {
     setIntakeSP(sp);
     intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
   }
 
   public double getIntakeVel(boolean rpm) {
-    return rpm ? intakeEncoder.getVelocity() : rpmToPct(intakeEncoder.getVelocity());
+    return rpm ? intakeEncoder.getVelocity() : Library.rpmToPct(intakeEncoder.getVelocity(), Constants.MotorConstants.kNeoFreeSpeedRpm);
   }
 
   public boolean onIntakeTarget() {

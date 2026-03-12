@@ -61,7 +61,7 @@ public class Feeder extends SubsystemBase {
 
     public double getVel(boolean rpm) {
       if (rpm) {
-        return (pct / 100.0) * Constants.MotorConstants.kNeoFreeSpeedRpm;
+        return Library.pctToRpm(pct, Constants.MotorConstants.kNeoFreeSpeedRpm);
       } else {
         return pct;
       }
@@ -197,17 +197,8 @@ public class Feeder extends SubsystemBase {
     feederController.setSetpoint(getFeederSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
   }
 
-  // Add helper methods
-  private double pctToRpm(double pct) {
-    return (pct / 100.0) * Constants.MotorConstants.kNeoFreeSpeedRpm;
-  }
-
-  private double rpmToPct(double rpm) {
-    return (rpm / Constants.MotorConstants.kNeoFreeSpeedRpm) * 100.0;
-  }
-
   public double getFeederVel(boolean rpm) {
-    return rpm ? feederEncoder.getVelocity() : rpmToPct(feederEncoder.getVelocity());
+    return rpm ? feederEncoder.getVelocity() : Library.rpmToPct(feederEncoder.getVelocity(), Constants.MotorConstants.kNeoFreeSpeedRpm);
   }
 
   public boolean onFeederTarget() {
