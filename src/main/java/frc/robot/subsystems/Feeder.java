@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.constants.FeederConstants;
 import frc.robot.utils.Library;
 
 public class Feeder extends SubsystemBase {
@@ -30,7 +31,7 @@ public class Feeder extends SubsystemBase {
   // Define Feeder Motor
   // ==============================================================
   private final SparkMax feeder = new SparkMax(
-      Constants.CANId.kFeederCanId, MotorType.kBrushless);
+      FeederConstants.kFeederCanId, MotorType.kBrushless);
 
   private final SparkMaxConfig feederConfig = new SparkMaxConfig();
 
@@ -41,7 +42,7 @@ public class Feeder extends SubsystemBase {
   // ==============================================================
   // Define trigger inputs
   // =============================================================
-  private final AnalogInput fuelSensor = new AnalogInput(Constants.AIOId.kFuelSensor);
+  private final AnalogInput fuelSensor = new AnalogInput(FeederConstants.kFuelSensorChannel);
 
   private Library lib = new Library();
 
@@ -64,7 +65,7 @@ public class Feeder extends SubsystemBase {
     public double getVel(boolean rpm) {
       if (rpm) {
 
-        return (pct / 100.0) * Constants.MotorConstants.kNeoFreeSpeedRpm;
+        return (pct / 100.0) * FeederConstants.kFeederMotorFreeSpeedRpm;
       } else {
         return pct;
       }
@@ -112,26 +113,26 @@ public class Feeder extends SubsystemBase {
     System.out.println("+++++ Starting Feeder Constructor +++++");
     // Configure Feeder motor
     feederConfig
-        .idleMode(Constants.Feeder.kFeederIdleMode)
-        .smartCurrentLimit(Constants.Feeder.kFeederCurrentLimit)
-				.inverted(Constants.Feeder.kFeederMotorInverted);
+        .idleMode(FeederConstants.kFeederIdleMode)
+        .smartCurrentLimit(FeederConstants.kFeederCurrentLimit)
+				.inverted(FeederConstants.kFeederMotorInverted);
     feederConfig.encoder
-        .positionConversionFactor(Constants.Feeder.kFeederPositionFactor)
-        .velocityConversionFactor(Constants.Feeder.kFeederVelocityFactor);
+        .positionConversionFactor(FeederConstants.kFeederPositionFactor)
+        .velocityConversionFactor(FeederConstants.kFeederVelocityFactor);
     feederConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(Constants.Feeder.kFeederP)
-        .i(Constants.Feeder.kFeederI)
-        .d(Constants.Feeder.kFeederD)
-        .outputRange(Constants.Feeder.kFeederMinOutput, Constants.Feeder.kFeederMaxOutput)
-        .positionWrappingEnabled(Constants.Feeder.kFeederEncodeWrapping);
+        .p(FeederConstants.kFeederP)
+        .i(FeederConstants.kFeederI)
+        .d(FeederConstants.kFeederD)
+        .outputRange(FeederConstants.kFeederMinOutput, FeederConstants.kFeederMaxOutput)
+        .positionWrappingEnabled(FeederConstants.kFeederEncodeWrapping);
     feederConfig.closedLoop.feedForward
-        .kA(Constants.Feeder.kFeederVelFF);
+        .kA(FeederConstants.kFeederVelFF);
     feederConfig.closedLoop.maxMotion
         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-				.cruiseVelocity(Constants.Feeder.kFeederMaxVel)
-				.maxAcceleration(Constants.Feeder.kFeederMaxAccel)
-				.allowedProfileError(Constants.Feeder.kFeederAllowedErr);
+				.cruiseVelocity(FeederConstants.kFeederMaxVel)
+				.maxAcceleration(FeederConstants.kFeederMaxAccel)
+				.allowedProfileError(FeederConstants.kFeederAllowedErr);
 
     feeder.configure(
         feederConfig,
@@ -207,19 +208,19 @@ public class Feeder extends SubsystemBase {
     setFeederSP(sp);
     feederController.setSetpoint(getFeederSP(false)/100.0*12.0, SparkBase.ControlType.kVoltage);
   //  .kMAXMotionVelocityControl);
-//    feederController.setSetpoint(Constants.MotorConstants.kNeoFreeSpeedRpm * .80, SparkBase.ControlType.kMAXMotionVelocityControl);
+//    feederController.setSetpoint(FeederConstants.kFeederMotorFreeSpeedRpm * .80, SparkBase.ControlType.kMAXMotionVelocityControl);
   }
 
   public double getFeederVel(boolean rpm) {
     if (rpm) {
       return feederEncoder.getVelocity();
     } else {
-      return feederEncoder.getVelocity() / Constants.MotorConstants.kNeoFreeSpeedRpm * 100.0;
+      return feederEncoder.getVelocity() / FeederConstants.kFeederMotorFreeSpeedRpm * 100.0;
     }
   }
 
   public boolean onFeederTarget() {
-    return Math.abs(getFeederVel(true) - getFeederSP(true)) < Constants.Feeder.kTollerance;
+    return Math.abs(getFeederVel(true) - getFeederSP(true)) < FeederConstants.kTollerance;
   }
 
   public double getFuelVolts() {

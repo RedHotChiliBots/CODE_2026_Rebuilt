@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.MotorConstants;
+import frc.robot.constants.ShooterConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.ShooterBallistics;
 
@@ -34,11 +34,11 @@ public class Shooter extends SubsystemBase {
 	// Define Shooter & Tilt Motors
 	// ==============================================================
 	private final SparkFlex leftShooter = new SparkFlex(
-			Constants.CANId.kShooterLeftCanId, MotorType.kBrushless);
+			ShooterConstants.kLeftShooterCanId, MotorType.kBrushless);
 	private final SparkFlex rightShooter = new SparkFlex(
-			Constants.CANId.kShooterRightCanId, MotorType.kBrushless);
+			ShooterConstants.kRightShooterCanId, MotorType.kBrushless);
 	private final SparkMax tilt = new SparkMax(
-			Constants.CANId.kShooterTiltCanId, MotorType.kBrushless);
+			ShooterConstants.kTiltMotorCanId, MotorType.kBrushless);
 
 	private final SparkMaxConfig leftConfig = new SparkMaxConfig();
 	private final SparkMaxConfig rightConfig = new SparkMaxConfig();
@@ -75,7 +75,7 @@ public class Shooter extends SubsystemBase {
 
 		public double getVel(boolean rpm) {
 			if (rpm) {
-				return (pct / 100.0) * Constants.MotorConstants.kVortexFreeSpeedRpm;
+				return (pct / 100.0) * ShooterConstants.kShooterMotorFreeSpeedRpm;
 			} else {
 				return pct;
 			}
@@ -161,26 +161,26 @@ public class Shooter extends SubsystemBase {
 
 		// Configure Left Shooter motor
 		leftConfig
-				.inverted(Constants.Shooter.kLeftMotorInverted)
-				.idleMode(Constants.Shooter.kLeftIdleMode)
-				.smartCurrentLimit(Constants.Shooter.kLeftCurrentLimit);
+				.inverted(ShooterConstants.kLeftMotorInverted)
+				.idleMode(ShooterConstants.kLeftIdleMode)
+				.smartCurrentLimit(ShooterConstants.kLeftCurrentLimit);
 		leftConfig.encoder
-				.positionConversionFactor(Constants.Shooter.kShooterPositionFactor)
-				.velocityConversionFactor(Constants.Shooter.kShooterVelocityFactor);
+				.positionConversionFactor(ShooterConstants.kShooterPositionFactor)
+				.velocityConversionFactor(ShooterConstants.kShooterVelocityFactor);
 		leftConfig.closedLoop
 				.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-				.p(Constants.Shooter.kP)
-				.i(Constants.Shooter.kI)
-				.d(Constants.Shooter.kD)
-				.outputRange(Constants.Shooter.kPosMinOutput, Constants.Shooter.kPosMaxOutput)
-				.positionWrappingEnabled(Constants.Shooter.kLeftEncodeWrapping);
+				.p(ShooterConstants.kP)
+				.i(ShooterConstants.kI)
+				.d(ShooterConstants.kD)
+				.outputRange(ShooterConstants.kPosMinOutput, ShooterConstants.kPosMaxOutput)
+				.positionWrappingEnabled(ShooterConstants.kLeftEncodeWrapping);
 		leftConfig.closedLoop.feedForward
-				.kA(Constants.Shooter.kVelFF);
+				.kA(ShooterConstants.kVelFF);
 		leftConfig.closedLoop.maxMotion
 				.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-				.cruiseVelocity(Constants.Shooter.kMaxVel)
-				.maxAcceleration(Constants.Shooter.kMaxAccel)
-				.allowedProfileError(Constants.Shooter.kAllowedErr);
+				.cruiseVelocity(ShooterConstants.kMaxVel)
+				.maxAcceleration(ShooterConstants.kMaxAccel)
+				.allowedProfileError(ShooterConstants.kAllowedErr);
 
 		leftShooter.configure(leftConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
@@ -189,7 +189,7 @@ public class Shooter extends SubsystemBase {
 		// Configure Right Shooter motor
 		rightConfig
 				.follow(leftShooter, true)
-				.inverted(Constants.Shooter.kRightMotorInverted);
+				.inverted(ShooterConstants.kRightMotorInverted);
 
 		rightShooter.configure(rightConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
@@ -197,28 +197,28 @@ public class Shooter extends SubsystemBase {
 
 		// Configure Tilt motor
 		tiltConfig
-				.inverted(Constants.Shooter.ktiltMotorInverted)
-				.idleMode(Constants.Shooter.ktiltIdleMode)
-				.smartCurrentLimit(Constants.Shooter.ktiltCurrentLimit);
+				.inverted(ShooterConstants.kTiltMotorInverted)
+				.idleMode(ShooterConstants.kTiltIdleMode)
+				.smartCurrentLimit(ShooterConstants.kTiltCurrentLimit);
 		tiltConfig.absoluteEncoder
-				.zeroOffset(Constants.Shooter.ktiltZeroOffset)
-				.zeroCentered(Constants.Shooter.ktiltZeroCentered)
-				.inverted(Constants.Shooter.ktiltEncoderInverted)
-				.positionConversionFactor(Constants.Shooter.kTiltPositionFactor)
-				.velocityConversionFactor(Constants.Shooter.kTiltVelocityFactor)
+				.zeroOffset(ShooterConstants.kTiltZeroOffset)
+				.zeroCentered(ShooterConstants.kTiltZeroCentered)
+				.inverted(ShooterConstants.kTiltEncoderInverted)
+				.positionConversionFactor(ShooterConstants.kTiltPositionFactor)
+				.velocityConversionFactor(ShooterConstants.kTiltVelocityFactor)
 				.apply(AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoderV2);
 		tiltConfig.closedLoop
 				.feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-				.p(Constants.Shooter.kPosP)
-				.i(Constants.Shooter.kPosI)
-				.d(Constants.Shooter.kPosD)
-				.outputRange(Constants.Shooter.kPosMinOutput, Constants.Shooter.kPosMaxOutput)
-				.positionWrappingEnabled(Constants.Shooter.kLeftEncodeWrapping);
+				.p(ShooterConstants.kPosP)
+				.i(ShooterConstants.kPosI)
+				.d(ShooterConstants.kPosD)
+				.outputRange(ShooterConstants.kPosMinOutput, ShooterConstants.kPosMaxOutput)
+				.positionWrappingEnabled(ShooterConstants.kLeftEncodeWrapping);
 		tiltConfig.closedLoop.maxMotion
 			    .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-			    .cruiseVelocity(Constants.Shooter.kPosMaxVel)
-			    .maxAcceleration(Constants.Shooter.kPosMaxAccel)
-			    .allowedProfileError(Constants.Shooter.kPosAllowedErr);
+			    .cruiseVelocity(ShooterConstants.kPosMaxVel)
+			    .maxAcceleration(ShooterConstants.kPosMaxAccel)
+			    .allowedProfileError(ShooterConstants.kPosAllowedErr);
 		
 		tilt.configure(tiltConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
@@ -382,7 +382,7 @@ public class Shooter extends SubsystemBase {
 	public double getShooterSP(boolean rpm) {
 		if (shooterSpIsCustom) {
 			if (rpm) return shooterSPDbl;
-			return shooterSPDbl / Constants.MotorConstants.kVortexFreeSpeedRpm * 100.0;
+			return shooterSPDbl / ShooterConstants.kShooterMotorFreeSpeedRpm * 100.0;
 		}
 		return shooterSP.getVel(rpm);
 	}
@@ -395,7 +395,7 @@ public class Shooter extends SubsystemBase {
 
 	public void setShooterVel(double sp) {
 		setShooterSPDbl(sp);
-		leftController.setSetpoint(sp / MotorConstants.kVortexFreeSpeedRpm * 12.0, SparkBase.ControlType.kVoltage);
+		leftController.setSetpoint(sp / ShooterConstants.kShooterMotorFreeSpeedRpm * 12.0, SparkBase.ControlType.kVoltage);
 		// SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
@@ -403,7 +403,7 @@ public class Shooter extends SubsystemBase {
 		if (rpm) {
 			return leftEncoder.getVelocity();
 		} else {
-			return leftEncoder.getVelocity() / Constants.MotorConstants.kVortexFreeSpeedRpm * 100.0;
+			return leftEncoder.getVelocity() / ShooterConstants.kShooterMotorFreeSpeedRpm * 100.0;
 		}
 	}
 
@@ -451,10 +451,10 @@ public class Shooter extends SubsystemBase {
 
 	public boolean onTiltTarget() {
 		double target = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
-		return Math.abs(getTiltPos() - target) < Constants.Shooter.kTiltTollerance;
+		return Math.abs(getTiltPos() - target) < ShooterConstants.kTiltTollerance;
 	}
 
 	public boolean onShooterTarget() {
-		return Math.abs(getShooterVel(true) - getShooterSP(true)) < Constants.Shooter.kShooterTollerance;
+		return Math.abs(getShooterVel(true) - getShooterSP(true)) < ShooterConstants.kShooterTollerance;
 	}
 }

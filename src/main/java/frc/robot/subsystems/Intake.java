@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.constants.IntakeConstants;
 import frc.robot.utils.Library;
 
 public class Intake extends SubsystemBase {
@@ -31,9 +31,9 @@ public class Intake extends SubsystemBase {
   // Define Intake & Tilt Motors
   // ==============================================================
   private final SparkMax intake = new SparkMax(
-      Constants.CANId.kIntakeIntakeCanId, MotorType.kBrushless);
+      IntakeConstants.kIntakeMotorCanId, MotorType.kBrushless);
   private final SparkMax tilt = new SparkMax(
-      Constants.CANId.kIntakeTiltCanId, MotorType.kBrushless);
+      IntakeConstants.kTiltMotorCanId, MotorType.kBrushless);
 
   private final SparkMaxConfig intakeConfig = new SparkMaxConfig();
   private final SparkMaxConfig tiltConfig = new SparkMaxConfig();
@@ -64,7 +64,7 @@ public class Intake extends SubsystemBase {
 
     public double getVel(boolean rpm) {
       if (rpm) {
-        return pct * Constants.MotorConstants.kNeoFreeSpeedRpm / 100.0;
+        return pct * IntakeConstants.kIntakeMotorFreeSpeedRpm / 100.0;
       } else {
         return pct;
       }
@@ -131,25 +131,25 @@ public class Intake extends SubsystemBase {
 
     // Configure Intake motor
     intakeConfig
-        .idleMode(Constants.Intake.kIntakeIdleMode)
-        .smartCurrentLimit(Constants.Intake.kIntakeCurrentLimit)
-        .inverted(Constants.Intake.kIntakeMotorInverted);
+        .idleMode(IntakeConstants.kIntakeIdleMode)
+        .smartCurrentLimit(IntakeConstants.kIntakeCurrentLimit)
+        .inverted(IntakeConstants.kIntakeMotorInverted);
     intakeConfig.encoder
-        .positionConversionFactor(Constants.Intake.kIntakePositionFactor)
-        .velocityConversionFactor(Constants.Intake.kIntakeVelocityFactor);
+        .positionConversionFactor(IntakeConstants.kIntakePositionFactor)
+        .velocityConversionFactor(IntakeConstants.kIntakeVelocityFactor);
     intakeConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(Constants.Intake.kIntakeP)
-        .i(Constants.Intake.kIntakeI)
-        .d(Constants.Intake.kIntakeD)
-        .outputRange(Constants.Intake.kIntakeMinOutput, Constants.Intake.kIntakeMaxOutput);
+        .p(IntakeConstants.kIntakeP)
+        .i(IntakeConstants.kIntakeI)
+        .d(IntakeConstants.kIntakeD)
+        .outputRange(IntakeConstants.kIntakeMinOutput, IntakeConstants.kIntakeMaxOutput);
     intakeConfig.closedLoop.feedForward
-        .kA(Constants.Intake.kVelFF);
+        .kA(IntakeConstants.kVelFF);
     intakeConfig.closedLoop.maxMotion
         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-        .cruiseVelocity(Constants.Intake.kIntakeMaxVel)
-        .maxAcceleration(Constants.Intake.kIntakeMaxAccel)
-        .allowedProfileError(Constants.Intake.kIntakeAllowedErr);
+        .cruiseVelocity(IntakeConstants.kIntakeMaxVel)
+        .maxAcceleration(IntakeConstants.kIntakeMaxAccel)
+        .allowedProfileError(IntakeConstants.kIntakeAllowedErr);
 
     intake.configure(
         intakeConfig,
@@ -158,27 +158,27 @@ public class Intake extends SubsystemBase {
 
     // Configure Tilt motor
     tiltConfig
-        .inverted(Constants.Intake.kTiltMotorInverted)
-        .idleMode(Constants.Intake.kTiltIdleMode)
-        .smartCurrentLimit(Constants.Intake.kTiltCurrentLimit);
+        .inverted(IntakeConstants.kTiltMotorInverted)
+        .idleMode(IntakeConstants.kTiltIdleMode)
+        .smartCurrentLimit(IntakeConstants.kTiltCurrentLimit);
     tiltConfig.absoluteEncoder
-        .zeroOffset(Constants.Intake.kTiltZeroOffset)
-        .zeroCentered(Constants.Intake.kTiltZeroCentered)
-        .inverted(Constants.Intake.kTiltEncoderInverted)
-        .positionConversionFactor(Constants.Intake.kTiltPositionFactor)
-        .velocityConversionFactor(Constants.Intake.kTiltVelocityFactor)
+        .zeroOffset(IntakeConstants.kTiltZeroOffset)
+        .zeroCentered(IntakeConstants.kTiltZeroCentered)
+        .inverted(IntakeConstants.kTiltEncoderInverted)
+        .positionConversionFactor(IntakeConstants.kTiltPositionFactor)
+        .velocityConversionFactor(IntakeConstants.kTiltVelocityFactor)
 				.apply(AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoderV2);
     tiltConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .p(Constants.Intake.kTiltP)
-        .i(Constants.Intake.kTiltI)
-        .d(Constants.Intake.kTiltD)
-        .outputRange(Constants.Intake.kTiltMinOutput, Constants.Intake.kTiltMaxOutput);
+        .p(IntakeConstants.kTiltP)
+        .i(IntakeConstants.kTiltI)
+        .d(IntakeConstants.kTiltD)
+        .outputRange(IntakeConstants.kTiltMinOutput, IntakeConstants.kTiltMaxOutput);
     tiltConfig.closedLoop.maxMotion
         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-        .cruiseVelocity(Constants.Intake.kTiltMaxVel)
-        .maxAcceleration(Constants.Intake.kTiltMaxAccel)
-        .allowedProfileError(Constants.Intake.kIntakeAllowedErr);
+        .cruiseVelocity(IntakeConstants.kTiltMaxVel)
+        .maxAcceleration(IntakeConstants.kTiltMaxAccel)
+        .allowedProfileError(IntakeConstants.kIntakeAllowedErr);
 
     tilt.configure(
         tiltConfig,
@@ -284,12 +284,12 @@ public class Intake extends SubsystemBase {
     if (rpm) {
       return intakeEncoder.getVelocity();
     } else {
-      return intakeEncoder.getVelocity() / Constants.MotorConstants.kNeoFreeSpeedRpm * 100.0;
+      return intakeEncoder.getVelocity() / IntakeConstants.kIntakeMotorFreeSpeedRpm * 100.0;
     }
   }
 
   public boolean onIntakeTarget() {
-    return Math.abs(getIntakeVel(true) - getIntakeSP(true)) < Constants.Intake.kIntakeTollerance;
+    return Math.abs(getIntakeVel(true) - getIntakeSP(true)) < IntakeConstants.kIntakeTollerance;
   }
 
   public double getTiltPos() {
@@ -310,6 +310,6 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean onTiltTarget() {
-    return Math.abs(getTiltPos() - getTiltSP().getPos()) < Constants.Intake.kTiltTollerance;
+    return Math.abs(getTiltPos() - getTiltSP().getPos()) < IntakeConstants.kTiltTollerance;
   }
 }
