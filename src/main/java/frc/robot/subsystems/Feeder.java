@@ -51,7 +51,10 @@ public class Feeder extends SubsystemBase {
   // ==============================================================
   // Define motor vel enum
   // ==============================================================
-  // The Feeder SP is stored as a percentage of RPMs
+  /**
+   * Enumeration of feeder motor speed setpoints.
+   * The Feeder SP is stored as a percentage of RPMs.
+   */
   public enum FeederSP {
     OFF(0.0),
     LOW(50.0),
@@ -60,10 +63,21 @@ public class Feeder extends SubsystemBase {
 
     private double pct;
 
+    /**
+     * Constructs a FeederSP with the specified percentage.
+     *
+     * @param pct The percentage of maximum motor speed (0-100)
+     */
     FeederSP(double pct) {
       this.pct = pct;
     }
 
+    /**
+     * Gets the velocity value for this setpoint.
+     *
+     * @param rpm If true, returns velocity in RPM; if false, returns as percentage
+     * @return The velocity value in the requested units
+     */
     public double getVel(boolean rpm) {
       if (rpm) {
         return Library.pctToRpm(pct, Constants.MotorConstants.kNeoFreeSpeedRpm);
@@ -109,6 +123,12 @@ public class Feeder extends SubsystemBase {
   // ==============================================================
   // Constructor
   // ==============================================================
+  /**
+   * Creates a new Feeder subsystem.
+   * Configures the feeder motor with PID control, current limits, and velocity conversion factors.
+   * Initializes the fuel sensor and sets up Shuffleboard dashboard entries.
+   * Configures simulation if running in simulation mode.
+   */
   public Feeder() {
     System.out.println("+++++ Starting Feeder Constructor +++++");
     // Configure Feeder motor
@@ -168,6 +188,12 @@ public class Feeder extends SubsystemBase {
   // ==============================================================
   // Define subsystem commands
   // ==============================================================
+  /**
+   * Creates a command to set the feeder to a specific speed setpoint.
+   *
+   * @param sp The desired feeder speed setpoint
+   * @return A command that sets the feeder velocity once
+   */
   public Command setFeeder(FeederSP sp) {
     return runOnce(() -> this.setFeederVel(sp));
   }
@@ -199,39 +225,89 @@ public class Feeder extends SubsystemBase {
   // ==============================================================
   // Define subsystem methods
   // ==============================================================
+  /**
+   * Sets the feeder speed setpoint without applying it to the motor.
+   *
+   * @param sp The desired feeder speed setpoint
+   */
   public void setFeederSP(FeederSP sp) {
     feederSP = sp;
   }
 
+  /**
+   * Gets the current feeder speed setpoint.
+   *
+   * @return The current feeder speed setpoint enum value
+   */
   public FeederSP getFeederSP() {
     return feederSP;
   }
 
+  /**
+   * Gets the current feeder speed setpoint as a numeric value.
+   *
+   * @param rpm If true, returns setpoint in RPM; if false, returns as percentage
+   * @return The setpoint value in the requested units
+   */
   public double getFeederSP(boolean rpm) {
     return feederSP.getVel(rpm);
   }
 
+  /**
+   * Sets the feeder velocity to the specified setpoint and applies it to the motor controller.
+   * Uses MAXMotion velocity control for smooth acceleration profiles.
+   *
+   * @param sp The desired feeder speed setpoint
+   */
   public void setFeederVel(FeederSP sp) {
     setFeederSP(sp);
     feederController.setSetpoint(getFeederSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
   }
 
+  /**
+   * Gets the current feeder motor velocity from the encoder.
+   *
+   * @param rpm If true, returns velocity in RPM; if false, returns as percentage of max speed
+   * @return The current motor velocity in the requested units
+   */
   public double getFeederVel(boolean rpm) {
     return rpm ? feederEncoder.getVelocity() : Library.rpmToPct(feederEncoder.getVelocity(), Constants.MotorConstants.kNeoFreeSpeedRpm);
   }
 
+  /**
+   * Checks if the feeder motor is at the target velocity.
+   *
+   * @return True if the current velocity is within the allowed error of the setpoint, false otherwise
+   */
   public boolean onFeederTarget() {
     return Math.abs(getFeederVel(true) - getFeederSP(true)) < Constants.Feeder.kFeederAllowedErr;
   }
 
+  /**
+   * Gets the raw voltage reading from the fuel sensor.
+   *
+   * @return The voltage reading from the analog fuel sensor
+   */
   public double getFuelVolts() {
     return fuelSensor.getVoltage();
   }
 
+  /**
+   * Calculates the distance to the fuel (game piece) based on sensor voltage.
+   * Converts the voltage reading to a distance measurement in inches.
+   *
+   * @return The calculated distance to the fuel in inches
+   */
   public double getFuelDist() {
     return getFuelVolts() / (5.0 / 1024.0) / (25.4 / 5.0);
   }
 
+  /**
+   * Determines if fuel (game piece) is available in the feeder.
+   * Checks if the distance reading indicates a game piece is present.
+   *
+   * @return True if fuel is detected within the valid range (≤21 inches or ≥30 inches), false otherwise
+   */
   public boolean isFuelAvail() {
     return (getFuelDist() <= 21.0 || getFuelDist() >= 30.0);
   }

@@ -138,7 +138,6 @@ public class Intake extends SubsystemBase {
         .smartCurrentLimit(Constants.Intake.kIntakeCurrentLimit)
         .inverted(Constants.Intake.kIntakeMotorInverted);
     intakeConfig.encoder
-//        .positionConversionFactor(Constants.Intake.kIntakePositionFactor)
         .velocityConversionFactor(Constants.Intake.kIntakeVelocityFactor);
     intakeConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -236,10 +235,22 @@ public class Intake extends SubsystemBase {
   // ==============================================================
   // Define subsystem commands
   // ==============================================================
+  /**
+   * Creates a command to set the intake motor to a specified setpoint.
+   *
+   * @param sp The desired intake setpoint (OFF, LOW, MED, or HI).
+   * @return A command that sets the intake velocity when executed.
+   */
   public Command setIntake(IntakeSP sp) {
     return runOnce(() -> this.setIntakeVel(sp));
   }
 
+  /**
+   * Creates a command to set the tilt mechanism to a specified position.
+   *
+   * @param sp The desired tilt setpoint (STOW or DEPLOY).
+   * @return A command that sets the tilt position when executed.
+   */
   public Command setTilt(TiltSP sp) {
     return runOnce(() -> this.setTiltPos(sp));
   }
@@ -311,36 +322,80 @@ public class Intake extends SubsystemBase {
     return intakeSP.getVel(rpm);
   }
 
+  /**
+   * Sets the intake motor velocity to the specified setpoint using MAXMotion velocity control.
+   * This method updates the internal setpoint and commands the motor controller.
+   *
+   * @param sp The desired intake setpoint (OFF, LOW, MED, or HI).
+   */
   public void setIntakeVel(IntakeSP sp) {
     setIntakeSP(sp);
     intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
   }
 
+  /**
+   * Gets the current intake motor velocity.
+   *
+   * @param rpm If true, returns velocity in RPM. If false, returns velocity as a percentage
+   *            of the motor's free speed.
+   * @return The current intake velocity in the requested units.
+   */
   public double getIntakeVel(boolean rpm) {
     return rpm ? intakeEncoder.getVelocity() : Library.rpmToPct(intakeEncoder.getVelocity(), Constants.MotorConstants.kNeoFreeSpeedRpm);
   }
 
+  /**
+   * Checks if the intake motor velocity is within the allowed error tolerance of the setpoint.
+   *
+   * @return True if the intake is at the target velocity, false otherwise.
+   */
   public boolean onIntakeTarget() {
     return Math.abs(getIntakeVel(true) - getIntakeSP(true)) < Constants.Intake.kIntakeAllowedErr;
   }
 
+  /**
+   * Gets the current position of the tilt mechanism.
+   *
+   * @return The tilt position in degrees.
+   */
   public double getTiltPos() {
     return tiltEncoder.getPosition();
   }
 
+  /**
+   * Sets the tilt setpoint.
+   *
+   * @param sp The desired tilt setpoint (STOW or DEPLOY).
+   */
   public void setTiltSP(TiltSP sp) {
     tiltSP = sp;
   }
 
+  /**
+   * Sets the tilt mechanism position to the specified setpoint using MAXMotion position control.
+   * This method updates the internal setpoint and commands the motor controller.
+   *
+   * @param sp The desired tilt setpoint (STOW or DEPLOY).
+   */
   public void setTiltPos(TiltSP sp) {
     setTiltSP(sp);
     tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kMAXMotionPositionControl);
   }
 
+  /**
+   * Gets the current tilt setpoint enum.
+   *
+   * @return The current tilt setpoint.
+   */
   public TiltSP getTiltSP() {
     return tiltSP;
   }
 
+  /**
+   * Checks if the tilt mechanism position is within the allowed error tolerance of the setpoint.
+   *
+   * @return True if the tilt is at the target position, false otherwise.
+   */
   public boolean onTiltTarget() {
     return Math.abs(getTiltPos() - getTiltSP().getPos()) < Constants.Intake.kTiltAllowedErr;
   }
