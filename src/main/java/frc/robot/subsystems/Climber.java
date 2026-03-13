@@ -30,6 +30,8 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.Library;
+import frc.robot.utils.SparkMaxSimulation;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 //CLASS DEFINITION
 public class Climber extends SubsystemBase {
@@ -75,8 +77,10 @@ public class Climber extends SubsystemBase {
 
   private final ServoHubConfig hubConfig = new ServoHubConfig();
 
-  private Library lib = new Library();
-  
+  // Simulation objects
+  private SparkMaxSimulation climber1Sim;
+
+
   // ==============================================================
   // Define motor and servo pos enums
   // ==============================================================
@@ -238,6 +242,21 @@ public class Climber extends SubsystemBase {
     ClimberCommands.add("Hooks Deploy", this.deployHooks())
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
+    // Initialize simulation
+    if (Constants.currentMode == Constants.Mode.SIM) {
+      // Climber motor simulation (position control)
+      climber1Sim = SparkMaxSimulation.createPositionSim(
+          climber1,
+          DCMotor.getNEO(1),
+          Constants.Climber.kClimberGearRatio,
+          0.3, // arm length in meters
+          ClimberSP.BOT.getValue(), // min position
+          ClimberSP.TOP.getValue(), // max position
+          false, // don't simulate gravity for vertical climber
+          ClimberSP.STOW.getValue() // starting position
+      );
+    }
+
     System.out.println("+++++ End of Climber Constructor +++++");
   }
 
@@ -261,13 +280,15 @@ public class Climber extends SubsystemBase {
           timer.start();
         },
         // Execute - do nothing
-        () -> {},
+        () -> {
+        },
         // End
         // Stop the servo
         interrupted -> this.setHook(leftHook, HookSP.STOP),
         // Is finished
         // Timer has expired and amps are higher than threshold
-        () -> ((this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit) && timer.hasElapsed(Constants.Climber.kServoTimeout)));
+        () -> ((this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit)
+            && timer.hasElapsed(Constants.Climber.kServoTimeout)));
   }
 
   public Command stowRightHook() {
@@ -282,13 +303,15 @@ public class Climber extends SubsystemBase {
           timer.start();
         },
         // Execute - do nothing
-        () -> {},
+        () -> {
+        },
         // End
         // Stop the servo
         interrupted -> this.setHook(rightHook, HookSP.STOP),
         // Is finished
         // Timer has expired and amps are higher than threshold
-        () -> ((this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit) && timer.hasElapsed(Constants.Climber.kServoTimeout)));
+        () -> ((this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit)
+            && timer.hasElapsed(Constants.Climber.kServoTimeout)));
   }
 
   public Command stowLeftHook1() {
@@ -338,17 +361,20 @@ public class Climber extends SubsystemBase {
   public void periodic() {
     sbClimberOnTgt.setBoolean(onClimberTarget());
     sbClimberSP.setString(getClimberSP().name());
-    sbClimberSPPos.setDouble(lib.SBFormat(getClimberSP().getValue()));
+    sbClimberSPPos.setDouble(Library.SBFormat(getClimberSP().getValue()));
     sbHookOnTgt.setBoolean(onHookTarget());
     sbHookSP.setString(getHookSP().name());
-    sbHookSPSpd.setDouble(lib.SBFormat(getHookSP().getSpd()));
-    sbLeftHookAmp.setDouble(lib.SBFormat(getChannelAmps(leftHook)));
-    sbRightHookAmp.setDouble(lib.SBFormat(getChannelAmps(rightHook)));
+    sbHookSPSpd.setDouble(Library.SBFormat(getHookSP().getSpd()));
+    sbLeftHookAmp.setDouble(Library.SBFormat(getChannelAmps(leftHook)));
+    sbRightHookAmp.setDouble(Library.SBFormat(getChannelAmps(rightHook)));
   }
 
   @Override
   public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
+    // Update motor simulation
+    if (climber1Sim != null) {
+      climber1Sim.update(getClimberSP().getValue(), 0.02);
+    }
   }
 
   // ==============================================================
@@ -384,7 +410,7 @@ public class Climber extends SubsystemBase {
   }
 
   public boolean onClimberTarget() {
-    return Math.abs(getClimberPos() - getClimberSP().getValue()) < Constants.Climber.kClimberTollerance;
+    return Math.abs(getClimberPos() - getClimberSP().getValue()) < Constants.Climber.kClimberTolerance;
   }
   // End of Climber Methods
   // Start of Servo Methods
@@ -402,7 +428,7 @@ public class Climber extends SubsystemBase {
   }
 
   public boolean onHookTarget() {
-    return Math.abs(getHookSpd() - getHookSP().getSpd()) < Constants.Climber.kHookTollerance;
+    return Math.abs(getHookSpd() - getHookSP().getSpd()) < Constants.Climber.kHookTolerance;
   }
 
   public void setHook(ServoChannel channel, HookSP sp) {

@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.Library;
+import frc.robot.utils.SparkMaxSimulation;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 public class Feeder extends SubsystemBase {
   // ==============================================================
@@ -38,17 +40,21 @@ public class Feeder extends SubsystemBase {
 
   private RelativeEncoder feederEncoder = feeder.getEncoder();
 
+  // Simulation objects
+  private SparkMaxSimulation feederSim;
+
   // ==============================================================
   // Define trigger inputs
   // =============================================================
   private final AnalogInput fuelSensor = new AnalogInput(Constants.AIOId.kFuelSensor);
 
-  private Library lib = new Library();
-
   // ==============================================================
   // Define motor vel enum
   // ==============================================================
-  // The Feeder SP is stored as a percentage of RPMs
+  /**
+   * Enumeration of feeder motor speed setpoints.
+   * The Feeder SP is stored as a percentage of RPMs.
+   */
   public enum FeederSP {
     OFF(0.0),
     LOW(50.0),
@@ -57,14 +63,24 @@ public class Feeder extends SubsystemBase {
 
     private double pct;
 
+    /**
+     * Constructs a FeederSP with the specified percentage.
+     *
+     * @param pct The percentage of maximum motor speed (0-100)
+     */
     FeederSP(double pct) {
       this.pct = pct;
     }
 
+    /**
+     * Gets the velocity value for this setpoint.
+     *
+     * @param rpm If true, returns velocity in RPM; if false, returns as percentage
+     * @return The velocity value in the requested units
+     */
     public double getVel(boolean rpm) {
       if (rpm) {
-
-        return (pct / 100.0) * Constants.MotorConstants.kNeoFreeSpeedRpm;
+        return Library.pctToRpm(pct, Constants.MotorConstants.kNeoFreeSpeedRpm);
       } else {
         return pct;
       }
@@ -79,10 +95,9 @@ public class Feeder extends SubsystemBase {
   // ==============================================================
   // Initialize Dashboard entries
   // ==============================================================
-  // private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
   // private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
-  private final ShuffleboardTab feederTab = Shuffleboard.getTab("Feeder");
-  private final ShuffleboardTab FeederCommands = Shuffleboard.getTab("Feeder Commands");
+  private final ShuffleboardTab feederTab = Shuffleboard.getTab("Feeder Methods");
+  private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Feeder Commands");
 
   private final GenericEntry sbFuelAvail = feederTab.addPersistent("Fuel Avail", false)
       .withWidget("Boolean Box").withPosition(0, 0).withSize(2, 1).getEntry();
@@ -108,30 +123,35 @@ public class Feeder extends SubsystemBase {
   // ==============================================================
   // Constructor
   // ==============================================================
+  /**
+   * Creates a new Feeder subsystem.
+   * Configures the feeder motor with PID control, current limits, and velocity conversion factors.
+   * Initializes the fuel sensor and sets up Shuffleboard dashboard entries.
+   * Configures simulation if running in simulation mode.
+   */
   public Feeder() {
     System.out.println("+++++ Starting Feeder Constructor +++++");
     // Configure Feeder motor
     feederConfig
         .idleMode(Constants.Feeder.kFeederIdleMode)
         .smartCurrentLimit(Constants.Feeder.kFeederCurrentLimit)
-				.inverted(Constants.Feeder.kFeederMotorInverted);
+        .inverted(Constants.Feeder.kFeederMotorInverted);
     feederConfig.encoder
-        .positionConversionFactor(Constants.Feeder.kFeederPositionFactor)
+//        .positionConversionFactor(Constants.Feeder.kFeederPositionFactor)
         .velocityConversionFactor(Constants.Feeder.kFeederVelocityFactor);
     feederConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(Constants.Feeder.kFeederP)
         .i(Constants.Feeder.kFeederI)
         .d(Constants.Feeder.kFeederD)
-        .outputRange(Constants.Feeder.kFeederMinOutput, Constants.Feeder.kFeederMaxOutput)
-        .positionWrappingEnabled(Constants.Feeder.kFeederEncodeWrapping);
+        .outputRange(Constants.Feeder.kFeederMinOutput, Constants.Feeder.kFeederMaxOutput);
     feederConfig.closedLoop.feedForward
         .kA(Constants.Feeder.kFeederVelFF);
     feederConfig.closedLoop.maxMotion
         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-				.cruiseVelocity(Constants.Feeder.kFeederMaxVel)
-				.maxAcceleration(Constants.Feeder.kFeederMaxAccel)
-				.allowedProfileError(Constants.Feeder.kFeederAllowedErr);
+        .cruiseVelocity(Constants.Feeder.kFeederMaxVel)
+        .maxAcceleration(Constants.Feeder.kFeederMaxAccel)
+        .allowedProfileError(Constants.Feeder.kFeederAllowedErr);
 
     feeder.configure(
         feederConfig,
@@ -139,17 +159,28 @@ public class Feeder extends SubsystemBase {
         com.revrobotics.PersistMode.kPersistParameters);
 
     // Add commands to Dashboard
-    FeederCommands.add("Feeder Off", this.setFeeder(FeederSP.OFF))
+    cmdTab.add("Feeder Off", this.setFeeder(FeederSP.OFF))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    FeederCommands.add("Feeder Hi", this.setFeeder(FeederSP.HI))
+    cmdTab.add("Feeder Hi", this.setFeeder(FeederSP.HI))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    FeederCommands.add("Feeder Med", this.setFeeder(FeederSP.MED))
+    cmdTab.add("Feeder Med", this.setFeeder(FeederSP.MED))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
-    FeederCommands.add("Feeder Low", this.setFeeder(FeederSP.LOW))
+    cmdTab.add("Feeder Low", this.setFeeder(FeederSP.LOW))
         .withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
     // Initialize intake start positions
     setFeederVel(FeederSP.OFF);
+
+    // Initialize simulation
+    if (Constants.currentMode == Constants.Mode.SIM) {
+      // Feeder motor simulation (velocity control)
+      feederSim = SparkMaxSimulation.createVelocitySim(
+          feeder,
+          DCMotor.getNEO(1),
+          Constants.Feeder.kFeederGearRatio,
+          0.003 // MOI in kg*m^2 for roller
+      );
+    }
 
     System.out.println("----- Ending Feeder Constructor -----");
   }
@@ -157,80 +188,127 @@ public class Feeder extends SubsystemBase {
   // ==============================================================
   // Define subsystem commands
   // ==============================================================
+  /**
+   * Creates a command to set the feeder to a specific speed setpoint.
+   *
+   * @param sp The desired feeder speed setpoint
+   * @return A command that sets the feeder velocity once
+   */
   public Command setFeeder(FeederSP sp) {
     return runOnce(() -> this.setFeederVel(sp));
   }
 
-  // ========()======================================================
+  // ==============================================================
   // Periodic methods
   // ==============================================================
   @Override
   public void periodic() {
     sbFeederOnTgt.setBoolean(onFeederTarget());
     sbFuelAvail.setBoolean(isFuelAvail());
-    sbFuelVolts.setDouble(lib.SBFormat(getFuelVolts()));
-    sbFuelDist.setDouble(lib.SBFormat(getFuelDist()));
-    sbFuelVolts.setDouble(lib.SBFormat(getFuelVolts()));
-    sbFuelDist.setDouble(lib.SBFormat(getFuelDist()));
+    sbFuelVolts.setDouble(Library.SBFormat(getFuelVolts()));
+    sbFuelDist.setDouble(Library.SBFormat(getFuelDist()));
     sbFeederSP.setString(getFeederSP().name());
-    sbFeederSPPct.setDouble(lib.SBFormat(getFeederSP(false)));
-    sbFeederSPRPM.setDouble(lib.SBFormat(getFeederSP(true)));
-    sbFeederVelPct.setDouble(lib.SBFormat(getFeederVel(false)));
-    sbFeederVelRPM.setDouble(lib.SBFormat(getFeederVel(true)));
-    sbFeederSPPct.setDouble(lib.SBFormat(getFeederSP(false)));
-    sbFeederSPRPM.setDouble(lib.SBFormat(getFeederSP(true)));
-    sbFeederVelPct.setDouble(lib.SBFormat(getFeederVel(false)));
-    sbFeederVelRPM.setDouble(lib.SBFormat(getFeederVel(true)));
+    sbFeederSPPct.setDouble(Library.SBFormat(getFeederSP(false)));
+    sbFeederSPRPM.setDouble(Library.SBFormat(getFeederSP(true)));
+    sbFeederVelPct.setDouble(Library.SBFormat(getFeederVel(false)));
+    sbFeederVelRPM.setDouble(Library.SBFormat(getFeederVel(true)));
   }
 
   @Override
   public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
+    // Update motor simulation
+    if (feederSim != null) {
+      feederSim.update(getFeederSP(true), 0.02);
+    }
   }
 
   // ==============================================================
   // Define subsystem methods
   // ==============================================================
+  /**
+   * Sets the feeder speed setpoint without applying it to the motor.
+   *
+   * @param sp The desired feeder speed setpoint
+   */
   public void setFeederSP(FeederSP sp) {
     feederSP = sp;
   }
 
+  /**
+   * Gets the current feeder speed setpoint.
+   *
+   * @return The current feeder speed setpoint enum value
+   */
   public FeederSP getFeederSP() {
     return feederSP;
   }
 
+  /**
+   * Gets the current feeder speed setpoint as a numeric value.
+   *
+   * @param rpm If true, returns setpoint in RPM; if false, returns as percentage
+   * @return The setpoint value in the requested units
+   */
   public double getFeederSP(boolean rpm) {
     return feederSP.getVel(rpm);
   }
 
+  /**
+   * Sets the feeder velocity to the specified setpoint and applies it to the motor controller.
+   * Uses MAXMotion velocity control for smooth acceleration profiles.
+   *
+   * @param sp The desired feeder speed setpoint
+   */
   public void setFeederVel(FeederSP sp) {
     setFeederSP(sp);
-    feederController.setSetpoint(getFeederSP(false)/100.0*12.0, SparkBase.ControlType.kVoltage);
-  //  .kMAXMotionVelocityControl);
-//    feederController.setSetpoint(Constants.MotorConstants.kNeoFreeSpeedRpm * .80, SparkBase.ControlType.kMAXMotionVelocityControl);
+    feederController.setSetpoint(getFeederSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
   }
 
+  /**
+   * Gets the current feeder motor velocity from the encoder.
+   *
+   * @param rpm If true, returns velocity in RPM; if false, returns as percentage of max speed
+   * @return The current motor velocity in the requested units
+   */
   public double getFeederVel(boolean rpm) {
-    if (rpm) {
-      return feederEncoder.getVelocity();
-    } else {
-      return feederEncoder.getVelocity() / Constants.MotorConstants.kNeoFreeSpeedRpm * 100.0;
-    }
+    return rpm ? feederEncoder.getVelocity() : Library.rpmToPct(feederEncoder.getVelocity(), Constants.MotorConstants.kNeoFreeSpeedRpm);
   }
 
+  /**
+   * Checks if the feeder motor is at the target velocity.
+   *
+   * @return True if the current velocity is within the allowed error of the setpoint, false otherwise
+   */
   public boolean onFeederTarget() {
-    return Math.abs(getFeederVel(true) - getFeederSP(true)) < Constants.Feeder.kTollerance;
+    return Math.abs(getFeederVel(true) - getFeederSP(true)) < Constants.Feeder.kFeederAllowedErr;
   }
 
+  /**
+   * Gets the raw voltage reading from the fuel sensor.
+   *
+   * @return The voltage reading from the analog fuel sensor
+   */
   public double getFuelVolts() {
     return fuelSensor.getVoltage();
   }
 
+  /**
+   * Calculates the distance to the fuel (game piece) based on sensor voltage.
+   * Converts the voltage reading to a distance measurement in inches.
+   *
+   * @return The calculated distance to the fuel in inches
+   */
   public double getFuelDist() {
     return getFuelVolts() / (5.0 / 1024.0) / (25.4 / 5.0);
   }
 
+  /**
+   * Determines if fuel (game piece) is available in the feeder.
+   * Checks if the distance reading indicates a game piece is present.
+   *
+   * @return True if fuel is detected within the valid range (≤21 inches or ≥30 inches), false otherwise
+   */
   public boolean isFuelAvail() {
-    return !(getFuelDist() > 21.0 && getFuelDist() < 30.0);
+    return (getFuelDist() <= 21.0 || getFuelDist() >= 30.0);
   }
 }

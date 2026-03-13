@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
+import java.util.Objects;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
@@ -15,6 +16,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -25,9 +27,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.MotorConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.ShooterBallistics;
+import frc.robot.utils.SparkMaxSimulation;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 public class Shooter extends SubsystemBase {
 	// ==============================================================
@@ -40,22 +43,21 @@ public class Shooter extends SubsystemBase {
 	private final SparkMax tilt = new SparkMax(
 			Constants.CANId.kShooterTiltCanId, MotorType.kBrushless);
 
-	private final SparkMaxConfig leftConfig = new SparkMaxConfig();
-	private final SparkMaxConfig rightConfig = new SparkMaxConfig();
+	private final SparkFlexConfig leftConfig = new SparkFlexConfig();
+	private final SparkFlexConfig rightConfig = new SparkFlexConfig();
 	private final SparkMaxConfig tiltConfig = new SparkMaxConfig();
 
 	private SparkClosedLoopController leftController = leftShooter.getClosedLoopController();
-	// private SparkClosedLoopController rightController =
-	// rightShooter.getClosedLoopController();
 	private SparkClosedLoopController tiltController = tilt.getClosedLoopController();
 
 	private RelativeEncoder leftEncoder = leftShooter.getEncoder();
-	// private AbsoluteEncoder rightEncoder = rightShooter.getAbsoluteEncoder();
 	private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
 	private CommandSwerveDrivetrain drivetrain = null;
 
-	private Library lib = new Library();
+	// Simulation objects
+	private SparkMaxSimulation leftShooterSim;
+	private SparkMaxSimulation tiltSim;
 
 	// ==============================================================
 	// Define motor vel and pos enums
@@ -75,7 +77,7 @@ public class Shooter extends SubsystemBase {
 
 		public double getVel(boolean rpm) {
 			if (rpm) {
-				return (pct / 100.0) * Constants.MotorConstants.kVortexFreeSpeedRpm;
+				return Library.pctToRpm(pct, Constants.MotorConstants.kVortexFreeSpeedRpm);
 			} else {
 				return pct;
 			}
@@ -84,9 +86,9 @@ public class Shooter extends SubsystemBase {
 
 	// The Tilt SP is in degrees
 	public enum TiltSP {
-		LOW(10.5),
-		MED((10.5 + 50.0) / 2.0),
-		HI(50.0);
+		LOW(-10.0),
+		MED(0.0),
+		HI(10.0);
 
 		private double pos;
 
@@ -106,18 +108,16 @@ public class Shooter extends SubsystemBase {
 	private double shooterSPDbl = 0.0;
 	private boolean shooterSpIsCustom = false;
 
-	private TiltSP tiltSP = TiltSP.LOW;
-	private double tiltSPDbl = 0;
+	private TiltSP tiltSP = TiltSP.MED;
+	private double tiltSPDbl = 0.0;
 	private boolean tiltSpIsCustom = false;
-	private double tiltSetpointDeg = 0.0;
 
 	// ==============================================================
 	// Initialize Dashboard entries
 	// ==============================================================
-	// private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Commands");
 	// private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
-	private final ShuffleboardTab shooterTab = Shuffleboard.getTab("Shooter");
-	private final ShuffleboardTab ShooterCommands = Shuffleboard.getTab("Shooter Commands");
+	private final ShuffleboardTab shooterTab = Shuffleboard.getTab("Shooter Methods");
+	private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Shooter Commands");
 
 	private final GenericEntry sbShooterOnTgt = shooterTab.addPersistent("Shooter OnTgt", false)
 			.withWidget("Boolean Box").withPosition(0, 1).withSize(2, 1).getEntry();
@@ -157,7 +157,7 @@ public class Shooter extends SubsystemBase {
 	public Shooter(CommandSwerveDrivetrain drivetrain) {
 		System.out.println("+++++ Starting Shooter Constructor +++++");
 
-		this.drivetrain = drivetrain;
+    	this.drivetrain = Objects.requireNonNull(drivetrain, "drivetrain cannot be null");
 
 		// Configure Left Shooter motor
 		leftConfig
@@ -165,15 +165,13 @@ public class Shooter extends SubsystemBase {
 				.idleMode(Constants.Shooter.kLeftIdleMode)
 				.smartCurrentLimit(Constants.Shooter.kLeftCurrentLimit);
 		leftConfig.encoder
-				.positionConversionFactor(Constants.Shooter.kShooterPositionFactor)
 				.velocityConversionFactor(Constants.Shooter.kShooterVelocityFactor);
 		leftConfig.closedLoop
 				.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
 				.p(Constants.Shooter.kP)
 				.i(Constants.Shooter.kI)
 				.d(Constants.Shooter.kD)
-				.outputRange(Constants.Shooter.kPosMinOutput, Constants.Shooter.kPosMaxOutput)
-				.positionWrappingEnabled(Constants.Shooter.kLeftEncodeWrapping);
+				.outputRange(Constants.Shooter.kMinOutput, Constants.Shooter.kMaxOutput);
 		leftConfig.closedLoop.feedForward
 				.kA(Constants.Shooter.kVelFF);
 		leftConfig.closedLoop.maxMotion
@@ -197,13 +195,13 @@ public class Shooter extends SubsystemBase {
 
 		// Configure Tilt motor
 		tiltConfig
-				.inverted(Constants.Shooter.ktiltMotorInverted)
-				.idleMode(Constants.Shooter.ktiltIdleMode)
-				.smartCurrentLimit(Constants.Shooter.ktiltCurrentLimit);
+				.inverted(Constants.Shooter.kTiltMotorInverted)
+				.idleMode(Constants.Shooter.kTiltIdleMode)
+				.smartCurrentLimit(Constants.Shooter.kTiltCurrentLimit);
 		tiltConfig.absoluteEncoder
-				.zeroOffset(Constants.Shooter.ktiltZeroOffset)
-				.zeroCentered(Constants.Shooter.ktiltZeroCentered)
-				.inverted(Constants.Shooter.ktiltEncoderInverted)
+				.zeroOffset(Constants.Shooter.kTiltZeroOffset)
+				.zeroCentered(Constants.Shooter.kTiltZeroCentered)
+				.inverted(Constants.Shooter.kTiltEncoderInverted)
 				.positionConversionFactor(Constants.Shooter.kTiltPositionFactor)
 				.velocityConversionFactor(Constants.Shooter.kTiltVelocityFactor)
 				.apply(AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoderV2);
@@ -213,36 +211,59 @@ public class Shooter extends SubsystemBase {
 				.i(Constants.Shooter.kPosI)
 				.d(Constants.Shooter.kPosD)
 				.outputRange(Constants.Shooter.kPosMinOutput, Constants.Shooter.kPosMaxOutput)
-				.positionWrappingEnabled(Constants.Shooter.kLeftEncodeWrapping);
+				.positionWrappingEnabled(Constants.Shooter.kTiltEncodeWrapping);
 		tiltConfig.closedLoop.maxMotion
-			    .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-			    .cruiseVelocity(Constants.Shooter.kPosMaxVel)
-			    .maxAcceleration(Constants.Shooter.kPosMaxAccel)
-			    .allowedProfileError(Constants.Shooter.kPosAllowedErr);
-		
+				.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+				.cruiseVelocity(Constants.Shooter.kPosMaxVel)
+				.maxAcceleration(Constants.Shooter.kPosMaxAccel)
+				.allowedProfileError(Constants.Shooter.kPosAllowedErr);
+
 		tilt.configure(tiltConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
 				com.revrobotics.PersistMode.kPersistParameters);
 
 		// Add commands to Dashboard
-		ShooterCommands.add("Shoot Off", this.setShooter(ShooterSP.OFF))
+		cmdTab.add("Shoot Off", this.setShooter(ShooterSP.OFF))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		ShooterCommands.add("Shoot Hi", this.setShooter(ShooterSP.HI))
+		cmdTab.add("Shoot Hi", this.setShooter(ShooterSP.HI))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		ShooterCommands.add("Shoot Med", this.setShooter(ShooterSP.MED))
+		cmdTab.add("Shoot Med", this.setShooter(ShooterSP.MED))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		ShooterCommands.add("Shoot Low", this.setShooter(ShooterSP.LOW))
+		cmdTab.add("Shoot Low", this.setShooter(ShooterSP.LOW))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		ShooterCommands.add("Tilt Hi", this.setTilt(TiltSP.HI))
+		cmdTab.add("Tilt Hi", this.setTilt(TiltSP.HI))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		ShooterCommands.add("Tilt Med", this.setTilt(TiltSP.MED))
+		cmdTab.add("Tilt Med", this.setTilt(TiltSP.MED))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
-		ShooterCommands.add("Tilt Low", this.setTilt(TiltSP.LOW))
+		cmdTab.add("Tilt Low", this.setTilt(TiltSP.LOW))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
 
 		// Initialize intake start positions
 		setShooterVel(ShooterSP.OFF);
-		setTiltPos(TiltSP.LOW);
+		setTiltPos(TiltSP.MED);
+
+		// Initialize simulation
+		if (Constants.currentMode == Constants.Mode.SIM) {
+			// Left shooter motor simulation (velocity control) - right follows
+			leftShooterSim = SparkMaxSimulation.createVelocitySim(
+					leftShooter,
+					DCMotor.getNeoVortex(1),
+					1.0, // Direct drive, no gearing
+					0.01 // MOI in kg*m^2 for flywheel
+			);
+
+			// Tilt motor simulation (position control)
+			tiltSim = SparkMaxSimulation.createPositionSim(
+					tilt,
+					DCMotor.getNEO(1),
+					Constants.Shooter.kTiltGearRatio,
+					0.6, // arm length in meters
+					TiltSP.LOW.getPos(), // min angle
+					TiltSP.HI.getPos(), // max angle
+					true, // simulate gravity
+					TiltSP.LOW.getPos() // starting angle
+			);
+		}
 
 		System.out.println("----- Ending Shooter Constructor -----");
 	}
@@ -250,28 +271,67 @@ public class Shooter extends SubsystemBase {
 	// ==============================================================
 	// Define subsystem commands
 	// ==============================================================
+	/**
+	 * Creates a command to set the shooter velocity to a preset setpoint.
+	 *
+	 * @param sp The preset shooter velocity setpoint (OFF, LOW, MED, or HI)
+	 * @return A command that sets the shooter velocity once
+	 */
 	public Command setShooter(ShooterSP sp) {
 		return runOnce(() -> this.setShooterVel(sp));
 	}
 
+	/**
+	 * Creates a command to set the shooter velocity to a custom RPM value.
+	 *
+	 * @param sp The desired shooter velocity in RPM
+	 * @return A command that sets the shooter velocity once
+	 */
 	public Command setShooter(double sp) {
 		return runOnce(() -> this.setShooterVel(sp));
 	}
 
+	/**
+	 * Creates a command to set the tilt position to a preset setpoint.
+	 *
+	 * @param sp The preset tilt position setpoint (LOW, MED, or HI)
+	 * @return A command that sets the tilt position once
+	 */
 	public Command setTilt(TiltSP sp) {
 		return runOnce(() -> this.setTiltPos(sp));
 	}
 
+	/**
+	 * Creates a command to set the tilt position to a custom angle.
+	 *
+	 * @param sp The desired tilt angle in degrees
+	 * @return A command that sets the tilt position once
+	 */
 	public Command setTilt(double sp) {
 		return runOnce(() -> this.setTiltPos(sp));
 	}
 
+	/**
+	 * Creates a command to automatically shoot with specified tilt and shooter velocity.
+	 * Runs tilt and shooter commands in parallel.
+	 *
+	 * @param tiltDeg The desired tilt angle in degrees
+	 * @param shooterRpm The desired shooter velocity in RPM
+	 * @return A parallel command group that sets both tilt and shooter
+	 */
 	public Command autoShoot(double tiltDeg, double shooterRpm) {
 		return new ParallelCommandGroup(
 				setTilt(tiltDeg),
 				setShooter(shooterRpm));
 	}
 
+	/**
+	 * Creates a command to automatically shoot using ballistics calculations.
+	 * Calculates optimal tilt angle and shooter velocity based on distance to target.
+	 * Runs tilt and shooter commands in parallel.
+	 *
+	 * @return A parallel command group that sets both tilt and shooter to calculated values
+	 */
 	public Command autoShoot() {
 		return new ParallelCommandGroup(
 				setTilt(getAutoTilt()),
@@ -285,38 +345,56 @@ public class Shooter extends SubsystemBase {
 	public void periodic() {
 		sbShooterOnTgt.setBoolean(onShooterTarget());
 		sbShooterSP.setString(getShooterSPName());
-		sbShooterSPPct.setDouble(lib.SBFormat(getShooterSP(false)));
-		sbShooterSPRPM.setDouble(lib.SBFormat(getShooterSP(true)));
-		sbShooterVelPct.setDouble(lib.SBFormat(getShooterVel(false)));
-		sbShooterVelRPM.setDouble(lib.SBFormat(getShooterVel(true)));
+		sbShooterSPPct.setDouble(Library.SBFormat(getShooterSP(false)));
+		sbShooterSPRPM.setDouble(Library.SBFormat(getShooterSP(true)));
+		sbShooterVelPct.setDouble(Library.SBFormat(getShooterVel(false)));
+		sbShooterVelRPM.setDouble(Library.SBFormat(getShooterVel(true)));
 
 		sbTiltOnTgt.setBoolean(onTiltTarget());
 		sbTiltSP.setString(getTiltSPName());
-		// sbTiltSPPos.setDouble(lib.SBFormat(getTiltSPDbl()));
 		double tiltTarget = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
-		sbTiltSPPos.setDouble(lib.SBFormat(tiltTarget));
-		sbTiltPos.setDouble(lib.SBFormat(getTiltPos()));
+		sbTiltSPPos.setDouble(Library.SBFormat(tiltTarget));
+		sbTiltPos.setDouble(Library.SBFormat(getTiltPos()));
 
 		// Gives you live visibility of what the solver wants to do,
 		// without actually commanding anything unless you call autoShoot().
-		var auto = ShooterBallistics.solveStationary(drivetrain.getDistToHub(), 0.5);
-		sbAutoFeasible.setBoolean(auto.feasible());
-		sbAutoAngleDeg.setDouble(lib.SBFormat(auto.feasible() ? auto.angleDeg() : ShooterBallistics.kMinAngleDeg));
-		sbAutoRpm.setDouble(lib.SBFormat(auto.feasible() ? auto.wheelRpm() : 0.0));
+		if (drivetrain != null) {
+			var auto = ShooterBallistics.solveStationary(drivetrain.getDistToHub(), Constants.Shooter.kBallisticsCoefficient);
+			sbAutoFeasible.setBoolean(auto.feasible());
+			sbAutoAngleDeg
+					.setDouble(Library.SBFormat(auto.feasible() ? auto.angleDeg() : ShooterBallistics.kMinAngleDeg));
+			sbAutoRpm.setDouble(Library.SBFormat(auto.feasible() ? auto.wheelRpm() : 0.0));
+		}
 	}
 
 	@Override
 	public void simulationPeriodic() {
-		// This method will be called once per scheduler run during simulation
+		// Update motor simulations
+		if (leftShooterSim != null) {
+			leftShooterSim.update(getShooterSP(true), 0.02);
+		}
+		
+		if (tiltSim != null) {
+			double target = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
+			tiltSim.update(target, 0.02);
+		}
 	}
 
 	// ==============================================================
 	// Define subsystem methods
 	// ==============================================================
 
+	/**
+	 * Calculates the optimal shooter velocity for the current distance to target.
+	 * Uses ballistics solver to determine required wheel RPM based on distance.
+	 *
+	 * @return The calculated shooter velocity in RPM, or 0.0 if calculation fails or drivetrain is null
+	 */
 	public double getAutoShoot() {
+		if (drivetrain == null)
+			return 0.0;
 		double distToHubM = drivetrain.getDistToHub(); // already returns meters
-		var sp = ShooterBallistics.solveStationary(distToHubM, 0.5);
+		var sp = ShooterBallistics.solveStationary(distToHubM, Constants.Shooter.kBallisticsCoefficient);
 
 		if (!sp.feasible())
 			return 0.0; // or hold last good value if you prefer
@@ -325,13 +403,22 @@ public class Shooter extends SubsystemBase {
 		return sp.wheelRpm();
 	}
 
-	// What this does
-	// * If solver fails, go to min angle
-	// * If solver somehow returns something slightly outside bounds, clamp
-	// * Does not change any other behavior
+	/**
+	 * Calculates the optimal tilt angle for the current distance to target.
+	 * Uses ballistics solver to determine required launch angle based on distance.
+	 *
+	 * Behavior:
+	 * - If solver fails, returns minimum angle
+	 * - If solver returns value outside bounds, clamps to mechanical limits
+	 * - Ensures angle is always within safe operating range
+	 *
+	 * @return The calculated tilt angle in degrees, clamped to mechanical limits
+	 */
 	public double getAutoTilt() {
+		if (drivetrain == null)
+			return ShooterBallistics.kMinAngleDeg;
 		double distToHubM = drivetrain.getDistToHub();
-		var sp = ShooterBallistics.solveStationary(distToHubM, 0.5);
+		var sp = ShooterBallistics.solveStationary(distToHubM, Constants.Shooter.kBallisticsCoefficient);
 
 		double angleDeg = sp.feasible()
 				? sp.angleDeg()
@@ -352,109 +439,211 @@ public class Shooter extends SubsystemBase {
 	 * - Preset enum-based setpoints (LOW, MED, HI, etc.)
 	 * - Custom numeric RPM setpoints (used by ballistics auto-aim)
 	 *
-	 * If a custom RPM is active, we return "CUSTOM" since there is no enum value.
+	 * If a custom RPM is active, we return "Velocity" since there is no enum value.
 	 */
 	public String getShooterSPName() {
 		return shooterSpIsCustom ? "Velocity" : shooterSP.name();
 	}
 
+	/**
+	 * Sets the shooter setpoint to a preset enum value.
+	 * Marks the setpoint as non-custom (enum-based).
+	 *
+	 * @param sp The preset shooter velocity setpoint
+	 */
 	public void setShooterSP(ShooterSP sp) {
 		shooterSpIsCustom = false;
 		shooterSP = sp;
 	}
 
+	/**
+	 * Sets the shooter setpoint to a custom numeric RPM value.
+	 * Marks the setpoint as custom (not enum-based).
+	 *
+	 * @param sp The custom shooter velocity in RPM
+	 */
 	public void setShooterSPDbl(double sp) {
 		shooterSpIsCustom = true;
 		shooterSPDbl = sp;
 	}
 
+	/**
+	 * Gets the custom shooter setpoint value.
+	 *
+	 * @return The custom shooter velocity in RPM
+	 */
 	public double getShooterSPDbl() {
 		return shooterSPDbl;
 	}
 
+	/**
+	 * Gets the current shooter setpoint enum.
+	 *
+	 * @return The preset shooter velocity setpoint
+	 */
 	public ShooterSP getShooterSP() {
 		return shooterSP;
 	}
 
-	// public double getShooterSP(boolean rpm) {
-	// 	return shooterSP.getVel(rpm);
-	// }
+	/**
+	 * Gets the current shooter setpoint value in the specified units.
+	 * Handles both preset enum and custom numeric setpoints.
+	 *
+	 * @param rpm If true, returns RPM; if false, returns percentage of max speed
+	 * @return The shooter setpoint in the requested units
+	 */
 	public double getShooterSP(boolean rpm) {
 		if (shooterSpIsCustom) {
-			if (rpm) return shooterSPDbl;
-			return shooterSPDbl / Constants.MotorConstants.kVortexFreeSpeedRpm * 100.0;
+			return rpm ? shooterSPDbl : Library.rpmToPct(shooterSPDbl, Constants.MotorConstants.kVortexFreeSpeedRpm);
+
 		}
 		return shooterSP.getVel(rpm);
 	}
 
+	/**
+	 * Sets the shooter velocity to a preset setpoint and commands the motor controller.
+	 * Uses MAXMotion velocity control for smooth acceleration.
+	 *
+	 * @param sp The preset shooter velocity setpoint
+	 */
 	public void setShooterVel(ShooterSP sp) {
 		setShooterSP(sp);
-		leftController.setSetpoint(sp.getVel(false) / 100.0 * 12.0, SparkBase.ControlType.kVoltage);
-		// true), SparkBase.ControlType.kMAXMotionVelocityControl);
+		leftController.setSetpoint(sp.getVel(true), SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
+	/**
+	 * Sets the shooter velocity to a custom RPM value and commands the motor controller.
+	 * Uses MAXMotion velocity control for smooth acceleration.
+	 *
+	 * @param sp The desired shooter velocity in RPM
+	 */
 	public void setShooterVel(double sp) {
 		setShooterSPDbl(sp);
-		leftController.setSetpoint(sp / MotorConstants.kVortexFreeSpeedRpm * 12.0, SparkBase.ControlType.kVoltage);
-		// SparkBase.ControlType.kMAXMotionVelocityControl);
+		leftController.setSetpoint(sp, SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
+	/**
+	 * Gets the current shooter velocity from the encoder.
+	 *
+	 * @param rpm If true, returns RPM; if false, returns percentage of max speed
+	 * @return The current shooter velocity in the requested units
+	 */
 	public double getShooterVel(boolean rpm) {
-		if (rpm) {
-			return leftEncoder.getVelocity();
-		} else {
-			return leftEncoder.getVelocity() / Constants.MotorConstants.kVortexFreeSpeedRpm * 100.0;
-		}
+		return rpm ? leftEncoder.getVelocity() : Library.rpmToPct(leftEncoder.getVelocity(), Constants.MotorConstants.kVortexFreeSpeedRpm);
 	}
 
+	/**
+	 * Gets the name of the current tilt setpoint for display purposes.
+	 *
+	 * @return "Degrees" if using custom angle, otherwise the enum name (LOW, MED, HI)
+	 */
 	public String getTiltSPName() {
 		return tiltSpIsCustom ? "Degrees" : tiltSP.name();
 	}
 
+	/**
+	 * Sets the tilt setpoint to a preset enum value.
+	 * Marks the setpoint as non-custom (enum-based).
+	 *
+	 * @param sp The preset tilt position setpoint
+	 */
 	public void setTiltSP(TiltSP sp) {
 		tiltSpIsCustom = false;
 		tiltSP = sp;
 	}
 
+	/**
+	 * Sets the tilt setpoint to a custom angle value.
+	 * Marks the setpoint as custom (not enum-based).
+	 *
+	 * @param sp The custom tilt angle in degrees
+	 */
 	public void setTiltSPDbl(double sp) {
 		tiltSpIsCustom = true;
 		tiltSPDbl = sp;
 	}
 
+	/**
+	 * Gets the custom tilt setpoint value.
+	 *
+	 * @return The custom tilt angle in degrees
+	 */
 	public double getTiltSPDbl() {
 		return tiltSPDbl;
 	}
 
+	/**
+	 * Gets the position value of the current preset tilt setpoint.
+	 *
+	 * @return The tilt angle in degrees from the enum
+	 */
 	public double getTiltSPPos() {
 		return tiltSP.getPos();
 	}
 
+	/**
+	 * Gets the current tilt setpoint enum.
+	 *
+	 * @return The preset tilt position setpoint
+	 */
 	public TiltSP getTiltSP() {
 		return tiltSP;
 	}
 
+	/**
+	 * Sets the tilt position to a preset setpoint and commands the motor controller.
+	 * Validates the position is within safe mechanical limits before commanding.
+	 * Uses MAXMotion position control for smooth motion.
+	 *
+	 * @param sp The preset tilt position setpoint
+	 */
 	public void setTiltPos(TiltSP sp) {
 		setTiltSP(sp);
-		System.out.println("+++++++++++++++++  setTilt: " + sp.getPos());
-		tiltController.setSetpoint(sp.getPos(), SparkBase.ControlType.kMAXMotionPositionControl);
+		// Validate enum value is within safe limits
+		double pos = Library.clamp(sp.getPos(), TiltSP.LOW.getPos(), TiltSP.HI.getPos());
+		tiltController.setSetpoint(pos, SparkBase.ControlType.kMAXMotionPositionControl);
 	}
 
+	/**
+	 * Sets the tilt position to a custom angle and commands the motor controller.
+	 * Clamps the angle to safe mechanical limits before commanding.
+	 * Uses MAXMotion position control for smooth motion.
+	 *
+	 * @param sp The desired tilt angle in degrees
+	 */
 	public void setTiltPos(double sp) {
-		sp = lib.clamp(sp, TiltSP.LOW.getPos(), TiltSP.HI.getPos());
+		sp = Library.clamp(sp, TiltSP.LOW.getPos(), TiltSP.HI.getPos());
 		setTiltSPDbl(sp);
 		tiltController.setSetpoint(sp, SparkBase.ControlType.kMAXMotionPositionControl);
 	}
 
+	/**
+	 * Gets the current tilt position from the absolute encoder.
+	 *
+	 * @return The current tilt angle in degrees
+	 */
 	public double getTiltPos() {
 		return tiltEncoder.getPosition();
 	}
 
+	/**
+	 * Checks if the tilt mechanism is at the target position.
+	 * Compares current position to setpoint within allowed error tolerance.
+	 *
+	 * @return True if within tolerance of target position, false otherwise
+	 */
 	public boolean onTiltTarget() {
 		double target = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
-		return Math.abs(getTiltPos() - target) < Constants.Shooter.kTiltTollerance;
+		return Math.abs(getTiltPos() - target) < Constants.Shooter.kPosAllowedErr;
 	}
 
+	/**
+	 * Checks if the shooter is at the target velocity.
+	 * Compares current velocity to setpoint within allowed error tolerance.
+	 *
+	 * @return True if within tolerance of target velocity, false otherwise
+	 */
 	public boolean onShooterTarget() {
-		return Math.abs(getShooterVel(true) - getShooterSP(true)) < Constants.Shooter.kShooterTollerance;
+		return Math.abs(getShooterVel(true) - getShooterSP(true)) < Constants.Shooter.kAllowedErr;
 	}
 }

@@ -6,12 +6,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import frc.robot.Constants;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Shooter.ShooterSP;
 import frc.robot.subsystems.Shooter.TiltSP;
 
 public class ShooterTest {
 
-        CommandSwerveDrivetrain drivetrain = null;
+        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         private final Shooter shooter = new Shooter(drivetrain);
 
         @Test
@@ -55,5 +56,10 @@ public class ShooterTest {
                 shooter.setTiltSP(TiltSP.LOW);
                 assertEquals("LOW", shooter.getTiltSPName());
                 assertEquals(TiltSP.LOW.getPos(), shooter.getTiltSPPos());
+
+                shooter.setTiltSPDbl(45.0);
+                assertEquals("Degrees", shooter.getTiltSPName());
+                assertEquals(45.0, shooter.getTiltSPDbl());
+
         }
 }

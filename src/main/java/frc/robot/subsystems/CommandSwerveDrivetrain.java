@@ -35,8 +35,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -46,7 +44,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.CANId;
 import frc.robot.Constants.CANId;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
@@ -143,8 +140,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
-
-    private final Library lib = new Library();
 
     private final Pigeon2 pigeon = new Pigeon2(TunerConstants.kPigeonId, TunerConstants.kCANBus);
 
@@ -349,20 +344,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         bearingToHub = getBearingToHub(); // Update bearing to hub
-        sbBearingToHub.setDouble(lib.SBFormat(bearingToHub.getDegrees()));
-        sbBearingToHub.setDouble(lib.SBFormat(bearingToHub.getDegrees()));
+        sbBearingToHub.setDouble(Library.SBFormat(bearingToHub.getDegrees()));
+        sbBearingToHub.setDouble(Library.SBFormat(bearingToHub.getDegrees()));
         distToHub = getDistToHub(); // Update distance to hub
-        sbDistToHub.setDouble(lib.SBFormat(distToHub));
-        sbCurrHeading.setDouble(lib.SBFormat(getHeading()));
-        sbDistToHub.setDouble(lib.SBFormat(distToHub));
-        sbCurrHeading.setDouble(lib.SBFormat(getHeading()));
+        sbDistToHub.setDouble(Library.SBFormat(distToHub));
+        sbCurrHeading.setDouble(Library.SBFormat(getHeading()));
+        sbDistToHub.setDouble(Library.SBFormat(distToHub));
+        sbCurrHeading.setDouble(Library.SBFormat(getHeading()));
 
-        sbYaw.setDouble(lib.SBFormat(pigeon.getYaw().getValueAsDouble()));
-        sbPitch.setDouble(lib.SBFormat(pigeon.getPitch().getValueAsDouble()));
-        sbRoll.setDouble(lib.SBFormat(pigeon.getRoll().getValueAsDouble()));
-        sbYaw.setDouble(lib.SBFormat(pigeon.getYaw().getValueAsDouble()));
-        sbPitch.setDouble(lib.SBFormat(pigeon.getPitch().getValueAsDouble()));
-        sbRoll.setDouble(lib.SBFormat(pigeon.getRoll().getValueAsDouble()));
+        sbYaw.setDouble(Library.SBFormat(pigeon.getYaw().getValueAsDouble()));
+        sbPitch.setDouble(Library.SBFormat(pigeon.getPitch().getValueAsDouble()));
+        sbRoll.setDouble(Library.SBFormat(pigeon.getRoll().getValueAsDouble()));
+        sbYaw.setDouble(Library.SBFormat(pigeon.getYaw().getValueAsDouble()));
+        sbPitch.setDouble(Library.SBFormat(pigeon.getPitch().getValueAsDouble()));
+        sbRoll.setDouble(Library.SBFormat(pigeon.getRoll().getValueAsDouble()));
 
         currPose = getPose();
         m_field.setRobotPose(currPose);
@@ -432,16 +427,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     private void configPigeon() {
-        Optional<Alliance> ally = DriverStation.getAlliance();
         // Create a configuration object
         Pigeon2Configuration configs = new Pigeon2Configuration();
 
         // Configure the mount pose to match the physical orientation on the robot.
-        // For example, if the Pigeon 2 is mounted flat, use default values.
-        // For example, if the Pigeon 2 is mounted flat, use default values.
-        // If it's on its side, you would specify the roll, pitch, or yaw.
-        // The values here represent the axis that points forward/up/left in the robot's
-        // reference frame.
         // The values here represent the axis that points forward/up/left in the robot's
         // reference frame.
         configs.MountPose = new MountPoseConfigs()
@@ -450,7 +439,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 .withMountPoseRoll(0.0); // Degrees offset for Roll
 
         // Apply the configurations to the device
-        // It's good practice to check the status code for errors
         StatusCode status = pigeon.getConfigurator().apply(configs);
 
         if (status.isOK()) {
@@ -459,12 +447,34 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             System.err.println("Failed to apply Pigeon 2 configuration: " + status.toString());
         }
 
-        // zero yaww for field relative
-        // if (ally.get() == DriverStation.Alliance.Red) {
+        // Set initial yaw based on alliance side
+        // Blue alliance: 0° (facing red alliance wall)
+        // Red alliance: 180° (facing blue alliance wall)
+        setYawBasedOnAlliance();
+    }
+
+    /**
+     * Sets the Pigeon yaw based on the current alliance.
+     * This should be called during initialization and when alliance changes.
+     * Blue alliance: 0° (forward is toward red wall)
+     * Red alliance: 180° (forward is toward blue wall)
+     */
+    public void setYawBasedOnAlliance() {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        
+        if (alliance.isPresent()) {
+            if (alliance.get() == Alliance.Red) {
+                pigeon.setYaw(180.0);
+                System.out.println("Pigeon yaw set to 180° for Red Alliance");
+            } else {
+                pigeon.setYaw(0.0);
+                System.out.println("Pigeon yaw set to 0° for Blue Alliance");
+            }
+        } else {
+            // Default to blue alliance if not connected to FMS
             pigeon.setYaw(0.0);
-        // } else {
-        //     pigeon.setYaw(180);
-        // }
+            System.out.println("Alliance not available - defaulting Pigeon yaw to 0° (Blue Alliance)");
+        }
     }
 
     public PowerDistribution getPDH() {
