@@ -86,15 +86,34 @@ public class SparkMaxSimulation {
     /**
      * Updates the simulation with the current setpoint.
      * Call this from your subsystem's simulationPeriodic() method.
-     * 
+     *
      * @param setpoint The current setpoint (RPM for velocity, degrees for position)
      * @param dt The time delta in seconds (typically 0.02 for 20ms)
      */
     public void update(double setpoint, double dt) {
         if (isVelocityControl) {
             updateVelocityControl(setpoint, dt);
+            // Update the motor's relative encoder with simulated velocity
+            try {
+                // Set velocity directly on the encoder (REVLib handles this in sim)
+                motor.getEncoder().setPosition(currentVelocityRPM / 60.0); // Convert RPM to rotations
+            } catch (Exception e) {
+                // Ignore if encoder not available
+            }
         } else {
             updatePositionControl(setpoint, dt);
+            // Update the motor's encoder with simulated position
+            // For position control with absolute encoder, we need to update the relative encoder
+            // because that's what the simulation can actually write to
+            try {
+                // IMPORTANT: If using through-bore encoder on OUTPUT shaft (not motor shaft),
+                // the encoder reads output rotations directly, so NO gear ratio conversion needed
+                // Convert degrees to output rotations
+                double outputRotations = currentPositionDeg / 360.0;
+                motor.getEncoder().setPosition(outputRotations);
+            } catch (Exception e) {
+                // Ignore if encoder not available
+            }
         }
     }
     

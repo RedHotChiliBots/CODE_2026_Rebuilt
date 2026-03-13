@@ -210,7 +210,7 @@ public final class Constants {
 		public static final boolean kRightMotorInverted = false;
 		public static final boolean kRightEncoderInverted = false;
 
-		public static final double kTiltZeroOffset = 0.59196;
+		public static final double kTiltZeroOffset = 0.7739866;
 		public static final boolean kTiltZeroCentered = true;
 		public static final boolean kTiltMotorInverted = true;
 		public static final boolean kTiltEncoderInverted = true;
@@ -228,10 +228,13 @@ public final class Constants {
 
 		// Position is returned in native units of rotations and will be multiplied by
 		// this conversion factor.
-		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5 * 3.0); // 3.0 is pully ratio
+		public static final double kTiltGearRatio = (3.0); // 3.0 is pully ratio
 
-		public static final double kTiltPositionFactor = 180.0 / kTiltGearRatio;
-		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0;
+		// IMPORTANT: Through-bore encoder is mounted on OUTPUT SHAFT, not motor shaft!
+		// Position factor converts OUTPUT shaft rotations to degrees
+		// 1 output rotation = 360 degrees (no gear ratio needed)
+		public static final double kTiltPositionFactor = 360.0 / kTiltGearRatio;  // degrees per output rotation
+		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0;  // degrees per second
 
 		public static final double kP = 0.0002; // maxmotion 0.025;
 		public static final double kI = 0.0; // maxmotion 0.0
@@ -246,9 +249,9 @@ public final class Constants {
 		public static final double kMaxAccel = 15000.0; // RPM/sec (0.4 sec to full speed)
 		public static final double kAllowedErr = 75.0; // RPM
 
-		public static final double kPosP = 0.75;	// maxmotion 0.025;
+		public static final double kPosP = 0.8;	// maxmotion 0.025;
 		public static final double kPosI = 0.0; // maxmotion 0.0
-		public static final double kPosD = 0.005; // maxmotion 0.0
+		public static final double kPosD = 0.1; // maxmotion 0.0
 //		public static final double kPosFF = 0.0000037;
 
 		public static final double kPosMinOutput = -1.0;
@@ -353,7 +356,7 @@ public final class Constants {
 		public static final double kIntakeP = 0.0002; // maxmotion 0.025;
 		public static final double kIntakeI = 0.0; // maxmotion 0.0
 		public static final double kIntakeD = 0.0; // maxmotion 0.0
-		public static final double kVelFF = 1.0 / MotorConstants.kNeoFreeSpeedRpm;	// / Constants.Intake.kIntakeGearRatio);
+		public static final double kVelFF = 1.0 / (MotorConstants.kNeoFreeSpeedRpm / Constants.Intake.kIntakeGearRatio);
 		public static final double kIntakeMinOutput = -1.0;
 		public static final double kIntakeMaxOutput = 1.0;
 
@@ -368,9 +371,10 @@ public final class Constants {
 
 		public static final double kTiltGearRatio = (GearBox.Max5 * GearBox.Max5);
 
-		// Position is returned in native units of rotations and will be multiplied by
-		// this conversion factor.
-		public static final double kTiltPositionFactor = 360.0 / kTiltGearRatio; // degrees
+		// IMPORTANT: Through-bore encoder is mounted on OUTPUT SHAFT, not motor shaft!
+		// Position factor converts OUTPUT shaft rotations to degrees
+		// 1 output rotation = 360 degrees (no gear ratio needed)
+		public static final double kTiltPositionFactor = 360.0;  // degrees per output rotation
 		public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
 		public static final double kTiltZeroOffset = 0.4019657;
@@ -417,7 +421,7 @@ public final class Constants {
 		public static final double kFeederP = 0.0002;
 		public static final double kFeederI = 0.0;// 000001;
 		public static final double kFeederD = 0.0;// 1;
-		public static final double kFeederVelFF = 1.0 / MotorConstants.kNeoFreeSpeedRpm;	// / Constants.Feeder.kFeederGearRatio);// 0000037;
+		public static final double kFeederVelFF = 1.0 / (MotorConstants.kNeoFreeSpeedRpm / Constants.Feeder.kFeederGearRatio);// 0000037;
 
 		public static final double kFeederMinOutput = -1.0;
 		public static final double kFeederMaxOutput = 1.0;
