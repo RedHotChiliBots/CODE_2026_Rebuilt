@@ -15,6 +15,23 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public class VisionConstants {
+    public static final double kXP = 0.6;
+    public static final double kXI = 0.0;
+    public static final double kXD = 0.0;
+    public static final double kXTolerance = 0.1;
+
+    public static final double kYP = 0.6;
+    public static final double kYI = 0.0;
+    public static final double kYD = 0.0;
+    public static final double kYTolerance = 0.1;
+
+    public static final double kRP = 0.03;
+    public static final double kRI = 0.0;
+    public static final double kRD = 0.0;
+    public static final double kRTolerance = 0.1;
+    public static final double kRMin = 0.0;
+    public static final double kRMax = 360.0;
+
     // AprilTag layout
     public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 

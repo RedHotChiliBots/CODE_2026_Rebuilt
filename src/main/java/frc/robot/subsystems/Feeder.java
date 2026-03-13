@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.constants.FeederConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.SparkMaxSimulation;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -32,7 +33,7 @@ public class Feeder extends SubsystemBase {
   // Define Feeder Motor
   // ==============================================================
   private final SparkMax feeder = new SparkMax(
-      Constants.CANId.kFeederCanId, MotorType.kBrushless);
+      FeederConstants.kFeederCanId, MotorType.kBrushless);
 
   private final SparkMaxConfig feederConfig = new SparkMaxConfig();
 
@@ -46,7 +47,7 @@ public class Feeder extends SubsystemBase {
   // ==============================================================
   // Define trigger inputs
   // =============================================================
-  private final AnalogInput fuelSensor = new AnalogInput(Constants.AIOId.kFuelSensor);
+  private final AnalogInput fuelSensor = new AnalogInput(FeederConstants.kFuelSensorChannel);
 
   // ==============================================================
   // Define motor vel enum
@@ -80,7 +81,7 @@ public class Feeder extends SubsystemBase {
      */
     public double getVel(boolean rpm) {
       if (rpm) {
-        return Library.pctToRpm(pct, Constants.MotorConstants.kNeoFreeSpeedRpm);
+        return Library.pctToRpm(pct, FeederConstants.kFeederMotorFreeSpeedRpm);
       } else {
         return pct;
       }
@@ -133,25 +134,25 @@ public class Feeder extends SubsystemBase {
     System.out.println("+++++ Starting Feeder Constructor +++++");
     // Configure Feeder motor
     feederConfig
-        .idleMode(Constants.Feeder.kFeederIdleMode)
-        .smartCurrentLimit(Constants.Feeder.kFeederCurrentLimit)
-        .inverted(Constants.Feeder.kFeederMotorInverted);
+        .idleMode(FeederConstants.kFeederIdleMode)
+        .smartCurrentLimit(FeederConstants.kFeederCurrentLimit)
+        .inverted(FeederConstants.kFeederMotorInverted);
     feederConfig.encoder
-//        .positionConversionFactor(Constants.Feeder.kFeederPositionFactor)
-        .velocityConversionFactor(Constants.Feeder.kFeederVelocityFactor);
+//        .positionConversionFactor(FeederConstants.kFeederPositionFactor)
+        .velocityConversionFactor(FeederConstants.kFeederVelocityFactor);
     feederConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(Constants.Feeder.kFeederP)
-        .i(Constants.Feeder.kFeederI)
-        .d(Constants.Feeder.kFeederD)
-        .outputRange(Constants.Feeder.kFeederMinOutput, Constants.Feeder.kFeederMaxOutput);
+        .p(FeederConstants.kFeederP)
+        .i(FeederConstants.kFeederI)
+        .d(FeederConstants.kFeederD)
+        .outputRange(FeederConstants.kFeederMinOutput, FeederConstants.kFeederMaxOutput);
     feederConfig.closedLoop.feedForward
-        .kA(Constants.Feeder.kFeederVelFF);
+        .kA(FeederConstants.kFeederVelFF);
     feederConfig.closedLoop.maxMotion
         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-        .cruiseVelocity(Constants.Feeder.kFeederMaxVel)
-        .maxAcceleration(Constants.Feeder.kFeederMaxAccel)
-        .allowedProfileError(Constants.Feeder.kFeederAllowedErr);
+        .cruiseVelocity(FeederConstants.kFeederMaxVel)
+        .maxAcceleration(FeederConstants.kFeederMaxAccel)
+        .allowedProfileError(FeederConstants.kFeederAllowedErr);
 
     feeder.configure(
         feederConfig,
@@ -177,7 +178,7 @@ public class Feeder extends SubsystemBase {
       feederSim = SparkMaxSimulation.createVelocitySim(
           feeder,
           DCMotor.getNEO(1),
-          Constants.Feeder.kFeederGearRatio,
+          FeederConstants.kFeederGearRatio,
           0.003 // MOI in kg*m^2 for roller
       );
     }
@@ -271,7 +272,7 @@ public class Feeder extends SubsystemBase {
    * @return The current motor velocity in the requested units
    */
   public double getFeederVel(boolean rpm) {
-    return rpm ? feederEncoder.getVelocity() : Library.rpmToPct(feederEncoder.getVelocity(), Constants.MotorConstants.kNeoFreeSpeedRpm);
+    return rpm ? feederEncoder.getVelocity() : Library.rpmToPct(feederEncoder.getVelocity(), FeederConstants.kFeederMotorFreeSpeedRpm);
   }
 
   /**
@@ -280,7 +281,7 @@ public class Feeder extends SubsystemBase {
    * @return True if the current velocity is within the allowed error of the setpoint, false otherwise
    */
   public boolean onFeederTarget() {
-    return Math.abs(getFeederVel(true) - getFeederSP(true)) < Constants.Feeder.kFeederAllowedErr;
+    return Math.abs(getFeederVel(true) - getFeederSP(true)) < FeederConstants.kFeederAllowedErr;
   }
 
   /**

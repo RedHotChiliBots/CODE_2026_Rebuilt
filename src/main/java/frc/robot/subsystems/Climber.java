@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.constants.ClimberConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.SparkMaxSimulation;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -39,16 +40,16 @@ public class Climber extends SubsystemBase {
   // Define Climber Motors and Servos
   // ==============================================================
   private final SparkMax climber1 = new SparkMax(
-      Constants.CANId.kClimber1CanId, MotorType.kBrushless);
+      ClimberConstants.kClimber1CanId, MotorType.kBrushless);
 
   private final SparkMax climber2 = new SparkMax(
-      Constants.CANId.kClimber2CanId, MotorType.kBrushless);
+      ClimberConstants.kClimber2CanId, MotorType.kBrushless);
 
   private final SparkMax climber3 = new SparkMax(
-      Constants.CANId.kClimber3CanId, MotorType.kBrushless);
+      ClimberConstants.kClimber3CanId, MotorType.kBrushless);
 
   private final SparkMax climber4 = new SparkMax(
-      Constants.CANId.kClimber4CanId, MotorType.kBrushless);
+      ClimberConstants.kClimber4CanId, MotorType.kBrushless);
 
   private final SparkMaxConfig climber1Config = new SparkMaxConfig();
   private final SparkMaxConfig climber2Config = new SparkMaxConfig();
@@ -71,7 +72,7 @@ public class Climber extends SubsystemBase {
   // private final AbsoluteEncoder climber4AbsEncoder =
   // climber4.getAbsoluteEncoder();
 
-  private final ServoHub servoHub = new ServoHub(Constants.CANId.kServoHubCanId);
+  private final ServoHub servoHub = new ServoHub(ClimberConstants.kServoHubCanId);
   private final ServoChannel leftHook = servoHub.getServoChannel(ChannelId.kChannelId0);
   private final ServoChannel rightHook = servoHub.getServoChannel(ChannelId.kChannelId1);
 
@@ -157,25 +158,25 @@ public class Climber extends SubsystemBase {
 
     // Climbing Motor Configs 1-4
     climber1Config
-        .inverted(Constants.Climber.kClimberInverted)
-        .idleMode(Constants.Climber.kClimberIdleMode)
-        .smartCurrentLimit(Constants.Climber.kClimberCurrentLimit);
+        .inverted(ClimberConstants.kClimberInverted)
+        .idleMode(ClimberConstants.kClimberIdleMode)
+        .smartCurrentLimit(ClimberConstants.kClimberCurrentLimit);
     climber1Config.absoluteEncoder
-        .zeroOffset(Constants.Climber.kZeroOffset)
-        .zeroCentered(Constants.Climber.kZeroCentered)
-        .inverted(Constants.Climber.kEncoderInverted)
-        .positionConversionFactor(Constants.Climber.kTiltPositionFactor)
-        .velocityConversionFactor(Constants.Climber.kTiltVelocityFactor);
+        .zeroOffset(ClimberConstants.kZeroOffset)
+        .zeroCentered(ClimberConstants.kZeroCentered)
+        .inverted(ClimberConstants.kEncoderInverted)
+        .positionConversionFactor(ClimberConstants.kTiltPositionFactor)
+        .velocityConversionFactor(ClimberConstants.kTiltVelocityFactor);
     climber1Config.closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .p(Constants.Climber.kPosP)
-        .i(Constants.Climber.kPosI)
-        .d(Constants.Climber.kPosD)
-        .outputRange(Constants.Climber.kPosMinOutput, Constants.Climber.kPosMaxOutput);
+        .p(ClimberConstants.kPosP)
+        .i(ClimberConstants.kPosI)
+        .d(ClimberConstants.kPosD)
+        .outputRange(ClimberConstants.kPosMinOutput, ClimberConstants.kPosMaxOutput);
 
-    climber2Config.follow(Constants.CANId.kClimber1CanId); // Mimics climber1
-    climber3Config.follow(Constants.CANId.kClimber1CanId);
-    climber4Config.follow(Constants.CANId.kClimber1CanId);
+    climber2Config.follow(ClimberConstants.kClimber1CanId); // Mimics climber1
+    climber3Config.follow(ClimberConstants.kClimber1CanId);
+    climber4Config.follow(ClimberConstants.kClimber1CanId);
 
     climber1.configure(climber1Config,
         com.revrobotics.ResetMode.kNoResetSafeParameters,
@@ -248,7 +249,7 @@ public class Climber extends SubsystemBase {
       climber1Sim = SparkMaxSimulation.createPositionSim(
           climber1,
           DCMotor.getNEO(1),
-          Constants.Climber.kClimberGearRatio,
+          ClimberConstants.kClimberGearRatio,
           0.3, // arm length in meters
           ClimberSP.BOT.getValue(), // min position
           ClimberSP.TOP.getValue(), // max position
@@ -287,8 +288,8 @@ public class Climber extends SubsystemBase {
         interrupted -> this.setHook(leftHook, HookSP.STOP),
         // Is finished
         // Timer has expired and amps are higher than threshold
-        () -> ((this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit)
-            && timer.hasElapsed(Constants.Climber.kServoTimeout)));
+        () -> ((this.getChannelAmps(leftHook) >= ClimberConstants.kServoAmpLimit)
+            && timer.hasElapsed(ClimberConstants.kServoTimeout)));
   }
 
   public Command stowRightHook() {
@@ -310,22 +311,22 @@ public class Climber extends SubsystemBase {
         interrupted -> this.setHook(rightHook, HookSP.STOP),
         // Is finished
         // Timer has expired and amps are higher than threshold
-        () -> ((this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit)
-            && timer.hasElapsed(Constants.Climber.kServoTimeout)));
+        () -> ((this.getChannelAmps(rightHook) >= ClimberConstants.kServoAmpLimit)
+            && timer.hasElapsed(ClimberConstants.kServoTimeout)));
   }
 
   public Command stowLeftHook1() {
     return Commands.startEnd(
         () -> this.setHook(leftHook, HookSP.STOW),
         () -> this.setHook(leftHook, HookSP.STOP))
-        .until(() -> this.getChannelAmps(leftHook) >= Constants.Climber.kServoAmpLimit);
+        .until(() -> this.getChannelAmps(leftHook) >= ClimberConstants.kServoAmpLimit);
   }
 
   public Command stowRightHook1() {
     return Commands.startEnd(
         () -> this.setHook(rightHook, HookSP.STOW),
         () -> this.setHook(rightHook, HookSP.STOP))
-        .until(() -> this.getChannelAmps(rightHook) >= Constants.Climber.kServoAmpLimit);
+        .until(() -> this.getChannelAmps(rightHook) >= ClimberConstants.kServoAmpLimit);
   }
 
   public Command stowHooks() {
@@ -410,7 +411,7 @@ public class Climber extends SubsystemBase {
   }
 
   public boolean onClimberTarget() {
-    return Math.abs(getClimberPos() - getClimberSP().getValue()) < Constants.Climber.kClimberTolerance;
+    return Math.abs(getClimberPos() - getClimberSP().getValue()) < ClimberConstants.kClimberTolerance;
   }
   // End of Climber Methods
   // Start of Servo Methods
@@ -428,7 +429,7 @@ public class Climber extends SubsystemBase {
   }
 
   public boolean onHookTarget() {
-    return Math.abs(getHookSpd() - getHookSP().getSpd()) < Constants.Climber.kHookTolerance;
+    return Math.abs(getHookSpd() - getHookSP().getSpd()) < ClimberConstants.kHookTolerance;
   }
 
   public void setHook(ServoChannel channel, HookSP sp) {

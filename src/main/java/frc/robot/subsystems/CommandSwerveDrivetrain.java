@@ -45,6 +45,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANId;
+import frc.robot.constants.CommandSwerveDrivetrainConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.utils.Library;
@@ -57,14 +58,9 @@ import frc.robot.utils.Library;
  * https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
  */
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
-    private static final double kSimLoopPeriod = 0.004; // 4 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
-    /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
-    private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
-    /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
-    private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
 
@@ -146,14 +142,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     // Create field and pose related vars
     private final Field2d m_field = new Field2d();
 
-    private final Pose2d hubPose = new Pose2d(
-            new Translation2d(4.660, 4.118),
-            Rotation2d.fromDegrees(180.0)); // Hub pose for 2026
-    private final Pose2d startPose = new Pose2d( // This is the blue side starting pose. AutoBuilder will mirror for
-                                                 // red.
-            new Translation2d(3.45, 2.75),
-            Rotation2d.fromDegrees(42.5));
-
     public Pose2d currPose = null;
     public Rotation2d bearingToHub = null;
     public double distToHub = 0.0;
@@ -197,7 +185,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
 
-        m_field.setRobotPose(startPose);
+        m_field.setRobotPose(CommandSwerveDrivetrainConstants.kStartPose);
         SmartDashboard.putData("Field", m_field);
 
         configPDH();
@@ -230,7 +218,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
 
-        m_field.setRobotPose(startPose);
+        m_field.setRobotPose(CommandSwerveDrivetrainConstants.kStartPose);
         SmartDashboard.putData("Field", m_field);
 
         configPDH();
@@ -278,7 +266,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
 
-        m_field.setRobotPose(startPose);
+        m_field.setRobotPose(CommandSwerveDrivetrainConstants.kStartPose);
         SmartDashboard.putData("Field", m_field);
 
         configPDH();
@@ -337,8 +325,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 setOperatorPerspectiveForward(
                         allianceColor == Alliance.Red
-                                ? kRedAlliancePerspectiveRotation
-                                : kBlueAlliancePerspectiveRotation);
+                                ? CommandSwerveDrivetrainConstants.kRedAlliancePerspectiveRotation
+                                : CommandSwerveDrivetrainConstants.kBlueAlliancePerspectiveRotation);
                 m_hasAppliedOperatorPerspective = true;
             });
         }
@@ -400,8 +388,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                                                                       // individual module feedforwards
                 new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
                                                 // holonomic drive trains
-                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                        new PIDConstants(
+                                CommandSwerveDrivetrainConstants.kTranslationPidP,
+                                CommandSwerveDrivetrainConstants.kTranslationPidI,
+                                CommandSwerveDrivetrainConstants.kTranslationPidD), // Translation PID constants
+                        new PIDConstants(
+                                CommandSwerveDrivetrainConstants.kRotationPidP,
+                                CommandSwerveDrivetrainConstants.kRotationPidI,
+                                CommandSwerveDrivetrainConstants.kRotationPidD) // Rotation PID constants
                 ),
                 config, // The robot configuration
                 () -> {
@@ -494,11 +488,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public Rotation2d getBearingToHub() {
-        return ((getPose().getTranslation().minus(hubPose.getTranslation())).getAngle().plus(new Rotation2d(Math.PI)));
+        return ((getPose().getTranslation().minus(CommandSwerveDrivetrainConstants.kHubPose.getTranslation())).getAngle().plus(new Rotation2d(Math.PI)));
     }
 
     public double getDistToHub() {
-        return hubPose.getTranslation().getDistance(getPose().getTranslation());
+        return CommandSwerveDrivetrainConstants.kHubPose.getTranslation().getDistance(getPose().getTranslation());
     }
 
     public double getHeading() {
@@ -517,7 +511,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             /* use the measured time delta, get battery voltage from WPILib */
             updateSimState(deltaTime, RobotController.getBatteryVoltage());
         });
-        m_simNotifier.startPeriodic(kSimLoopPeriod);
+        m_simNotifier.startPeriodic(CommandSwerveDrivetrainConstants.kSimLoopPeriod);
     }
 
     /**

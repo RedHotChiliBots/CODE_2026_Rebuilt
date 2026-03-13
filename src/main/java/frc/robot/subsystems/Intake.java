@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.constants.IntakeConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.SparkMaxSimulation;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -33,9 +34,9 @@ public class Intake extends SubsystemBase {
   // Define Intake & Tilt Motors
   // ==============================================================
   private final SparkMax intake = new SparkMax(
-      Constants.CANId.kIntakeIntakeCanId, MotorType.kBrushless);
+      IntakeConstants.kIntakeMotorCanId, MotorType.kBrushless);
   private final SparkMax tilt = new SparkMax(
-      Constants.CANId.kIntakeTiltCanId, MotorType.kBrushless);
+      IntakeConstants.kTiltMotorCanId, MotorType.kBrushless);
 
   private final SparkMaxConfig intakeConfig = new SparkMaxConfig();
   private final SparkMaxConfig tiltConfig = new SparkMaxConfig();
@@ -68,7 +69,7 @@ public class Intake extends SubsystemBase {
 
     public double getVel(boolean rpm) {
       if (rpm) {
-        return (Library.pctToRpm(pct, Constants.MotorConstants.kNeoFreeSpeedRpm));  // * Constants.Intake.kIntakeVelocityFactor);
+        return Library.pctToRpm(pct, IntakeConstants.kIntakeMotorFreeSpeedRpm);
       } else {
         return pct;
       }
@@ -134,24 +135,24 @@ public class Intake extends SubsystemBase {
 
     // Configure Intake motor
     intakeConfig
-        .idleMode(Constants.Intake.kIntakeIdleMode)
-        .smartCurrentLimit(Constants.Intake.kIntakeCurrentLimit)
-        .inverted(Constants.Intake.kIntakeMotorInverted);
+        .idleMode(IntakeConstants.kIntakeIdleMode)
+        .smartCurrentLimit(IntakeConstants.kIntakeCurrentLimit)
+        .inverted(IntakeConstants.kIntakeMotorInverted);
     intakeConfig.encoder
-        .velocityConversionFactor(Constants.Intake.kIntakeVelocityFactor);
+        .velocityConversionFactor(IntakeConstants.kIntakeVelocityFactor);
     intakeConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(Constants.Intake.kIntakeP)
-        .i(Constants.Intake.kIntakeI)
-        .d(Constants.Intake.kIntakeD)
-        .outputRange(Constants.Intake.kIntakeMinOutput, Constants.Intake.kIntakeMaxOutput);
+        .p(IntakeConstants.kIntakeP)
+        .i(IntakeConstants.kIntakeI)
+        .d(IntakeConstants.kIntakeD)
+        .outputRange(IntakeConstants.kIntakeMinOutput, IntakeConstants.kIntakeMaxOutput);
     intakeConfig.closedLoop.feedForward
-        .kA(Constants.Intake.kVelFF);
+        .kA(IntakeConstants.kVelFF);
     intakeConfig.closedLoop.maxMotion
         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-        .cruiseVelocity(Constants.Intake.kIntakeMaxVel)
-        .maxAcceleration(Constants.Intake.kIntakeMaxAccel)
-        .allowedProfileError(Constants.Intake.kIntakeAllowedErr);
+        .cruiseVelocity(IntakeConstants.kIntakeMaxVel)
+        .maxAcceleration(IntakeConstants.kIntakeMaxAccel)
+        .allowedProfileError(IntakeConstants.kIntakeAllowedErr);
 
     intake.configure(
         intakeConfig,
@@ -160,28 +161,28 @@ public class Intake extends SubsystemBase {
 
     // Configure Tilt motor
     tiltConfig
-        .inverted(Constants.Intake.kTiltMotorInverted)
-        .idleMode(Constants.Intake.kTiltIdleMode)
-        .smartCurrentLimit(Constants.Intake.kTiltCurrentLimit);
+        .inverted(IntakeConstants.kTiltMotorInverted)
+        .idleMode(IntakeConstants.kTiltIdleMode)
+        .smartCurrentLimit(IntakeConstants.kTiltCurrentLimit);
     tiltConfig.absoluteEncoder
-        .zeroOffset(Constants.Intake.kTiltZeroOffset)
-        .zeroCentered(Constants.Intake.kTiltZeroCentered)
-        .inverted(Constants.Intake.kTiltEncoderInverted)
-        .positionConversionFactor(Constants.Intake.kTiltPositionFactor)
-        .velocityConversionFactor(Constants.Intake.kTiltVelocityFactor)
+        .zeroOffset(IntakeConstants.kTiltZeroOffset)
+        .zeroCentered(IntakeConstants.kTiltZeroCentered)
+        .inverted(IntakeConstants.kTiltEncoderInverted)
+        .positionConversionFactor(IntakeConstants.kTiltPositionFactor)
+        .velocityConversionFactor(IntakeConstants.kTiltVelocityFactor)
         .apply(AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoderV2);
     tiltConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .p(Constants.Intake.kTiltP)
-        .i(Constants.Intake.kTiltI)
-        .d(Constants.Intake.kTiltD)
-        .outputRange(Constants.Intake.kTiltMinOutput, Constants.Intake.kTiltMaxOutput)
-				.positionWrappingEnabled(Constants.Intake.kTiltEncodeWrapping);
+        .p(IntakeConstants.kTiltP)
+        .i(IntakeConstants.kTiltI)
+        .d(IntakeConstants.kTiltD)
+        .outputRange(IntakeConstants.kTiltMinOutput, IntakeConstants.kTiltMaxOutput)
+				.positionWrappingEnabled(IntakeConstants.kTiltEncodeWrapping);
     tiltConfig.closedLoop.maxMotion
         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-        .cruiseVelocity(Constants.Intake.kTiltMaxVel)
-        .maxAcceleration(Constants.Intake.kTiltMaxAccel)
-        .allowedProfileError(Constants.Intake.kTiltAllowedErr);
+        .cruiseVelocity(IntakeConstants.kTiltMaxVel)
+        .maxAcceleration(IntakeConstants.kTiltMaxAccel)
+        .allowedProfileError(IntakeConstants.kTiltAllowedErr);
 
     tilt.configure(
         tiltConfig,
@@ -212,7 +213,7 @@ public class Intake extends SubsystemBase {
       intakeSim = SparkMaxSimulation.createVelocitySim(
           intake,
           DCMotor.getNEO(1),
-          Constants.Intake.kIntakeGearRatio,
+          IntakeConstants.kIntakeGearRatio,
           0.005 // MOI in kg*m^2
       );
 
@@ -220,7 +221,7 @@ public class Intake extends SubsystemBase {
       tiltSim = SparkMaxSimulation.createPositionSim(
           tilt,
           DCMotor.getNEO(1),
-          Constants.Intake.kTiltGearRatio,
+          IntakeConstants.kTiltGearRatio,
           0.5, // arm length in meters
           TiltSP.STOW.getPos(), // min angle
           TiltSP.DEPLOY.getPos(), // max angle
@@ -341,7 +342,7 @@ public class Intake extends SubsystemBase {
    * @return The current intake velocity in the requested units.
    */
   public double getIntakeVel(boolean rpm) {
-    return rpm ? intakeEncoder.getVelocity() : Library.rpmToPct(intakeEncoder.getVelocity(), Constants.MotorConstants.kNeoFreeSpeedRpm);
+    return rpm ? intakeEncoder.getVelocity() : Library.rpmToPct(intakeEncoder.getVelocity(), IntakeConstants.kIntakeMotorFreeSpeedRpm);
   }
 
   /**
@@ -350,7 +351,7 @@ public class Intake extends SubsystemBase {
    * @return True if the intake is at the target velocity, false otherwise.
    */
   public boolean onIntakeTarget() {
-    return Math.abs(getIntakeVel(true) - getIntakeSP(true)) < Constants.Intake.kIntakeAllowedErr;
+    return Math.abs(getIntakeVel(true) - getIntakeSP(true)) < IntakeConstants.kIntakeAllowedErr;
   }
 
   /**
@@ -397,6 +398,6 @@ public class Intake extends SubsystemBase {
    * @return True if the tilt is at the target position, false otherwise.
    */
   public boolean onTiltTarget() {
-    return Math.abs(getTiltPos() - getTiltSP().getPos()) < Constants.Intake.kTiltAllowedErr;
+    return Math.abs(getTiltPos() - getTiltSP().getPos()) < IntakeConstants.kTiltAllowedErr;
   }
 }
