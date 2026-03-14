@@ -10,6 +10,9 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -17,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 
 import frc.robot.generated.TunerConstants;
+import frc.robot.constants.ValidationConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Feeder;
@@ -29,6 +33,8 @@ import frc.robot.subsystems.Vision.VisionConstants;
 import frc.robot.subsystems.Vision.VisionIOPhotonVision;
 import frc.robot.subsystems.Vision.Vision;
 import frc.robot.commands.Autos;
+import frc.robot.validation.SubsystemValidation;
+import frc.robot.validation.ValidationStatus;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -107,6 +113,37 @@ public class RobotContainer {
 	private Climber climber = null;
 	private Vision vision = null;
 	private Autos auton = null;
+	private ValidationStatus overallValidationStatus = ValidationStatus.NOT_RUN;
+	private String overallValidationSummary = ValidationConstants.UI.kNotRunSummary;
+
+	private final ShuffleboardTab validationTab = Shuffleboard.getTab("Validation");
+	private final GenericEntry validationWarning = validationTab
+			.addPersistent("Validation Warning", ValidationConstants.UI.kWarningMessage)
+			.withPosition(0, 0).withSize(5, 1).getEntry();
+	private final GenericEntry validationOverallStatus = validationTab
+			.addPersistent("Robot Validation Status", ValidationConstants.UI.kNotRunSummary)
+			.withPosition(0, 1).withSize(2, 1).getEntry();
+	private final GenericEntry validationOverallSummary = validationTab
+			.addPersistent("Robot Validation Summary", ValidationConstants.UI.kNotRunSummary)
+			.withPosition(2, 1).withSize(3, 1).getEntry();
+	private final GenericEntry drivetrainValidationStatus = validationTab
+			.addPersistent("Drive Validation", ValidationConstants.UI.kNotRunSummary)
+			.withPosition(0, 2).withSize(2, 1).getEntry();
+	private final GenericEntry visionValidationStatus = validationTab
+			.addPersistent("Vision Validation", ValidationConstants.UI.kNotRunSummary)
+			.withPosition(2, 2).withSize(2, 1).getEntry();
+	private final GenericEntry intakeValidationStatus = validationTab
+			.addPersistent("Intake Validation", ValidationConstants.UI.kNotRunSummary)
+			.withPosition(0, 3).withSize(2, 1).getEntry();
+	private final GenericEntry feederValidationStatus = validationTab
+			.addPersistent("Feeder Validation", ValidationConstants.UI.kNotRunSummary)
+			.withPosition(2, 3).withSize(2, 1).getEntry();
+	private final GenericEntry shooterValidationStatus = validationTab
+			.addPersistent("Shooter Validation", ValidationConstants.UI.kNotRunSummary)
+			.withPosition(0, 4).withSize(2, 1).getEntry();
+	private final GenericEntry climberValidationStatus = validationTab
+			.addPersistent("Climber Validation", ValidationConstants.UI.kNotRunSummary)
+			.withPosition(2, 4).withSize(2, 1).getEntry();
 
 	public RobotContainer() {
 		intake = new Intake();
@@ -120,8 +157,88 @@ public class RobotContainer {
 				new VisionIOPhotonVision(VisionConstants.camera3Name, VisionConstants.robotToCamera3));
 		auton = new Autos(this, drivetrain, intake, feeder, shooter, climber);
 
+		configureValidationDashboard();
 		configureBindings();
 
+	}
+
+	private void configureValidationDashboard() {
+		validationTab.add("Validate All", validateAllCommand())
+				.withPosition(5, 0)
+				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
+		validationTab.add("Validate Vision", vision.validateCommand())
+				.withPosition(5, 1)
+				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
+		validationTab.add("Validate Drive", drivetrain.validateCommand())
+				.withPosition(5, 2)
+				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
+		validationTab.add("Validate Intake", intake.validateCommand())
+				.withPosition(5, 3)
+				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
+		validationTab.add("Validate Feeder", feeder.validateCommand())
+				.withPosition(5, 4)
+				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
+		validationTab.add("Validate Shooter", shooter.validateCommand())
+				.withPosition(5, 5)
+				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
+		validationTab.add("Validate Climber", climber.validateCommand())
+				.withPosition(5, 6)
+				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
+	}
+
+	private Command validateAllCommand() {
+		return Commands.sequence(
+				Commands.runOnce(() -> {
+					overallValidationStatus = ValidationStatus.RUNNING;
+					overallValidationSummary = "RUNNING - Robot must be on blocks.";
+				}),
+				vision.validateCommand(),
+				drivetrain.validateCommand(),
+				intake.validateCommand(),
+				feeder.validateCommand(),
+				shooter.validateCommand(),
+				climber.validateCommand(),
+				Commands.runOnce(this::refreshAggregateValidationStatus))
+				.withName("ValidateAllSubsystems");
+	}
+
+	private void refreshAggregateValidationStatus() {
+		java.util.List<SubsystemValidation> validations = java.util.List.of(
+				vision,
+				drivetrain,
+				intake,
+				feeder,
+				shooter,
+				climber);
+		boolean allPass = validations.stream().allMatch(v -> v.validationStatus() == ValidationStatus.PASS);
+		boolean anyRunning = validations.stream().anyMatch(v -> v.validationStatus() == ValidationStatus.RUNNING);
+		if (anyRunning) {
+			overallValidationStatus = ValidationStatus.RUNNING;
+		} else {
+			overallValidationStatus = allPass ? ValidationStatus.PASS : ValidationStatus.FAIL;
+		}
+		long passCount = validations.stream().filter(v -> v.validationStatus() == ValidationStatus.PASS).count();
+		overallValidationSummary = String.format("%s (%d/%d subsystems passing)",
+				overallValidationStatus.name(),
+				passCount,
+				validations.size());
+	}
+
+	private String validationText(SubsystemValidation subsystem) {
+		return subsystem.validationStatus().name() + " - " + subsystem.validationSummary();
+	}
+
+	public void updateValidationDashboard() {
+		refreshAggregateValidationStatus();
+		validationWarning.setString(ValidationConstants.UI.kWarningMessage);
+		validationOverallStatus.setString(overallValidationStatus.name());
+		validationOverallSummary.setString(overallValidationSummary);
+		visionValidationStatus.setString(validationText(vision));
+		drivetrainValidationStatus.setString(validationText(drivetrain));
+		intakeValidationStatus.setString(validationText(intake));
+		feederValidationStatus.setString(validationText(feeder));
+		shooterValidationStatus.setString(validationText(shooter));
+		climberValidationStatus.setString(validationText(climber));
 	}
 
 	private void configureBindings() {

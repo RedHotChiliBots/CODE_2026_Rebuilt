@@ -21,14 +21,22 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.constants.IntakeConstants;
+import frc.robot.constants.ValidationConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.SparkMaxSimulation;
+import frc.robot.validation.SubsystemValidation;
+import frc.robot.validation.ValidationResult;
+import frc.robot.validation.ValidationStatus;
+import frc.robot.validation.ValidationSupport;
+import frc.robot.validation.ValidationUtils;
 import edu.wpi.first.math.system.plant.DCMotor;
 
-public class Intake extends SubsystemBase {
+public class Intake extends SubsystemBase implements SubsystemValidation {
+  private final ValidationSupport validation = new ValidationSupport("Intake");
 
   // ==============================================================
   // Define Intake & Tilt Motors
@@ -399,5 +407,102 @@ public class Intake extends SubsystemBase {
    */
   public boolean onTiltTarget() {
     return Math.abs(getTiltPos() - getTiltSP().getPos()) < IntakeConstants.kTiltAllowedErr;
+  }
+
+  private Command validationStep(
+      String checkName,
+      Runnable startAction,
+      java.util.function.BooleanSupplier passCondition,
+      java.util.function.Supplier<ValidationResult> resultSupplier,
+      Runnable cleanup) {
+    return Commands.sequence(
+        Commands.runOnce(startAction, this),
+        Commands.waitUntil(passCondition).withTimeout(ValidationConstants.Common.kMechanismTimeoutSec),
+        Commands.runOnce(() -> validation.addResult(resultSupplier.get()), this),
+        Commands.runOnce(cleanup, this));
+  }
+
+  private ValidationResult intakeVelocityResult() {
+    double setpointRpm = getIntakeSP(true);
+    double measuredRpm = getIntakeVel(true);
+    boolean passed = onIntakeTarget();
+    return ValidationResult.of(
+        "Intake",
+        "Roller Velocity",
+        passed,
+        ValidationUtils.measurements(
+            "setpointRpm", ValidationUtils.formatDouble(setpointRpm),
+            "measuredRpm", ValidationUtils.formatDouble(measuredRpm),
+            "onTarget", Boolean.toString(passed)),
+        "+/- " + IntakeConstants.kIntakeAllowedErr + " RPM",
+        passed ? "" : "Intake roller did not reach target RPM");
+  }
+
+  private ValidationResult tiltResult(String checkName) {
+    double targetDeg = getTiltSP().getPos();
+    double measuredDeg = getTiltPos();
+    boolean passed = onTiltTarget();
+    return ValidationResult.of(
+        "Intake",
+        checkName,
+        passed,
+        ValidationUtils.measurements(
+            "targetDeg", ValidationUtils.formatDouble(targetDeg),
+            "measuredDeg", ValidationUtils.formatDouble(measuredDeg),
+            "onTarget", Boolean.toString(passed)),
+        "+/- " + IntakeConstants.kTiltAllowedErr + " deg",
+        passed ? "" : "Intake tilt did not reach target position");
+  }
+
+  private void safeValidationStop() {
+    setIntakeVel(IntakeSP.OFF);
+    setTiltPos(TiltSP.STOW);
+  }
+
+  @Override
+  public Command validateCommand() {
+    return Commands.sequence(
+            Commands.runOnce(validation::start),
+            validationStep(
+                "Roller Velocity",
+                () -> setIntakeVel(IntakeSP.HI),
+                this::onIntakeTarget,
+                this::intakeVelocityResult,
+                () -> setIntakeVel(IntakeSP.OFF)),
+            validationStep(
+                "Tilt Deploy",
+                () -> setTiltPos(TiltSP.DEPLOY),
+                this::onTiltTarget,
+                () -> tiltResult("Tilt Deploy"),
+                () -> {}),
+            validationStep(
+                "Tilt Stow",
+                () -> setTiltPos(TiltSP.STOW),
+                this::onTiltTarget,
+                () -> tiltResult("Tilt Stow"),
+                () -> {}),
+            Commands.runOnce(validation::finish))
+        .finallyDo(interrupted -> {
+          safeValidationStop();
+          if (interrupted && validation.status() == ValidationStatus.RUNNING) {
+            validation.fail("Validation Interrupted", "Intake validation was interrupted");
+            validation.finish();
+          }
+        });
+  }
+
+  @Override
+  public java.util.List<ValidationResult> validationResults() {
+    return validation.results();
+  }
+
+  @Override
+  public String validationSummary() {
+    return validation.summary();
+  }
+
+  @Override
+  public ValidationStatus validationStatus() {
+    return validation.status();
   }
 }

@@ -29,6 +29,7 @@ public class Robot extends TimedRobot {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run();
         m_robotContainer.updateOperatorRumble();
+        m_robotContainer.updateValidationDashboard();
     }
 
     @Override

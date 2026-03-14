@@ -30,12 +30,19 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.constants.ClimberConstants;
+import frc.robot.constants.ValidationConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.SparkMaxSimulation;
+import frc.robot.validation.SubsystemValidation;
+import frc.robot.validation.ValidationResult;
+import frc.robot.validation.ValidationStatus;
+import frc.robot.validation.ValidationSupport;
+import frc.robot.validation.ValidationUtils;
 import edu.wpi.first.math.system.plant.DCMotor;
 
 //CLASS DEFINITION
-public class Climber extends SubsystemBase {
+public class Climber extends SubsystemBase implements SubsystemValidation {
+  private final ValidationSupport validation = new ValidationSupport("Climber");
   // ==============================================================
   // Define Climber Motors and Servos
   // ==============================================================
@@ -433,10 +440,128 @@ public class Climber extends SubsystemBase {
   }
 
   public void setHook(ServoChannel channel, HookSP sp) {
+    setHookSP(sp);
     channel.setPulseWidth(sp.getSpd());
   }
 
   public double getChannelAmps(ServoChannel channel) {
     return channel.getCurrent();
+  }
+
+  private Command validationStep(
+      String checkName,
+      Runnable startAction,
+      java.util.function.BooleanSupplier passCondition,
+      java.util.function.Supplier<ValidationResult> resultSupplier,
+      Runnable cleanup) {
+    return Commands.sequence(
+        Commands.runOnce(startAction, this),
+        Commands.waitUntil(passCondition).withTimeout(ValidationConstants.Common.kMechanismTimeoutSec),
+        Commands.runOnce(() -> validation.addResult(resultSupplier.get()), this),
+        Commands.runOnce(cleanup, this));
+  }
+
+  private ValidationResult climberPositionResult() {
+    double target = getClimberSP().getValue();
+    double measured = getClimberPos();
+    boolean passed = onClimberTarget();
+    return ValidationResult.of(
+        "Climber",
+        "Climber Position",
+        passed,
+        ValidationUtils.measurements(
+            "target", ValidationUtils.formatDouble(target),
+            "measured", ValidationUtils.formatDouble(measured),
+            "onTarget", Boolean.toString(passed)),
+        "+/- " + ClimberConstants.kClimberTolerance,
+        passed ? "" : "Climber did not reach the requested safe position");
+  }
+
+  private ValidationResult hookResult(String checkName) {
+    double averagePulse = getHookSpd();
+    double leftAmps = getChannelAmps(leftHook);
+    double rightAmps = getChannelAmps(rightHook);
+    boolean pulseOnTarget = onHookTarget();
+    boolean currentSane =
+        ValidationUtils.isInRange(leftAmps, 0.0, 20.0)
+            && ValidationUtils.isInRange(rightAmps, 0.0, 20.0);
+    boolean passed = pulseOnTarget && currentSane;
+    return ValidationResult.of(
+        "Climber",
+        checkName,
+        passed,
+        ValidationUtils.measurements(
+            "targetPulse", Integer.toString(getHookSP().getSpd()),
+            "avgPulse", ValidationUtils.formatDouble(averagePulse),
+            "leftAmps", ValidationUtils.formatDouble(leftAmps),
+            "rightAmps", ValidationUtils.formatDouble(rightAmps),
+            "onTarget", Boolean.toString(pulseOnTarget)),
+        "pulse width target reached and current sane",
+        passed ? "" : "Hook pulse width or current feedback was invalid");
+  }
+
+  private void safeValidationStop() {
+    setClimberPos(ClimberSP.STOW);
+    setHook(leftHook, HookSP.STOP);
+    setHook(rightHook, HookSP.STOP);
+  }
+
+  @Override
+  public Command validateCommand() {
+    return Commands.sequence(
+            Commands.runOnce(validation::start),
+            validationStep(
+                "Climber Position",
+                () -> setClimberPos(ClimberSP.LVLAUTON),
+                this::onClimberTarget,
+                this::climberPositionResult,
+                () -> {}),
+            validationStep(
+                "Hooks Deploy",
+                () -> {
+                  setHook(leftHook, HookSP.DEPLOY);
+                  setHook(rightHook, HookSP.DEPLOY);
+                },
+                this::onHookTarget,
+                () -> hookResult("Hooks Deploy"),
+                () -> {
+                  setHook(leftHook, HookSP.STOP);
+                  setHook(rightHook, HookSP.STOP);
+                }),
+            validationStep(
+                "Hooks Stow",
+                () -> {
+                  setHook(leftHook, HookSP.STOW);
+                  setHook(rightHook, HookSP.STOW);
+                },
+                this::onHookTarget,
+                () -> hookResult("Hooks Stow"),
+                () -> {
+                  setHook(leftHook, HookSP.STOP);
+                  setHook(rightHook, HookSP.STOP);
+                }),
+            Commands.runOnce(validation::finish))
+        .finallyDo(interrupted -> {
+          safeValidationStop();
+          if (interrupted && validation.status() == ValidationStatus.RUNNING) {
+            validation.fail("Validation Interrupted", "Climber validation was interrupted");
+            validation.finish();
+          }
+        });
+  }
+
+  @Override
+  public java.util.List<ValidationResult> validationResults() {
+    return validation.results();
+  }
+
+  @Override
+  public String validationSummary() {
+    return validation.summary();
+  }
+
+  @Override
+  public ValidationStatus validationStatus() {
+    return validation.status();
   }
 }

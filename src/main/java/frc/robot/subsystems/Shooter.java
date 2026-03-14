@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
-import java.util.Objects;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
@@ -24,16 +23,24 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.constants.ShooterConstants;
+import frc.robot.constants.ValidationConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.ShooterBallistics;
 import frc.robot.utils.SparkMaxSimulation;
+import frc.robot.validation.SubsystemValidation;
+import frc.robot.validation.ValidationResult;
+import frc.robot.validation.ValidationStatus;
+import frc.robot.validation.ValidationSupport;
+import frc.robot.validation.ValidationUtils;
 import edu.wpi.first.math.system.plant.DCMotor;
 
-public class Shooter extends SubsystemBase {
+public class Shooter extends SubsystemBase implements SubsystemValidation {
+	private final ValidationSupport validation = new ValidationSupport("Shooter");
 	// ==============================================================
 	// Define Shooter & Tilt Motors
 	// ==============================================================
@@ -158,7 +165,7 @@ public class Shooter extends SubsystemBase {
 	public Shooter(CommandSwerveDrivetrain drivetrain) {
 		System.out.println("+++++ Starting Shooter Constructor +++++");
 
-    	this.drivetrain = Objects.requireNonNull(drivetrain, "drivetrain cannot be null");
+    	this.drivetrain = drivetrain;
 
 		// Configure Left Shooter motor
 		leftConfig
@@ -646,5 +653,102 @@ public class Shooter extends SubsystemBase {
 	 */
 	public boolean onShooterTarget() {
 		return Math.abs(getShooterVel(true) - getShooterSP(true)) < ShooterConstants.kAllowedErr;
+	}
+
+	private Command validationStep(
+			String checkName,
+			Runnable startAction,
+			java.util.function.BooleanSupplier passCondition,
+			java.util.function.Supplier<ValidationResult> resultSupplier,
+			Runnable cleanup) {
+		return Commands.sequence(
+				Commands.runOnce(startAction, this),
+				Commands.waitUntil(passCondition).withTimeout(ValidationConstants.Common.kMechanismTimeoutSec),
+				Commands.runOnce(() -> validation.addResult(resultSupplier.get()), this),
+				Commands.runOnce(cleanup, this));
+	}
+
+	private ValidationResult shooterVelocityResult() {
+		double targetRpm = getShooterSP(true);
+		double measuredRpm = getShooterVel(true);
+		boolean passed = onShooterTarget();
+		return ValidationResult.of(
+				"Shooter",
+				"Wheel Velocity",
+				passed,
+				ValidationUtils.measurements(
+						"targetRpm", ValidationUtils.formatDouble(targetRpm),
+						"measuredRpm", ValidationUtils.formatDouble(measuredRpm),
+						"onTarget", Boolean.toString(passed)),
+				"+/- " + ShooterConstants.kAllowedErr + " RPM",
+				passed ? "" : "Shooter wheel did not reach target RPM");
+	}
+
+	private ValidationResult tiltResult(String checkName) {
+		double targetDeg = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
+		double measuredDeg = getTiltPos();
+		boolean passed = onTiltTarget();
+		return ValidationResult.of(
+				"Shooter",
+				checkName,
+				passed,
+				ValidationUtils.measurements(
+						"targetDeg", ValidationUtils.formatDouble(targetDeg),
+						"measuredDeg", ValidationUtils.formatDouble(measuredDeg),
+						"onTarget", Boolean.toString(passed)),
+				"+/- " + ShooterConstants.kPosAllowedErr + " deg",
+				passed ? "" : "Shooter tilt did not reach target angle");
+	}
+
+	private void safeValidationStop() {
+		setShooterVel(ShooterSP.OFF);
+		setTiltPos(TiltSP.MED);
+	}
+
+	@Override
+	public Command validateCommand() {
+		return Commands.sequence(
+				Commands.runOnce(validation::start),
+				validationStep(
+						"Wheel Velocity",
+						() -> setShooterVel(ShooterSP.MED),
+						this::onShooterTarget,
+						this::shooterVelocityResult,
+						() -> setShooterVel(ShooterSP.OFF)),
+				validationStep(
+						"Tilt High",
+						() -> setTiltPos(TiltSP.HI),
+						this::onTiltTarget,
+						() -> tiltResult("Tilt High"),
+						() -> {}),
+				validationStep(
+						"Tilt Medium",
+						() -> setTiltPos(TiltSP.MED),
+						this::onTiltTarget,
+						() -> tiltResult("Tilt Medium"),
+						() -> {}),
+				Commands.runOnce(validation::finish))
+				.finallyDo(interrupted -> {
+					safeValidationStop();
+					if (interrupted && validation.status() == ValidationStatus.RUNNING) {
+						validation.fail("Validation Interrupted", "Shooter validation was interrupted");
+						validation.finish();
+					}
+				});
+	}
+
+	@Override
+	public java.util.List<ValidationResult> validationResults() {
+		return validation.results();
+	}
+
+	@Override
+	public String validationSummary() {
+		return validation.summary();
+	}
+
+	@Override
+	public ValidationStatus validationStatus() {
+		return validation.status();
 	}
 }

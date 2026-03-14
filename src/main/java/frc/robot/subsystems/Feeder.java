@@ -21,14 +21,22 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.constants.FeederConstants;
+import frc.robot.constants.ValidationConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.SparkMaxSimulation;
+import frc.robot.validation.SubsystemValidation;
+import frc.robot.validation.ValidationResult;
+import frc.robot.validation.ValidationStatus;
+import frc.robot.validation.ValidationSupport;
+import frc.robot.validation.ValidationUtils;
 import edu.wpi.first.math.system.plant.DCMotor;
 
-public class Feeder extends SubsystemBase {
+public class Feeder extends SubsystemBase implements SubsystemValidation {
+  private final ValidationSupport validation = new ValidationSupport("Feeder");
   // ==============================================================
   // Define Feeder Motor
   // ==============================================================
@@ -311,5 +319,90 @@ public class Feeder extends SubsystemBase {
    */
   public boolean isFuelAvail() {
     return (getFuelDist() <= 21.0 || getFuelDist() >= 30.0);
+  }
+
+  private Command validationStep(
+      String checkName,
+      Runnable startAction,
+      java.util.function.BooleanSupplier passCondition,
+      java.util.function.Supplier<ValidationResult> resultSupplier,
+      Runnable cleanup) {
+    return Commands.sequence(
+        Commands.runOnce(startAction, this),
+        Commands.waitUntil(passCondition).withTimeout(ValidationConstants.Common.kMechanismTimeoutSec),
+        Commands.runOnce(() -> validation.addResult(resultSupplier.get()), this),
+        Commands.runOnce(cleanup, this));
+  }
+
+  private ValidationResult feederVelocityResult() {
+    double setpointRpm = getFeederSP(true);
+    double measuredRpm = getFeederVel(true);
+    boolean passed = onFeederTarget();
+    return ValidationResult.of(
+        "Feeder",
+        "Roller Velocity",
+        passed,
+        ValidationUtils.measurements(
+            "setpointRpm", ValidationUtils.formatDouble(setpointRpm),
+            "measuredRpm", ValidationUtils.formatDouble(measuredRpm),
+            "onTarget", Boolean.toString(passed)),
+        "+/- " + FeederConstants.kFeederAllowedErr + " RPM",
+        passed ? "" : "Feeder did not reach target RPM");
+  }
+
+  private ValidationResult sensorResult() {
+    double volts = getFuelVolts();
+    double distance = getFuelDist();
+    boolean inRange = ValidationUtils.isInRange(volts, 0.0, 5.0) && distance >= 0.0;
+    return ValidationResult.of(
+        "Feeder",
+        "Fuel Sensor Sanity",
+        inRange,
+        ValidationUtils.measurements(
+            "volts", ValidationUtils.formatDouble(volts),
+            "distanceIn", ValidationUtils.formatDouble(distance),
+            "fuelAvailable", Boolean.toString(isFuelAvail())),
+        "0-5V and non-negative distance",
+        inRange ? "" : "Feeder analog sensor returned an invalid reading");
+  }
+
+  private void safeValidationStop() {
+    setFeederVel(FeederSP.OFF);
+  }
+
+  @Override
+  public Command validateCommand() {
+    return Commands.sequence(
+            Commands.runOnce(validation::start),
+            validationStep(
+                "Roller Velocity",
+                () -> setFeederVel(FeederSP.HI),
+                this::onFeederTarget,
+                this::feederVelocityResult,
+                this::safeValidationStop),
+            Commands.runOnce(() -> validation.addResult(sensorResult()), this),
+            Commands.runOnce(validation::finish))
+        .finallyDo(interrupted -> {
+          safeValidationStop();
+          if (interrupted && validation.status() == ValidationStatus.RUNNING) {
+            validation.fail("Validation Interrupted", "Feeder validation was interrupted");
+            validation.finish();
+          }
+        });
+  }
+
+  @Override
+  public java.util.List<ValidationResult> validationResults() {
+    return validation.results();
+  }
+
+  @Override
+  public String validationSummary() {
+    return validation.summary();
+  }
+
+  @Override
+  public ValidationStatus validationStatus() {
+    return validation.status();
   }
 }
