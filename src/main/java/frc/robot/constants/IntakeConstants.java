@@ -43,12 +43,10 @@ public final class IntakeConstants {
 
 //	public static final double kTiltTolerance = 1.0; // degrees
 
-  public static final double kTiltGearRatio = (Constants.GearBox.Max5 * Constants.GearBox.Max5);
+  public static final double kTiltGearRatio = 1.0; // direct output, no extra belt reduction
 
-  
-	// IMPORTANT: Through-bore encoder is mounted on OUTPUT SHAFT, not motor shaft!
-	// Position factor converts OUTPUT shaft rotations to degrees
-	// 1 output rotation = 360 degrees (no gear ratio needed)
+	// IMPORTANT: Through-bore encoder is mounted on the geared-down OUTPUT SHAFT.
+	// Position factor converts output shaft rotations directly to degrees.
   public static final double kTiltPositionFactor = 360.0; // degrees per output rotation
   public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
