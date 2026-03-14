@@ -40,12 +40,11 @@ public final class ShooterConstants {
 
   // Position is returned in native units of rotations and will be multiplied by
 	// this conversion factor.
-  public static final double kTiltGearRatio = 3.0;  // 3.0 is pully ratio
+  public static final double kTiltGearRatio = 1.0; // direct output, no extra belt reduction
 
-	// IMPORTANT: Through-bore encoder is mounted on OUTPUT SHAFT, not motor shaft!
-	// Position factor converts OUTPUT shaft rotations to degrees
-	// 1 output rotation = 360 degrees (no gear ratio needed)
-  public static final double kTiltPositionFactor = 360.0 / kTiltGearRatio; // degrees per output rotation
+	// IMPORTANT: Through-bore encoder is mounted on the geared-down OUTPUT SHAFT.
+	// Position factor converts output shaft rotations directly to degrees.
+  public static final double kTiltPositionFactor = 360.0; // degrees per output rotation
   public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
   public static final double kP = 0.0002; // maxmotion 0.025;
