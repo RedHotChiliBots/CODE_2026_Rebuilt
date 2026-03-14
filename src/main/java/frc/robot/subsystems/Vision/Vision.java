@@ -38,11 +38,11 @@ public class Vision extends SubsystemBase implements SubsystemValidation {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
-  private int connectedCameraCount = 0;
-  private int totalTagCount = 0;
-  private int totalObservationCount = 0;
-  private int acceptedObservationCount = 0;
-  private int rejectedObservationCount = 0;
+  private int currentConnectedCameraCount = 0;
+  private int currentTagCount = 0;
+  private int currentObservationCount = 0;
+  private int currentAcceptedObservationCount = 0;
+  private int currentRejectedObservationCount = 0;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
@@ -74,11 +74,11 @@ public class Vision extends SubsystemBase implements SubsystemValidation {
 
   @Override
   public void periodic() {
-    connectedCameraCount = 0;
-    totalTagCount = 0;
-    totalObservationCount = 0;
-    acceptedObservationCount = 0;
-    rejectedObservationCount = 0;
+    currentConnectedCameraCount = 0;
+    currentTagCount = 0;
+    currentObservationCount = 0;
+    currentAcceptedObservationCount = 0;
+    currentRejectedObservationCount = 0;
 
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
@@ -96,9 +96,9 @@ public class Vision extends SubsystemBase implements SubsystemValidation {
       // Update disconnected alert
       disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
       if (inputs[cameraIndex].connected) {
-        connectedCameraCount++;
+        currentConnectedCameraCount++;
       }
-      totalTagCount += inputs[cameraIndex].tagIds.length;
+      currentTagCount += inputs[cameraIndex].tagIds.length;
 
       // Initialize logging values
       List<Pose3d> tagPoses = new LinkedList<>();
@@ -116,17 +116,17 @@ public class Vision extends SubsystemBase implements SubsystemValidation {
 
       // Loop over pose observations
       for (var observation : inputs[cameraIndex].poseObservations) {
-        totalObservationCount++;
+        currentObservationCount++;
         // Check whether to reject pose
         boolean rejectPose = shouldRejectObservation(observation);
 
         // Add pose to log
         robotPoses.add(observation.pose());
         if (rejectPose) {
-          rejectedObservationCount++;
+          currentRejectedObservationCount++;
           robotPosesRejected.add(observation.pose());
         } else {
-          acceptedObservationCount++;
+          currentAcceptedObservationCount++;
           robotPosesAccepted.add(observation.pose());
         }
 
@@ -195,49 +195,49 @@ public class Vision extends SubsystemBase implements SubsystemValidation {
   }
 
   public int getConnectedCameraCount() {
-    return connectedCameraCount;
+    return currentConnectedCameraCount;
   }
 
-  public int getTotalTagCount() {
-    return totalTagCount;
+  public int getCurrentTagCount() {
+    return currentTagCount;
   }
 
-  public int getTotalObservationCount() {
-    return totalObservationCount;
+  public int getCurrentObservationCount() {
+    return currentObservationCount;
   }
 
-  public int getAcceptedObservationCount() {
-    return acceptedObservationCount;
+  public int getCurrentAcceptedObservationCount() {
+    return currentAcceptedObservationCount;
   }
 
-  public int getRejectedObservationCount() {
-    return rejectedObservationCount;
+  public int getCurrentRejectedObservationCount() {
+    return currentRejectedObservationCount;
   }
 
   private ValidationResult cameraConnectivityResult() {
-    boolean passed = connectedCameraCount == io.length;
+    boolean passed = currentConnectedCameraCount == io.length;
     return ValidationResult.of(
         "Vision",
         "Camera Connectivity",
         passed,
         ValidationUtils.measurements(
-            "connected", Integer.toString(connectedCameraCount),
+            "connected", Integer.toString(currentConnectedCameraCount),
             "total", Integer.toString(io.length)),
         "all cameras connected",
         passed ? "" : "One or more cameras are disconnected");
   }
 
   private ValidationResult observationResult() {
-    boolean passed = totalObservationCount == 0 || acceptedObservationCount > 0;
+    boolean passed = currentObservationCount == 0 || currentAcceptedObservationCount > 0;
     return ValidationResult.of(
         "Vision",
         "Observation Sanity",
         passed,
         ValidationUtils.measurements(
-            "observations", Integer.toString(totalObservationCount),
-            "accepted", Integer.toString(acceptedObservationCount),
-            "rejected", Integer.toString(rejectedObservationCount),
-            "tags", Integer.toString(totalTagCount)),
+            "observations", Integer.toString(currentObservationCount),
+            "accepted", Integer.toString(currentAcceptedObservationCount),
+            "rejected", Integer.toString(currentRejectedObservationCount),
+            "tags", Integer.toString(currentTagCount)),
         "if observations exist, at least one should be accepted",
         passed ? "" : "Vision observations were present but none were accepted");
   }

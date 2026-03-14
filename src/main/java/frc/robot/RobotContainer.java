@@ -158,6 +158,7 @@ public class RobotContainer {
 		auton = new Autos(this, drivetrain, intake, feeder, shooter, climber);
 
 		configureValidationDashboard();
+		updateValidationDashboard();
 		configureBindings();
 
 	}
@@ -166,24 +167,32 @@ public class RobotContainer {
 		validationTab.add("Validate All", validateAllCommand())
 				.withPosition(5, 0)
 				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
-		validationTab.add("Validate Vision", vision.validateCommand())
+		validationTab.add("Validate Vision", trackedValidationCommand(vision))
 				.withPosition(5, 1)
 				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
-		validationTab.add("Validate Drive", drivetrain.validateCommand())
+		validationTab.add("Validate Drive", trackedValidationCommand(drivetrain))
 				.withPosition(5, 2)
 				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
-		validationTab.add("Validate Intake", intake.validateCommand())
+		validationTab.add("Validate Intake", trackedValidationCommand(intake))
 				.withPosition(5, 3)
 				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
-		validationTab.add("Validate Feeder", feeder.validateCommand())
+		validationTab.add("Validate Feeder", trackedValidationCommand(feeder))
 				.withPosition(5, 4)
 				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
-		validationTab.add("Validate Shooter", shooter.validateCommand())
+		validationTab.add("Validate Shooter", trackedValidationCommand(shooter))
 				.withPosition(5, 5)
 				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
-		validationTab.add("Validate Climber", climber.validateCommand())
+		validationTab.add("Validate Climber", trackedValidationCommand(climber))
 				.withPosition(5, 6)
 				.withProperties(java.util.Map.of("show_type", false, "maximize_button_space", false));
+	}
+
+	private Command trackedValidationCommand(SubsystemValidation subsystem) {
+		return Commands.sequence(
+				Commands.runOnce(this::updateValidationDashboard),
+				subsystem.validateCommand(),
+				Commands.runOnce(this::updateValidationDashboard))
+				.finallyDo(interrupted -> updateValidationDashboard());
 	}
 
 	private Command validateAllCommand() {
@@ -191,14 +200,16 @@ public class RobotContainer {
 				Commands.runOnce(() -> {
 					overallValidationStatus = ValidationStatus.RUNNING;
 					overallValidationSummary = "RUNNING - Robot must be on blocks.";
+					updateValidationDashboard();
 				}),
-				vision.validateCommand(),
-				drivetrain.validateCommand(),
-				intake.validateCommand(),
-				feeder.validateCommand(),
-				shooter.validateCommand(),
-				climber.validateCommand(),
+				trackedValidationCommand(vision),
+				trackedValidationCommand(drivetrain),
+				trackedValidationCommand(intake),
+				trackedValidationCommand(feeder),
+				trackedValidationCommand(shooter),
+				trackedValidationCommand(climber),
 				Commands.runOnce(this::refreshAggregateValidationStatus))
+				.finallyDo(interrupted -> updateValidationDashboard())
 				.withName("ValidateAllSubsystems");
 	}
 
