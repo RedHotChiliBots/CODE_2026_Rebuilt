@@ -6,7 +6,9 @@ Java robot code for the 2026 FRC game REBUILT
     * (4x) Krakan 60 - Drive motor
     * (4x) Krakan 44 - Turn motor
         * CANEncoders
-
+* Power Distribution
+    * (1x) CTRE PDP
+    
 **2. Intake**
 * Motors / Encoders
     * (1x) NEO - Intake

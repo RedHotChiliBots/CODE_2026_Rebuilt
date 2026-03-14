@@ -37,8 +37,8 @@ public final class Constants {
   }
 
   public static final class CANId {
-    public static final int kPDHCanID = 1;
-    public static final int kServoHubCanId = 2;
+    public static final int kPDPCanID = 1;
+    public static final int kServoHubCanId = 0;
 
     public static final int kClimber1CanId = 40;
     public static final int kClimber2CanId = 41;

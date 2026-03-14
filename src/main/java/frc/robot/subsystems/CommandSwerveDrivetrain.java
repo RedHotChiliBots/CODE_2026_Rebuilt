@@ -74,8 +74,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     RobotConfig config = null;
 
-    private PowerDistribution pdh = new PowerDistribution(CANId.kPDHCanID, ModuleType.kRev);
-
+    private PowerDistribution pdp = new PowerDistribution(CANId.kPDPCanID, ModuleType.kCTRE);
+ 
     /*
      * SysId routine for characterizing translation. This is used to find PID gains
      * for the drive motors.
@@ -188,8 +188,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(CommandSwerveDrivetrainConstants.kStartPose);
         SmartDashboard.putData("Field", m_field);
 
-        configPDH();
-        configPDH();
+        configPDP();
         configPigeon();
         setupAutoBuilder();
     }
@@ -221,8 +220,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(CommandSwerveDrivetrainConstants.kStartPose);
         SmartDashboard.putData("Field", m_field);
 
-        configPDH();
-        configPDH();
+        configPDP();
         configPigeon();
         setupAutoBuilder();
     }
@@ -269,8 +267,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(CommandSwerveDrivetrainConstants.kStartPose);
         SmartDashboard.putData("Field", m_field);
 
-        configPDH();
-        configPDH();
+        configPDP();
         configPigeon();
         setupAutoBuilder();
     }
@@ -415,9 +412,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     }
 
-    private void configPDH() {
-        // Initialize Rev PDH
-        pdh.clearStickyFaults();
+    private void configPDP() {
+        // Clear sticky faults on the CTRE PDP during startup
+        pdp.clearStickyFaults();
     }
 
     private void configPigeon() {
@@ -471,16 +468,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
-    public PowerDistribution getPDH() {
-        return pdh;
-    }
-
-    public void setChannelOn() {
-        pdh.setSwitchableChannel(true);
-    }
-
-    public void setChannelOff() {
-        pdh.setSwitchableChannel(false);
+    public PowerDistribution getPDP() {
+        return pdp;
     }
 
     public Pose2d getPose() {
