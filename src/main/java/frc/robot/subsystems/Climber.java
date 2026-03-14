@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.servohub.ServoChannel;
 import com.revrobotics.servohub.ServoChannel.ChannelId;
@@ -173,6 +174,10 @@ public class Climber extends SubsystemBase {
         .i(ClimberConstants.kPosI)
         .d(ClimberConstants.kPosD)
         .outputRange(ClimberConstants.kPosMinOutput, ClimberConstants.kPosMaxOutput);
+    climber1Config.signals
+        .primaryEncoderVelocityPeriodMs(ClimberConstants. kPrimaryEncoderVelocityPeriod)
+        .primaryEncoderPositionPeriodMs(ClimberConstants.kPrimaryEncoderPositionPeriod)
+        .absoluteEncoderPositionPeriodMs(ClimberConstants.kAbsoluteEncoderPositionPeriod);
 
     climber2Config.follow(ClimberConstants.kClimber1CanId); // Mimics climber1
     climber3Config.follow(ClimberConstants.kClimber1CanId);

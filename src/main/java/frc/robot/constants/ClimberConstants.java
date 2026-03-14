@@ -52,5 +52,12 @@ public final class ClimberConstants {
   public static final double kClimberTolerance = 0.5; // degrees
   public static final double kHookTolerance = 0.5; // degrees
 
+  //Signal Config
+  public static final int kPrimaryEncoderVelocityPeriod = 10; 
+  public static final int kPrimaryEncoderPositionPeriod = 20; 
+  public static final int kAbsoluteEncoderPositionPeriod = 200; 
+
   private ClimberConstants() {}
+
 }
+

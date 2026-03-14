@@ -73,5 +73,10 @@ public final class IntakeConstants {
   
   public static final int kTiltCurrentLimit = 50; // amps
 
+  //Signal Config
+  public static final int kPrimaryEncoderVelocityPeriod = 10; 
+  public static final int kPrimaryEncoderPositionPeriod = 20; 
+  public static final int kAbsoluteEncoderPositionPeriod = 200; 
+
   private IntakeConstants() {}
 }

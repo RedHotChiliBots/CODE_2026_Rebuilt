@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.Map;
 
+import com.pathplanner.lib.config.RobotConfig;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.constants.CommandSwerveDrivetrainConstants;
 import frc.robot.constants.FeederConstants;
 import frc.robot.utils.Library;
 import frc.robot.utils.SparkMaxSimulation;
@@ -153,6 +155,10 @@ public class Feeder extends SubsystemBase {
         .cruiseVelocity(FeederConstants.kFeederMaxVel)
         .maxAcceleration(FeederConstants.kFeederMaxAccel)
         .allowedProfileError(FeederConstants.kFeederAllowedErr);
+    feederConfig.signals
+        .primaryEncoderVelocityPeriodMs(FeederConstants. kPrimaryEncoderVelocityPeriod)
+        .primaryEncoderPositionPeriodMs(FeederConstants.kPrimaryEncoderPositionPeriod)
+        .absoluteEncoderPositionPeriodMs(FeederConstants.kAbsoluteEncoderPositionPeriod);
 
     feeder.configure(
         feederConfig,
