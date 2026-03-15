@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5215882352941152,
-        "y": 3.0746470588235297
+        "x": 3.240272727272727,
+        "y": 0.6852840909090911
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.401911764705883,
-        "y": 2.6078088235294126
+        "x": 4.120596256684495,
+        "y": 0.21844585561497415
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.122544117647058,
-        "y": 1.7941764705882361
+        "x": 6.600295454545455,
+        "y": 1.0769431818181818
       },
       "prevControl": {
-        "x": 5.015470588235291,
-        "y": 2.287691176470588
+        "x": 5.342863636363636,
+        "y": 0.5925227272727276
       },
       "nextControl": {
-        "x": 7.072536386143515,
-        "y": 1.370685941258492
+        "x": 7.570872692638065,
+        "y": 1.4508540850177938
       },
       "isLocked": false,
       "linkedName": null
@@ -36,12 +36,12 @@
         "y": 1.9423368920521953
       },
       "prevControl": {
-        "x": 7.696455882352939,
-        "y": 1.1005882352941183
+        "x": 7.373306818181818,
+        "y": 1.3139999999999998
       },
       "nextControl": {
-        "x": 7.729673174458992,
-        "y": 3.0883946920339636
+        "x": 8.252547331052744,
+        "y": 2.9522991348197154
       },
       "isLocked": false,
       "linkedName": null
@@ -64,32 +64,32 @@
     },
     {
       "anchor": {
-        "x": 6.322617647058823,
-        "y": 6.07575
+        "x": 6.043727272727272,
+        "y": 7.43625
       },
       "prevControl": {
-        "x": 6.7494411764705875,
-        "y": 6.222470588235295
+        "x": 6.470550802139037,
+        "y": 7.582970588235295
       },
       "nextControl": {
-        "x": 5.271241206671481,
-        "y": 5.714339348616851
+        "x": 4.99235083233993,
+        "y": 7.074839348616851
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.5215882352941152,
-        "y": 5.155411764705882
+        "x": 3.240272727272727,
+        "y": 7.199193181818182
       },
       "prevControl": {
-        "x": 3.810211304952375,
-        "y": 5.244185422404208
+        "x": 3.528895796930987,
+        "y": 7.287966839516509
       },
       "nextControl": {
-        "x": 2.76932933650447,
-        "y": 4.924034646928211
+        "x": 2.4880138284830817,
+        "y": 6.967816064040512
       },
       "isLocked": false,
       "linkedName": null
@@ -138,31 +138,31 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Shoot Start",
+      "name": "",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "Start Intake Fuel",
+      "name": "",
       "waypointRelativePos": 1.0,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "Stop Intake Fuel",
+      "name": "",
       "waypointRelativePos": 3.0,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "Shoot End",
+      "name": "",
       "waypointRelativePos": 5.0,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "Climb",
+      "name": "",
       "waypointRelativePos": 6.0,
       "endWaypointRelativePos": null,
       "command": null
@@ -181,7 +181,7 @@
     "rotation": -0.6160599084595819
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Seifert Paths",
   "idealStartingState": {
     "velocity": 0.0,
     "rotation": 47.385944030388636

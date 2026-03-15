@@ -1,0 +1,178 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.9308295454545457,
+        "y": 7.395022727273176
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.8059252988451107,
+        "y": 7.618945594845556
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.580159090911745,
+        "y": 7.395022727273176
+      },
+      "prevControl": {
+        "x": 4.233400184998378,
+        "y": 7.386364505668567
+      },
+      "nextControl": {
+        "x": 5.191798487889029,
+        "y": 7.410294748700254
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.311465909093563,
+        "y": 7.395022727273176
+      },
+      "prevControl": {
+        "x": 6.469785809126506,
+        "y": 7.419614331960706
+      },
+      "nextControl": {
+        "x": 8.227630872005342,
+        "y": 7.368254877353267
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.610363636366289,
+        "y": 4.292670454545904
+      },
+      "prevControl": {
+        "x": 7.65508429854273,
+        "y": 5.555592816032773
+      },
+      "nextControl": {
+        "x": 7.571561287875678,
+        "y": 3.196882708969647
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.713670454548109,
+        "y": 7.395022727273176
+      },
+      "prevControl": {
+        "x": 9.063625000002652,
+        "y": 7.322875000000449
+      },
+      "nextControl": {
+        "x": 3.7960489365979924,
+        "y": 7.484598826508487
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.0959772727299257,
+        "y": 4.478193181818631
+      },
+      "prevControl": {
+        "x": 0.11730681818447097,
+        "y": 7.869136363636812
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 2.277945619335344,
+      "rotationDegrees": -91.05284909319322
+    },
+    {
+      "waypointRelativePos": 4.176737160120846,
+      "rotationDegrees": -91.26003706845377
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Slow down for intaking",
+      "minWaypointRelativePos": 2.2641509433962255,
+      "maxWaypointRelativePos": 3.0874785591766702,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "IntakeTiltDeploy",
+      "waypointRelativePos": 2.2041166380789026,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "IntakeMed",
+      "waypointRelativePos": 2.4185248713550562,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "IntakeTiltStow",
+      "waypointRelativePos": 2.9331046312178346,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "IntakeOff",
+      "waypointRelativePos": 3.0360205831903944,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "ShooterMed",
+      "waypointRelativePos": 3.1303602058319018,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "FeederMed",
+      "waypointRelativePos": 4.957118353344768,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -24.77514056894991
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -91.30195267257888
+  },
+  "useDefaultConstraints": true
+}

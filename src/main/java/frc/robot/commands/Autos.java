@@ -116,13 +116,15 @@ public class Autos {
     NamedCommands.registerCommand("TiltLow", shooter.setTilt(Shooter.TiltSP.LOW));
     NamedCommands.registerCommand("TiltMed", shooter.setTilt(Shooter.TiltSP.MED));
     NamedCommands.registerCommand("TiltHi", shooter.setTilt(Shooter.TiltSP.HI));
+    // NamedCommands.registerCommand("AutoFeed", shooter.AutoFeed(Shooter.ShooterSP.MED));
+    // NamedCommands.registerCommand("ShooterIdle", shooter.ShooterIdle());
 
     NamedCommands.registerCommand("IntakeOff", intake.setIntake(Intake.IntakeSP.OFF));
     NamedCommands.registerCommand("IntakeLow", intake.setIntake(Intake.IntakeSP.LOW));
     NamedCommands.registerCommand("IntakeMed", intake.setIntake(Intake.IntakeSP.MED));
     NamedCommands.registerCommand("IntakeHi", intake.setIntake(Intake.IntakeSP.HI));
-    NamedCommands.registerCommand("TiltStow", intake.setTilt(Intake.TiltSP.STOW));
-    NamedCommands.registerCommand("TiltDeploy", intake.setTilt(Intake.TiltSP.DEPLOY));
+    NamedCommands.registerCommand("IntakeTiltStow", intake.setTilt(Intake.TiltSP.STOW));
+    NamedCommands.registerCommand("IntakeTiltDeploy", intake.setTilt(Intake.TiltSP.DEPLOY));
 
     NamedCommands.registerCommand("FeederOff", feeder.setFeeder(Feeder.FeederSP.OFF));
     NamedCommands.registerCommand("FeederLow", feeder.setFeeder(Feeder.FeederSP.LOW));

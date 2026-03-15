@@ -102,25 +102,25 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Shoot Start",
+      "name": "",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "Start Intake Fuel",
+      "name": "",
       "waypointRelativePos": 1.0,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "Stop Intake Fuel",
+      "name": "",
       "waypointRelativePos": 2.0,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "Shoot End",
+      "name": "",
       "waypointRelativePos": 4,
       "endWaypointRelativePos": null,
       "command": null
@@ -139,7 +139,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Seifert Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 32.5

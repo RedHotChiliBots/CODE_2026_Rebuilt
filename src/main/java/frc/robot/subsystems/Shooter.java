@@ -25,15 +25,22 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.constants.ShooterConstants;
+import frc.robot.subsystems.Feeder;
 import frc.robot.utils.Library;
 import frc.robot.utils.ShooterBallistics;
 import frc.robot.utils.SparkMaxSimulation;
 import edu.wpi.first.math.system.plant.DCMotor;
 
 public class Shooter extends SubsystemBase {
+
+	private final Feeder feeder;
+
 	// ==============================================================
 	// Define Shooter & Tilt Motors
 	// ==============================================================
@@ -155,8 +162,10 @@ public class Shooter extends SubsystemBase {
 	// ==============================================================
 	// Constructor
 	// ==============================================================
-	public Shooter(CommandSwerveDrivetrain drivetrain) {
+	public Shooter(CommandSwerveDrivetrain drivetrain, Feeder feeder) {
 		System.out.println("+++++ Starting Shooter Constructor +++++");
+
+		this.feeder = feeder; // Create feeder instance (used for auto-feeding command)
 
     	this.drivetrain = Objects.requireNonNull(drivetrain, "drivetrain cannot be null");
 
@@ -337,6 +346,21 @@ public class Shooter extends SubsystemBase {
 		return new ParallelCommandGroup(
 				setTilt(getAutoTilt()),
 				setShooter(getAutoShoot()));
+	}
+
+	public SequentialCommandGroup AutoFeed(Shooter.ShooterSP shooterSP) {
+		return new SequentialCommandGroup(
+				new RunCommand (() -> setShooter(shooterSP)), // Power shooter
+				new WaitUntilCommand(() -> onShooterTarget()), // Wait until shooter is at target velocity
+				new RunCommand(() -> feeder.setFeederSP(Feeder.FeederSP.HI)) // Then run feeder at HI speed
+		);
+	}
+
+	public SequentialCommandGroup ShooterIdle(){
+		return new SequentialCommandGroup(
+			new RunCommand(() -> setShooter(ShooterSP.MED)), // Runs the shooter at medium speed
+			new RunCommand(() -> feeder.setFeederSP(Feeder.FeederSP.OFF)) // Turns off the feeder
+		);
 	}
 
 	// ==============================================================

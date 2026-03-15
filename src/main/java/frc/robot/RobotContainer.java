@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -111,7 +112,7 @@ public class RobotContainer {
 	public RobotContainer() {
 		intake = new Intake();
 		feeder = new Feeder();
-		shooter = new Shooter(drivetrain);
+		shooter = new Shooter(drivetrain, feeder);
 		climber = new Climber();
 		vision = new Vision(drivetrain::addVisionMeasurement,
 				new VisionIOPhotonVision(VisionConstants.camera0Name, VisionConstants.robotToCamera0),
@@ -119,6 +120,7 @@ public class RobotContainer {
 				new VisionIOPhotonVision(VisionConstants.camera2Name, VisionConstants.robotToCamera2),
 				new VisionIOPhotonVision(VisionConstants.camera3Name, VisionConstants.robotToCamera3));
 		auton = new Autos(this, drivetrain, intake, feeder, shooter, climber);
+		NamedCommands.registerCommand("exampleCommand", climber.deployHooks());
 
 		configureBindings();
 
@@ -137,7 +139,7 @@ public class RobotContainer {
 						// Drive counterclockwise with negative X (left)
 						.withRotationalRate(driverController.getRightX() * MaxAngularRate)));
 
-		// Track Hub when A button is held
+		// Track Hub when left bumper button is held
 		driverController.leftBumper().toggleOnTrue(
 				new ParallelCommandGroup(
 						// shooter.setShooter(shooter.getAutoShoot()).andThen(

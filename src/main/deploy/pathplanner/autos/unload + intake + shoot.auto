@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoFeed"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShooterIdle"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1 left side shooting to intaking"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 Intake fuel top blue"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 return to hub and fire"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
