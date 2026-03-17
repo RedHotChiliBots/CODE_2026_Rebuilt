@@ -25,7 +25,10 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.utils.Library;
@@ -55,6 +58,7 @@ public class Shooter extends SubsystemBase {
 	private AbsoluteEncoder tiltEncoder = tilt.getAbsoluteEncoder();
 
 	private CommandSwerveDrivetrain drivetrain = null;
+	private Feeder feeder = null;
 
 	// Simulation objects
 	private SparkMaxSimulation leftShooterSim;
@@ -87,9 +91,9 @@ public class Shooter extends SubsystemBase {
 
 	// The Tilt SP is in degrees
 	public enum TiltSP {
-		LOW(-10.0),
-		MED(0.0),
-		HI(10.0);
+		LOW(0.0),
+		MED(40.0),
+		HI(80.0);
 
 		private double pos;
 
@@ -109,7 +113,7 @@ public class Shooter extends SubsystemBase {
 	private double shooterSPDbl = 0.0;
 	private boolean shooterSpIsCustom = false;
 
-	private TiltSP tiltSP = TiltSP.MED;
+	private TiltSP tiltSP = TiltSP.LOW;
 	private double tiltSPDbl = 0.0;
 	private boolean tiltSpIsCustom = false;
 
@@ -155,10 +159,12 @@ public class Shooter extends SubsystemBase {
 	// ==============================================================
 	// Constructor
 	// ==============================================================
-	public Shooter(CommandSwerveDrivetrain drivetrain) {
+	public Shooter(CommandSwerveDrivetrain drivetrain, Feeder feeder) {
 		System.out.println("+++++ Starting Shooter Constructor +++++");
 
-    	this.drivetrain = Objects.requireNonNull(drivetrain, "drivetrain cannot be null");
+		this.feeder = feeder; // Create feeder instance (used for auto-feeding command)
+
+		this.drivetrain = Objects.requireNonNull(drivetrain, "drivetrain cannot be null");
 
 		// Configure Left Shooter motor
 		leftConfig
@@ -213,6 +219,11 @@ public class Shooter extends SubsystemBase {
 				.d(ShooterConstants.kPosD)
 				.outputRange(ShooterConstants.kPosMinOutput, ShooterConstants.kPosMaxOutput)
 				.positionWrappingEnabled(ShooterConstants.kTiltEncodeWrapping);
+		tiltConfig.closedLoop.feedForward
+				.kS(ShooterConstants.kPosS)
+				.kV(ShooterConstants.kPosV)
+				.kG(ShooterConstants.kPosG);
+		// .kA(ShooterConstants.kPosA);
 		tiltConfig.closedLoop.maxMotion
 				.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
 				.cruiseVelocity(ShooterConstants.kPosMaxVel)
@@ -241,7 +252,7 @@ public class Shooter extends SubsystemBase {
 
 		// Initialize intake start positions
 		setShooterVel(ShooterSP.OFF);
-		setTiltPos(TiltSP.MED);
+		setTiltPos(TiltSP.LOW);
 
 		// Initialize simulation
 		if (Constants.currentMode == Constants.Mode.SIM) {
@@ -313,10 +324,11 @@ public class Shooter extends SubsystemBase {
 	}
 
 	/**
-	 * Creates a command to automatically shoot with specified tilt and shooter velocity.
+	 * Creates a command to automatically shoot with specified tilt and shooter
+	 * velocity.
 	 * Runs tilt and shooter commands in parallel.
 	 *
-	 * @param tiltDeg The desired tilt angle in degrees
+	 * @param tiltDeg    The desired tilt angle in degrees
 	 * @param shooterRpm The desired shooter velocity in RPM
 	 * @return A parallel command group that sets both tilt and shooter
 	 */
@@ -328,15 +340,32 @@ public class Shooter extends SubsystemBase {
 
 	/**
 	 * Creates a command to automatically shoot using ballistics calculations.
-	 * Calculates optimal tilt angle and shooter velocity based on distance to target.
+	 * Calculates optimal tilt angle and shooter velocity based on distance to
+	 * target.
 	 * Runs tilt and shooter commands in parallel.
 	 *
-	 * @return A parallel command group that sets both tilt and shooter to calculated values
+	 * @return A parallel command group that sets both tilt and shooter to
+	 *         calculated values
 	 */
 	public Command autoShoot() {
 		return new ParallelCommandGroup(
 				setTilt(getAutoTilt()),
 				setShooter(getAutoShoot()));
+	}
+
+	public SequentialCommandGroup AutoFeed(Shooter.ShooterSP shooterSP) {
+		return new SequentialCommandGroup(
+				new RunCommand(() -> setShooter(shooterSP)), // Power shooter
+				new WaitUntilCommand(() -> onShooterTarget()), // Wait until shooter is at target velocity
+				new RunCommand(() -> feeder.setFeederSP(Feeder.FeederSP.HI)) // Then run feeder at HI speed
+		);
+	}
+
+	public SequentialCommandGroup ShooterIdle() {
+		return new SequentialCommandGroup(
+				new RunCommand(() -> setShooter(ShooterSP.MED)), // Runs the shooter at medium speed
+				new RunCommand(() -> feeder.setFeederSP(Feeder.FeederSP.OFF)) // Turns off the feeder
+		);
 	}
 
 	// ==============================================================
@@ -360,7 +389,8 @@ public class Shooter extends SubsystemBase {
 		// Gives you live visibility of what the solver wants to do,
 		// without actually commanding anything unless you call autoShoot().
 		if (drivetrain != null) {
-			var auto = ShooterBallistics.solveStationary(drivetrain.getDistToHub(), ShooterConstants.kBallisticsCoefficient);
+			var auto = ShooterBallistics.solveStationary(drivetrain.getDistToHub(),
+					ShooterConstants.kBallisticsCoefficient);
 			sbAutoFeasible.setBoolean(auto.feasible());
 			sbAutoAngleDeg
 					.setDouble(Library.SBFormat(auto.feasible() ? auto.angleDeg() : ShooterBallistics.kMinAngleDeg));
@@ -374,7 +404,7 @@ public class Shooter extends SubsystemBase {
 		if (leftShooterSim != null) {
 			leftShooterSim.update(getShooterSP(true), 0.02);
 		}
-		
+
 		if (tiltSim != null) {
 			double target = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
 			tiltSim.update(target, 0.02);
@@ -389,7 +419,8 @@ public class Shooter extends SubsystemBase {
 	 * Calculates the optimal shooter velocity for the current distance to target.
 	 * Uses ballistics solver to determine required wheel RPM based on distance.
 	 *
-	 * @return The calculated shooter velocity in RPM, or 0.0 if calculation fails or drivetrain is null
+	 * @return The calculated shooter velocity in RPM, or 0.0 if calculation fails
+	 *         or drivetrain is null
 	 */
 	public double getAutoShoot() {
 		if (drivetrain == null)
@@ -502,7 +533,8 @@ public class Shooter extends SubsystemBase {
 	}
 
 	/**
-	 * Sets the shooter velocity to a preset setpoint and commands the motor controller.
+	 * Sets the shooter velocity to a preset setpoint and commands the motor
+	 * controller.
 	 * Uses MAXMotion velocity control for smooth acceleration.
 	 *
 	 * @param sp The preset shooter velocity setpoint
@@ -513,7 +545,8 @@ public class Shooter extends SubsystemBase {
 	}
 
 	/**
-	 * Sets the shooter velocity to a custom RPM value and commands the motor controller.
+	 * Sets the shooter velocity to a custom RPM value and commands the motor
+	 * controller.
 	 * Uses MAXMotion velocity control for smooth acceleration.
 	 *
 	 * @param sp The desired shooter velocity in RPM
@@ -530,13 +563,15 @@ public class Shooter extends SubsystemBase {
 	 * @return The current shooter velocity in the requested units
 	 */
 	public double getShooterVel(boolean rpm) {
-		return rpm ? leftEncoder.getVelocity() : Library.rpmToPct(leftEncoder.getVelocity(), ShooterConstants.kShooterMotorFreeSpeedRpm);
+		return rpm ? leftEncoder.getVelocity()
+				: Library.rpmToPct(leftEncoder.getVelocity(), ShooterConstants.kShooterMotorFreeSpeedRpm);
 	}
 
 	/**
 	 * Gets the name of the current tilt setpoint for display purposes.
 	 *
-	 * @return "Degrees" if using custom angle, otherwise the enum name (LOW, MED, HI)
+	 * @return "Degrees" if using custom angle, otherwise the enum name (LOW, MED,
+	 *         HI)
 	 */
 	public String getTiltSPName() {
 		return tiltSpIsCustom ? "Degrees" : tiltSP.name();
@@ -592,7 +627,8 @@ public class Shooter extends SubsystemBase {
 	}
 
 	/**
-	 * Sets the tilt position to a preset setpoint and commands the motor controller.
+	 * Sets the tilt position to a preset setpoint and commands the motor
+	 * controller.
 	 * Validates the position is within safe mechanical limits before commanding.
 	 * Uses MAXMotion position control for smooth motion.
 	 *
