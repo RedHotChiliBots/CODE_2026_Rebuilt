@@ -46,8 +46,6 @@ public class Autos {
   private Command resetOdo;
   private Command autoLeave;
 
-  private Command hooksStow;
-  private Command hooksDeploy;
   private Command autoShoot;
 
   private Command climberStow;
@@ -101,12 +99,10 @@ public class Autos {
     // before defining the Auto command
     // NamedCommands.registerCommand("resetPose", resetPose);
     // NamedCommands.registerCommand("resetOdo", resetOdo);
-    NamedCommands.registerCommand("HookDeploy", climber.deployHooks());
-    NamedCommands.registerCommand("HookStow", climber.stowHooks());
-    NamedCommands.registerCommand("ClimberAuto", climber.setClimber(Climber.ClimberSP.LVLAUTON));
+    
+    
     NamedCommands.registerCommand("ClimberL1", climber.setClimber(Climber.ClimberSP.LVL1));
-    NamedCommands.registerCommand("ClimberL2", climber.setClimber(Climber.ClimberSP.LVL2));
-    NamedCommands.registerCommand("ClimberL3", climber.setClimber(Climber.ClimberSP.LVL3));
+    
     NamedCommands.registerCommand("ClimberStow", climber.setClimber(Climber.ClimberSP.STOW));
 
     NamedCommands.registerCommand("ShooterOff", shooter.setShooter(Shooter.ShooterSP.OFF));

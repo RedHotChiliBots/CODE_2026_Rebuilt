@@ -111,7 +111,7 @@ public class RobotContainer {
 	public RobotContainer() {
 		intake = new Intake();
 		feeder = new Feeder();
-		shooter = new Shooter(drivetrain);
+		shooter = new Shooter(drivetrain, feeder);
 		climber = new Climber();
 		vision = new Vision(drivetrain::addVisionMeasurement,
 				new VisionIOPhotonVision(VisionConstants.camera0Name, VisionConstants.robotToCamera0),

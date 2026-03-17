@@ -12,8 +12,9 @@ import frc.robot.subsystems.Shooter.TiltSP;
 
 public class ShooterTest {
 
-        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-        private final Shooter shooter = new Shooter(drivetrain);
+        private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        private final Feeder feeder = null;
+        private final Shooter shooter = new Shooter(drivetrain, feeder);
 
         @Test
         @DisplayName("Shooter")
