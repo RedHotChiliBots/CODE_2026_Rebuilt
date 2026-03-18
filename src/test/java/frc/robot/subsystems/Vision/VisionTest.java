@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.subsystems.Vision.VisionIO.PoseObservation;
@@ -98,5 +99,19 @@ public class VisionTest {
 
         assertEquals(1, callCount.get());
         assertEquals(pose.toPose2d(), acceptedPose.get());
+    }
+
+    @Test
+    @DisplayName("Reject Rule Rejects Out Of Bounds Pose")
+    void rejectRuleRejectsOutOfBoundsPose() {
+        PoseObservation observation = new PoseObservation(
+                1.0,
+                new Pose3d(-0.1, 0.0, 0.0, new Rotation3d()),
+                0.0,
+                2,
+                1.0,
+                PoseObservationType.PHOTONVISION);
+
+        assertEquals(true, Vision.shouldRejectObservation(observation));
     }
 }

@@ -6,14 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import frc.robot.constants.ShooterConstants;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Shooter.ShooterSP;
 import frc.robot.subsystems.Shooter.TiltSP;
 
 public class ShooterTest {
 
-        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-        private final Shooter shooter = new Shooter(drivetrain);
+        private final Shooter shooter = new Shooter(null);
 
         @Test
         @DisplayName("Shooter")
