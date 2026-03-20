@@ -12,7 +12,6 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.networktables.GenericEntry;
@@ -148,11 +147,11 @@ public class Feeder extends SubsystemBase {
         .outputRange(FeederConstants.kFeederMinOutput, FeederConstants.kFeederMaxOutput);
     feederConfig.closedLoop.feedForward
         .kA(FeederConstants.kFeederVelFF);
-    feederConfig.closedLoop.maxMotion
-        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-        .cruiseVelocity(FeederConstants.kFeederMaxVel)
-        .maxAcceleration(FeederConstants.kFeederMaxAccel)
-        .allowedProfileError(FeederConstants.kFeederAllowedErr);
+    // feederConfig.closedLoop.maxMotion
+    //     .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+    //     .cruiseVelocity(FeederConstants.kFeederMaxVel)
+    //     .maxAcceleration(FeederConstants.kFeederMaxAccel)
+    //     .allowedProfileError(FeederConstants.kFeederAllowedErr);
 
     feeder.configure(
         feederConfig,
@@ -262,7 +261,7 @@ public class Feeder extends SubsystemBase {
    */
   public void setFeederVel(FeederSP sp) {
     setFeederSP(sp);
-    feederController.setSetpoint(getFeederSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
+    feederController.setSetpoint(getFeederSP(true), SparkBase.ControlType.kVelocity);  // kMAXMotionVelocityControl);
   }
 
   /**

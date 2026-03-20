@@ -135,7 +135,7 @@ public class RobotContainer {
 						// Drive left with negative X (left)
 						.withVelocityY(-driverController.getLeftX() * MaxSpeed)
 						// Drive counterclockwise with negative X (left)
-						.withRotationalRate(driverController.getRightX() * MaxAngularRate)));
+						.withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
 
 		// Track Hub when A button is held
 		driverController.leftBumper().toggleOnTrue(

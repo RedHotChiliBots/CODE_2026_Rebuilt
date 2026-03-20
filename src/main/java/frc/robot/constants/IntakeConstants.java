@@ -35,8 +35,8 @@ public final class IntakeConstants {
   public static final double kIntakeMaxOutput = 1.0;
 
   // Aggressive (Fast, Less Smooth)
-  public static final double kIntakeMaxVel = 5000.0; // RPM (~88% of NEO max)
-  public static final double kIntakeMaxAccel = 16000.0; // RPM/sec (0.3125 sec to full speed)
+  // public static final double kIntakeMaxVel = 5000.0; // RPM (~88% of NEO max)
+  // public static final double kIntakeMaxAccel = 16000.0; // RPM/sec (0.3125 sec to full speed)
   public static final double kIntakeAllowedErr = 50.0; // RPM
 
   public static final int kIntakeCurrentLimit = 50; // amps
@@ -50,20 +50,25 @@ public final class IntakeConstants {
   public static final double kTiltPositionFactor = 360.0; // degrees per output rotation
   public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
-  public static final double kTiltZeroOffset = 0.4019657;
+  public static final double kTiltZeroOffset = 0.7301405;
   public static final boolean kTiltZeroCentered = true;
-  public static final boolean kTiltMotorInverted = false;
+  public static final boolean kTiltMotorInverted = true;
   public static final boolean kTiltEncoderInverted = false;
 
-  public static final double kTiltP = 0.8; // maxmotion 0.025;
+  // From Shooter Tilt
+  // public static final double kPosP = 0.07; //.035   // 0.8
+  // public static final double kPosI = 0.0;
+  // public static final double kPosD = 0.225;   // 0.1
+
+  public static final double kTiltP = 0.07; // maxmotion 0.025;
   public static final double kTiltI = 0.0; // maxmotion 0.0
-  public static final double kTiltD = 0.1; // maxmotion 0.0
-  public static final double kTiltMinOutput = -1.0;
-  public static final double kTiltMaxOutput = 1.0;
+  public static final double kTiltD = 0.225; // maxmotion 0.0
+  public static final double kTiltMinOutput = -0.25;
+  public static final double kTiltMaxOutput = 0.25;
 
   // Moderate (Balanced)
-  public static final double kTiltMaxVel = 120.0; // degrees/sec (~1.7 sec for full 80° travel)
-  public static final double kTiltMaxAccel = 240.0; // degrees/sec² (0.5 sec to max speed)
+  // public static final double kTiltMaxVel = 120.0; // degrees/sec (~1.7 sec for full 80° travel)
+  // public static final double kTiltMaxAccel = 240.0; // degrees/sec² (0.5 sec to max speed)
   public static final double kTiltAllowedErr = 1.0; // degrees
 
   public static final IdleMode kTiltIdleMode = IdleMode.kBrake;

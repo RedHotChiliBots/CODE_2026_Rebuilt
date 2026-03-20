@@ -36,8 +36,8 @@ public final class FeederConstants {
   public static final double kFeederMaxOutput = 1.0;
 
   // Moderate (Balanced)
-  public static final double kFeederMaxVel = 4000.0; // RPM (~70% of NEO max)
-  public static final double kFeederMaxAccel = 10000.0; // RPM/sec (0.4 sec to full speed)
+  // public static final double kFeederMaxVel = 4000.0; // RPM (~70% of NEO max)
+  // public static final double kFeederMaxAccel = 10000.0; // RPM/sec (0.4 sec to full speed)
   public static final double kFeederAllowedErr = 75.0; // RPM
   
   public static final int kFeederCurrentLimit = 50; // amps

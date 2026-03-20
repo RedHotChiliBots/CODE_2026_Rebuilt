@@ -14,7 +14,6 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.networktables.GenericEntry;
@@ -78,8 +77,8 @@ public class Intake extends SubsystemBase {
 
   // The Tilt SP is in degrees
   public enum TiltSP {
-    STOW(0.0),
-    DEPLOY(80.0);
+    STOW(90.0),
+    DEPLOY(0.0);
 
     private double pos;
 
@@ -94,7 +93,7 @@ public class Intake extends SubsystemBase {
 
   // Define motor setpoints
   private IntakeSP intakeSP = IntakeSP.OFF;
-  private TiltSP tiltSP = TiltSP.STOW;
+  private TiltSP tiltSP = TiltSP.DEPLOY;
 
   // ==============================================================
   // Initialize Dashboard entries
@@ -148,11 +147,11 @@ public class Intake extends SubsystemBase {
         .outputRange(IntakeConstants.kIntakeMinOutput, IntakeConstants.kIntakeMaxOutput);
     intakeConfig.closedLoop.feedForward
         .kA(IntakeConstants.kVelFF);
-    intakeConfig.closedLoop.maxMotion
-        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-        .cruiseVelocity(IntakeConstants.kIntakeMaxVel)
-        .maxAcceleration(IntakeConstants.kIntakeMaxAccel)
-        .allowedProfileError(IntakeConstants.kIntakeAllowedErr);
+    // intakeConfig.closedLoop.maxMotion
+    //     .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+    //     .cruiseVelocity(IntakeConstants.kIntakeMaxVel)
+    //     .maxAcceleration(IntakeConstants.kIntakeMaxAccel)
+    //     .allowedProfileError(IntakeConstants.kIntakeAllowedErr);
 
     intake.configure(
         intakeConfig,
@@ -178,11 +177,11 @@ public class Intake extends SubsystemBase {
         .d(IntakeConstants.kTiltD)
         .outputRange(IntakeConstants.kTiltMinOutput, IntakeConstants.kTiltMaxOutput)
 				.positionWrappingEnabled(IntakeConstants.kTiltEncodeWrapping);
-    tiltConfig.closedLoop.maxMotion
-        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-        .cruiseVelocity(IntakeConstants.kTiltMaxVel)
-        .maxAcceleration(IntakeConstants.kTiltMaxAccel)
-        .allowedProfileError(IntakeConstants.kTiltAllowedErr);
+    // tiltConfig.closedLoop.maxMotion
+    //     .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+    //     .cruiseVelocity(IntakeConstants.kTiltMaxVel)
+    //     .maxAcceleration(IntakeConstants.kTiltMaxAccel)
+    //     .allowedProfileError(IntakeConstants.kTiltAllowedErr);
 
     tilt.configure(
         tiltConfig,
@@ -205,7 +204,7 @@ public class Intake extends SubsystemBase {
 
     // Initialize intake start positions
     setIntakeVel(IntakeSP.OFF);
-    setTiltPos(TiltSP.STOW);
+    setTiltPos(TiltSP.DEPLOY);
 
     // Initialize simulation
     if (Constants.currentMode == Constants.Mode.SIM) {
@@ -331,7 +330,7 @@ public class Intake extends SubsystemBase {
    */
   public void setIntakeVel(IntakeSP sp) {
     setIntakeSP(sp);
-    intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kMAXMotionVelocityControl);
+    intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kVelocity);  // kMAXMotionVelocityControl);
   }
 
   /**
@@ -380,7 +379,7 @@ public class Intake extends SubsystemBase {
    */
   public void setTiltPos(TiltSP sp) {
     setTiltSP(sp);
-    tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kMAXMotionPositionControl);
+    tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kPosition);  // kMAXMotionPositionControl);
   }
 
   /**

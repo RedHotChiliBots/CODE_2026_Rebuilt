@@ -15,7 +15,6 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -92,8 +91,8 @@ public class Shooter extends SubsystemBase {
 	// The Tilt SP is in degrees
 	public enum TiltSP {
 		LOW(0.0),
-		MED(40.0),
-		HI(80.0);
+		MED(15.0),
+		HI(30.0);
 
 		private double pos;
 
@@ -181,11 +180,11 @@ public class Shooter extends SubsystemBase {
 				.outputRange(ShooterConstants.kMinOutput, ShooterConstants.kMaxOutput);
 		leftConfig.closedLoop.feedForward
 				.kA(ShooterConstants.kVelFF);
-		leftConfig.closedLoop.maxMotion
-				.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-				.cruiseVelocity(ShooterConstants.kMaxVel)
-				.maxAcceleration(ShooterConstants.kMaxAccel)
-				.allowedProfileError(ShooterConstants.kAllowedErr);
+		// leftConfig.closedLoop.maxMotion
+		// 		.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+		// 		.cruiseVelocity(ShooterConstants.kMaxVel)
+		// 		.maxAcceleration(ShooterConstants.kMaxAccel)
+		// 		.allowedProfileError(ShooterConstants.kAllowedErr);
 
 		leftShooter.configure(leftConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
@@ -219,16 +218,17 @@ public class Shooter extends SubsystemBase {
 				.d(ShooterConstants.kPosD)
 				.outputRange(ShooterConstants.kPosMinOutput, ShooterConstants.kPosMaxOutput)
 				.positionWrappingEnabled(ShooterConstants.kTiltEncodeWrapping);
-		tiltConfig.closedLoop.feedForward
-				.kS(ShooterConstants.kPosS)
-				.kV(ShooterConstants.kPosV)
-				.kG(ShooterConstants.kPosG);
+		// tiltConfig.closedLoop.feedForward
+		// 		.kA(ShooterConstants.kPosFF);
+				// .kS(ShooterConstants.kPosS)
+				// .kV(ShooterConstants.kPosV)
+				// .kG(ShooterConstants.kPosG);
 		// .kA(ShooterConstants.kPosA);
-		tiltConfig.closedLoop.maxMotion
-				.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-				.cruiseVelocity(ShooterConstants.kPosMaxVel)
-				.maxAcceleration(ShooterConstants.kPosMaxAccel)
-				.allowedProfileError(ShooterConstants.kPosAllowedErr);
+		// tiltConfig.closedLoop.maxMotion
+		// 		.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+		// 		.cruiseVelocity(ShooterConstants.kPosMaxVel)
+		// 		.maxAcceleration(ShooterConstants.kPosMaxAccel)
+		// 		.allowedProfileError(ShooterConstants.kPosAllowedErr);
 
 		tilt.configure(tiltConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
@@ -541,7 +541,7 @@ public class Shooter extends SubsystemBase {
 	 */
 	public void setShooterVel(ShooterSP sp) {
 		setShooterSP(sp);
-		leftController.setSetpoint(sp.getVel(true), SparkBase.ControlType.kMAXMotionVelocityControl);
+		leftController.setSetpoint(sp.getVel(true), SparkBase.ControlType.kVelocity);
 	}
 
 	/**
@@ -553,7 +553,7 @@ public class Shooter extends SubsystemBase {
 	 */
 	public void setShooterVel(double sp) {
 		setShooterSPDbl(sp);
-		leftController.setSetpoint(sp, SparkBase.ControlType.kMAXMotionVelocityControl);
+		leftController.setSetpoint(sp, SparkBase.ControlType.kVelocity);
 	}
 
 	/**
@@ -638,7 +638,7 @@ public class Shooter extends SubsystemBase {
 		setTiltSP(sp);
 		// Validate enum value is within safe limits
 		double pos = Library.clamp(sp.getPos(), TiltSP.LOW.getPos(), TiltSP.HI.getPos());
-		tiltController.setSetpoint(pos, SparkBase.ControlType.kMAXMotionPositionControl);
+		tiltController.setSetpoint(pos, SparkBase.ControlType.kPosition);
 	}
 
 	/**
@@ -651,7 +651,7 @@ public class Shooter extends SubsystemBase {
 	public void setTiltPos(double sp) {
 		sp = Library.clamp(sp, TiltSP.LOW.getPos(), TiltSP.HI.getPos());
 		setTiltSPDbl(sp);
-		tiltController.setSetpoint(sp, SparkBase.ControlType.kMAXMotionPositionControl);
+		tiltController.setSetpoint(sp, SparkBase.ControlType.kPosition);
 	}
 
 	/**
