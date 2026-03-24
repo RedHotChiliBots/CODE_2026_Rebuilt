@@ -1346,210 +1346,6 @@
       "grid_layout": {
         "layouts": [
           {
-            "title": "Shooter Methods",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 896.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "Auto Feasible",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Auto Feasible",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Auto Angle Deg",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Auto Angle Deg",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Auto RPM",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Auto RPM",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Shooter OnTgt",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Shooter OnTgt",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Shooter SP",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Shooter SP",
-                  "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Shooter SP Pct",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Shooter SP Pct",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Shooter SP RPM",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Shooter SP RPM",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Shooter Vel Pct",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Shooter Vel Pct",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Shooter Vel RPM",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Shooter Vel RPM",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Tilt OnTgt",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Tilt OnTgt",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Tilt SP",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Tilt SP",
-                  "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Tilt SP Pos",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Tilt SP Pos",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Tilt Pos",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Methods/Tilt Pos",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              }
-            ]
-          },
-          {
             "title": "Intake Methods",
             "x": 640.0,
             "y": 0.0,
@@ -1854,117 +1650,6 @@
             ]
           },
           {
-            "title": "Shooter Commands",
-            "x": 256.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 640.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "HIDDEN"
-            },
-            "children": [
-              {
-                "title": "Shoot Hi",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Commands/Shoot Hi",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": false
-                }
-              },
-              {
-                "title": "Shoot Med",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Commands/Shoot Med",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": false
-                }
-              },
-              {
-                "title": "Shoot Off",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Commands/Shoot Off",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": false
-                }
-              },
-              {
-                "title": "Shoot Low",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Commands/Shoot Low",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": false
-                }
-              },
-              {
-                "title": "Tilt Hi",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Commands/Tilt Hi",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": false
-                }
-              },
-              {
-                "title": "Tilt Med",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Commands/Tilt Med",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": false
-                }
-              },
-              {
-                "title": "Tilt Low",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/Shuffleboard/Shooter Commands/Tilt Low",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": false
-                }
-              }
-            ]
-          },
-          {
             "title": "Intake Commands",
             "x": 896.0,
             "y": 0.0,
@@ -2129,9 +1814,381 @@
                 }
               }
             ]
+          },
+          {
+            "title": "Shooter Commands",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 768.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "HIDDEN"
+            },
+            "children": [
+              {
+                "title": "Shoot Hi",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Commands/Shoot Hi",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": false
+                }
+              },
+              {
+                "title": "Shoot Med",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Commands/Shoot Med",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": false
+                }
+              },
+              {
+                "title": "Shoot Low",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Commands/Shoot Low",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": false
+                }
+              },
+              {
+                "title": "Shoot Off",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Commands/Shoot Off",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": false
+                }
+              },
+              {
+                "title": "Tilt Hi",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Commands/Tilt Hi",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": false
+                }
+              },
+              {
+                "title": "Tilt Med",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Commands/Tilt Med",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": false
+                }
+              },
+              {
+                "title": "Tilt Low",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Commands/Tilt Low",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": false
+                }
+              },
+              {
+                "title": "Tilt Stow",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Commands/Tilt Stow",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": false
+                }
+              }
+            ]
+          },
+          {
+            "title": "Shooter Methods",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 1280.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Auto Angle Deg",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Auto Angle Deg",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Auto Feasible",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Auto Feasible",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Auto RPM",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Auto RPM",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Shooter OnTgt",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Shooter OnTgt",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Shooter SP",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Shooter SP",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Shooter SP Pct",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Shooter SP Pct",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Shooter SP RPM",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Shooter SP RPM",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Shooter Vel Pct",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Shooter Vel Pct",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Shooter Vel RPM",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Shooter Vel RPM",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Tilt AppOut",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Tilt AppOut",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Tilt OnTgt",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Tilt OnTgt",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Tilt SP",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Tilt SP",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Tilt SP Pos",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Tilt SP Pos",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Tilt Pos",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shuffleboard/Shooter Methods/Tilt Pos",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
           }
         ],
-        "containers": []
+        "containers": [
+          {
+            "title": "Shooter Dbl SP",
+            "x": 256.0,
+            "y": 896.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Dashboard/Shooter Dbl SP",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Tilt Dbl SP",
+            "x": 384.0,
+            "y": 896.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Dashboard/Tilt Dbl SP",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          }
+        ]
       }
     },
     {

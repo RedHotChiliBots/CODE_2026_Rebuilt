@@ -20,7 +20,11 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.utils.Library;
@@ -78,7 +82,7 @@ public class Intake extends SubsystemBase {
   // The Tilt SP is in degrees
   public enum TiltSP {
     STOW(90.0),
-    DEPLOY(0.0);
+    DEPLOY(0.3);
 
     private double pos;
 
@@ -88,6 +92,23 @@ public class Intake extends SubsystemBase {
 
     public double getPos() {
       return pos;
+    }
+  }
+
+  // The Tilt SP is in degrees
+  public enum SpinSpd {
+    STOW(0.1),
+    DEPLOY(-0.1),
+    STOP(0.0);
+
+    private double spd;
+
+    SpinSpd(double spd) {
+      this.spd = spd;
+    }
+
+    public double getSpd() {
+      return spd;
     }
   }
 
@@ -148,10 +169,10 @@ public class Intake extends SubsystemBase {
     intakeConfig.closedLoop.feedForward
         .kA(IntakeConstants.kVelFF);
     // intakeConfig.closedLoop.maxMotion
-    //     .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-    //     .cruiseVelocity(IntakeConstants.kIntakeMaxVel)
-    //     .maxAcceleration(IntakeConstants.kIntakeMaxAccel)
-    //     .allowedProfileError(IntakeConstants.kIntakeAllowedErr);
+    // .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+    // .cruiseVelocity(IntakeConstants.kIntakeMaxVel)
+    // .maxAcceleration(IntakeConstants.kIntakeMaxAccel)
+    // .allowedProfileError(IntakeConstants.kIntakeAllowedErr);
 
     intake.configure(
         intakeConfig,
@@ -176,12 +197,12 @@ public class Intake extends SubsystemBase {
         .i(IntakeConstants.kTiltI)
         .d(IntakeConstants.kTiltD)
         .outputRange(IntakeConstants.kTiltMinOutput, IntakeConstants.kTiltMaxOutput)
-				.positionWrappingEnabled(IntakeConstants.kTiltEncodeWrapping);
+        .positionWrappingEnabled(IntakeConstants.kTiltEncodeWrapping);
     // tiltConfig.closedLoop.maxMotion
-    //     .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-    //     .cruiseVelocity(IntakeConstants.kTiltMaxVel)
-    //     .maxAcceleration(IntakeConstants.kTiltMaxAccel)
-    //     .allowedProfileError(IntakeConstants.kTiltAllowedErr);
+    // .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+    // .cruiseVelocity(IntakeConstants.kTiltMaxVel)
+    // .maxAcceleration(IntakeConstants.kTiltMaxAccel)
+    // .allowedProfileError(IntakeConstants.kTiltAllowedErr);
 
     tilt.configure(
         tiltConfig,
@@ -235,6 +256,7 @@ public class Intake extends SubsystemBase {
   // ==============================================================
   // Define subsystem commands
   // ==============================================================
+
   /**
    * Creates a command to set the intake motor to a specified setpoint.
    *
@@ -252,7 +274,12 @@ public class Intake extends SubsystemBase {
    * @return A command that sets the tilt position when executed.
    */
   public Command setTilt(TiltSP sp) {
-    return runOnce(() -> this.setTiltPos(sp));
+    return Commands.parallel(
+        runOnce(() -> this.setTiltPos(sp)),
+        runOnce(() -> this.setIntakeSpin(sp)).andThen(
+          Commands.waitSeconds(0.25).andThen(
+          Commands.waitUntil(() -> onTiltTarget())).andThen(
+              () -> this.setIntakeSpin(0.0))));
   }
 
   // ==============================================================
@@ -281,7 +308,7 @@ public class Intake extends SubsystemBase {
       // Note: In real simulation, you would update the encoder values here
       // For now, the simulation tracks state internally
     }
-    
+
     if (tiltSim != null) {
       tiltSim.update(getTiltSP().getPos(), 0.02);
       // Note: In real simulation, you would update the encoder values here
@@ -291,6 +318,18 @@ public class Intake extends SubsystemBase {
   // ==============================================================
   // Define subsystem methods
   // ==============================================================
+  public void setIntakeSpin(double spd) {
+    intake.set(0.0);
+  }
+
+  public void setIntakeSpin(TiltSP sp) {
+    if (sp == TiltSP.STOW) {
+      intake.set(SpinSpd.STOW.getSpd());
+    } else {
+      intake.set(SpinSpd.DEPLOY.getSpd());
+    }
+  }
+
   /**
    * Sets the intake setpoint.
    * 
@@ -323,29 +362,33 @@ public class Intake extends SubsystemBase {
   }
 
   /**
-   * Sets the intake motor velocity to the specified setpoint using MAXMotion velocity control.
+   * Sets the intake motor velocity to the specified setpoint using MAXMotion
+   * velocity control.
    * This method updates the internal setpoint and commands the motor controller.
    *
    * @param sp The desired intake setpoint (OFF, LOW, MED, or HI).
    */
   public void setIntakeVel(IntakeSP sp) {
     setIntakeSP(sp);
-    intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kVelocity);  // kMAXMotionVelocityControl);
+    intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kVelocity); // kMAXMotionVelocityControl);
   }
 
   /**
    * Gets the current intake motor velocity.
    *
-   * @param rpm If true, returns velocity in RPM. If false, returns velocity as a percentage
+   * @param rpm If true, returns velocity in RPM. If false, returns velocity as a
+   *            percentage
    *            of the motor's free speed.
    * @return The current intake velocity in the requested units.
    */
   public double getIntakeVel(boolean rpm) {
-    return rpm ? intakeEncoder.getVelocity() : Library.rpmToPct(intakeEncoder.getVelocity(), IntakeConstants.kIntakeMotorFreeSpeedRpm);
+    return rpm ? intakeEncoder.getVelocity()
+        : Library.rpmToPct(intakeEncoder.getVelocity(), IntakeConstants.kIntakeMotorFreeSpeedRpm);
   }
 
   /**
-   * Checks if the intake motor velocity is within the allowed error tolerance of the setpoint.
+   * Checks if the intake motor velocity is within the allowed error tolerance of
+   * the setpoint.
    *
    * @return True if the intake is at the target velocity, false otherwise.
    */
@@ -372,14 +415,15 @@ public class Intake extends SubsystemBase {
   }
 
   /**
-   * Sets the tilt mechanism position to the specified setpoint using MAXMotion position control.
+   * Sets the tilt mechanism position to the specified setpoint using MAXMotion
+   * position control.
    * This method updates the internal setpoint and commands the motor controller.
    *
    * @param sp The desired tilt setpoint (STOW or DEPLOY).
    */
   public void setTiltPos(TiltSP sp) {
     setTiltSP(sp);
-    tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kPosition);  // kMAXMotionPositionControl);
+    tiltController.setSetpoint(getTiltSP().getPos(), SparkBase.ControlType.kPosition); // kMAXMotionPositionControl);
   }
 
   /**
@@ -392,7 +436,8 @@ public class Intake extends SubsystemBase {
   }
 
   /**
-   * Checks if the tilt mechanism position is within the allowed error tolerance of the setpoint.
+   * Checks if the tilt mechanism position is within the allowed error tolerance
+   * of the setpoint.
    *
    * @return True if the tilt is at the target position, false otherwise.
    */

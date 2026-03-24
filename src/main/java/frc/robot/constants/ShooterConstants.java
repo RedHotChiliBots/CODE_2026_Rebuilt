@@ -12,7 +12,7 @@ public final class ShooterConstants {
 
   public static final double kBallisticsCoefficient = 0.5; // Drag coefficient for projectile
 
-  // =========================== I N T A K E ======================
+  // =========================== S H O O T E R ======================
 
   // Position is returned in native units of rotations and will be multiplied by
   // this conversion factor.
@@ -45,6 +45,8 @@ public final class ShooterConstants {
   // Moderate (Balanced)
   // public static final double kMaxVel = 6000.0; // RPM (~88% of Vortex max)
   // public static final double kMaxAccel = 15000.0; // maxmotion 0.0
+  public static final double kMaxVel = 2500.0; // RPM (~88% of Vortex max)
+  public static final double kMaxAccel = 500.0; // maxmotion 0.0
   public static final double kAllowedErr = 75.0; // maxmotion 0.0
 
   // =========================== T I L T ======================
@@ -58,26 +60,25 @@ public final class ShooterConstants {
   public static final double kTiltPositionFactor = 360.0; // degrees per output rotation
   public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
-  public static final double kTiltZeroOffset = 0.94554865;
+  public static final double kTiltZeroOffset = 0.8066746;
   public static final boolean kTiltZeroCentered = true;
-  public static final boolean kTiltMotorInverted = true;
-  public static final boolean kTiltEncoderInverted = false;
+  public static final boolean kTiltMotorInverted = false;
+  public static final boolean kTiltEncoderInverted = true;
   public static final boolean kTiltEncodeWrapping = false;
   public static final IdleMode kTiltIdleMode = IdleMode.kBrake;
 
-  public static final double kPosP = 0.07; // .035 // 0.8
+  public static final double kPosP = 0.01; // .035 // 0.8
   public static final double kPosI = 0.0;
-  public static final double kPosD = 0.225; // 0.1
+  public static final double kPosD = 0.0; // 0.1
   // public static final double kPosFF = 1.0 / kShooterMotorFreeSpeedRpm;
   public static final double kPosMinOutput = -1.0;
   public static final double kPosMaxOutput = 1.0;
 
   // Moderate (Balanced)
-  // public static final double kPosMaxVel = 80.0; //90.0; // degrees/sec (~1.1
-  // sec for 40° travel)
-  // public static final double kPosMaxAccel = 150.0; //180.0; // degrees/sec²
-  // (0.5 sec to max speed)
+  // public static final double kPosMaxVel = 80.0; //90.0; // degrees/sec (~1.1 sec for 40° travel)
+  // public static final double kPosMaxAccel = 150.0; //180.0; // degrees/sec² (0.5 sec to max speed)
   public static final double kPosAllowedErr = 0.1; // 0.5; // degrees
+
 
   public static final int kLeftCurrentLimit = 50; // amps
   public static final int kRightCurrentLimit = 50; // amps

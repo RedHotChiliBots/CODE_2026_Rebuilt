@@ -64,11 +64,11 @@ public final class IntakeConstants {
   // public static final double kPosI = 0.0;
   // public static final double kPosD = 0.225; // 0.1
 
-  public static final double kTiltP = 0.07; // maxmotion 0.025;
+  public static final double kTiltP = 0.08; // maxmotion 0.025;
   public static final double kTiltI = 0.0; // maxmotion 0.0
-  public static final double kTiltD = 0.225; // maxmotion 0.0
-  public static final double kTiltMinOutput = -0.25;
-  public static final double kTiltMaxOutput = 0.25;
+  public static final double kTiltD = 0.15; // maxmotion 0.0
+  public static final double kTiltMinOutput = -0.1; // -0.25;
+  public static final double kTiltMaxOutput = 0.1; // 0.25;
 
   // Moderate (Balanced)
   // public static final double kTiltMaxVel = 120.0; // degrees/sec (~1.7 sec for

@@ -9,7 +9,9 @@ import java.util.Objects;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
@@ -17,9 +19,13 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -90,9 +96,15 @@ public class Shooter extends SubsystemBase {
 
 	// The Tilt SP is in degrees
 	public enum TiltSP {
-		LOW(0.0),
-		MED(15.0),
-		HI(30.0);
+		// min/max for clamping
+		MIN(0.0),
+		MAX(25.0),
+
+		// sp values
+		STOW(30.0),
+		LOW(14.0),
+		MED(7.0),
+		HI(0.0);
 
 		private double pos;
 
@@ -112,16 +124,28 @@ public class Shooter extends SubsystemBase {
 	private double shooterSPDbl = 0.0;
 	private boolean shooterSpIsCustom = false;
 
-	private TiltSP tiltSP = TiltSP.LOW;
+	private TiltSP tiltSP = TiltSP.HI;
 	private double tiltSPDbl = 0.0;
 	private boolean tiltSpIsCustom = false;
+	private double lastTiltDblSP = 0.0;
+	private double lastShooterDblSP = 0.0;
 
 	// ==============================================================
 	// Initialize Dashboard entries
 	// ==============================================================
 	// private final ShuffleboardTab compTab = Shuffleboard.getTab("Competition");
+	private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+	NetworkTable table = inst.getTable("Dashboard");
+
+	DoubleEntry sbShooterDblSP = table.getDoubleTopic("Shooter Dbl SP").getEntry(0.0);
+	DoubleEntry sbTiltDblSP = table.getDoubleTopic("Tilt Dbl SP").getEntry(0.0);
+
 	private final ShuffleboardTab shooterTab = Shuffleboard.getTab("Shooter Methods");
 	private final ShuffleboardTab cmdTab = Shuffleboard.getTab("Shooter Commands");
+
+	// private final DoubleEntry sbShooterDblSP = shooterTab.getDoubleTopic("Shooter
+	// Dbl SP", 0.0).getEntry();
+	// .withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
 
 	private final GenericEntry sbShooterOnTgt = shooterTab.addPersistent("Shooter OnTgt", false)
 			.withWidget("Boolean Box").withPosition(0, 1).withSize(2, 1).getEntry();
@@ -129,6 +153,9 @@ public class Shooter extends SubsystemBase {
 			.withWidget("Text View").withPosition(2, 0).withSize(2, 1).getEntry();
 	private final GenericEntry sbShooterSPPct = shooterTab.addPersistent("Shooter SP Pct", 0)
 			.withWidget("Text View").withPosition(2, 1).withSize(2, 1).getEntry();
+	// private final GenericEntry sbShooterDblSP = shooterTab.addPersistent("Shooter
+	// Dbl SP", "")
+	// .withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
 	private final GenericEntry sbShooterSPRPM = shooterTab.addPersistent("Shooter SP RPM", 0)
 			.withWidget("Text View").withPosition(2, 2).withSize(2, 1).getEntry();
 
@@ -141,11 +168,16 @@ public class Shooter extends SubsystemBase {
 			.withWidget("Boolean Box").withPosition(0, 1).withSize(2, 1).getEntry();
 	private final GenericEntry sbTiltSP = shooterTab.addPersistent("Tilt SP", "")
 			.withWidget("Text View").withPosition(2, 0).withSize(2, 1).getEntry();
+	// private final GenericEntry sbTiltDblSP = shooterTab.addPersistent("Tilt Dbl
+	// SP", "")
+	// .withWidget("Text View").withPosition(3, 0).withSize(2, 1).getEntry();
 	private final GenericEntry sbTiltSPPos = shooterTab.addPersistent("Tilt SP Pos", 0)
 			.withWidget("Text View").withPosition(2, 1).withSize(2, 1).getEntry();
 
 	private final GenericEntry sbTiltPos = shooterTab.addPersistent("Tilt Pos", 0)
 			.withWidget("Text View").withPosition(4, 0).withSize(2, 1).getEntry();
+	private final GenericEntry sbTiltAppOut = shooterTab.addPersistent("Tilt AppOut", 0)
+			.withWidget("Text View").withPosition(5, 0).withSize(2, 1).getEntry();
 
 	// Shuffleboard debug for auto-shot (feasible / angle / rpm)
 	private final GenericEntry sbAutoFeasible = shooterTab.addPersistent("Auto Feasible", false)
@@ -180,11 +212,11 @@ public class Shooter extends SubsystemBase {
 				.outputRange(ShooterConstants.kMinOutput, ShooterConstants.kMaxOutput);
 		leftConfig.closedLoop.feedForward
 				.kA(ShooterConstants.kVelFF);
-		// leftConfig.closedLoop.maxMotion
-		// 		.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-		// 		.cruiseVelocity(ShooterConstants.kMaxVel)
-		// 		.maxAcceleration(ShooterConstants.kMaxAccel)
-		// 		.allowedProfileError(ShooterConstants.kAllowedErr);
+		leftConfig.closedLoop.maxMotion
+				// .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+				.cruiseVelocity(ShooterConstants.kMaxVel)
+				.maxAcceleration(ShooterConstants.kMaxAccel)
+				.allowedProfileError(ShooterConstants.kAllowedErr);
 
 		leftShooter.configure(leftConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
@@ -198,6 +230,8 @@ public class Shooter extends SubsystemBase {
 		rightShooter.configure(rightConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
 				com.revrobotics.PersistMode.kPersistParameters);
+
+		ClosedLoopSlot slot0 = ClosedLoopSlot.kSlot0;
 
 		// Configure Tilt motor
 		tiltConfig
@@ -216,19 +250,20 @@ public class Shooter extends SubsystemBase {
 				.p(ShooterConstants.kPosP)
 				.i(ShooterConstants.kPosI)
 				.d(ShooterConstants.kPosD)
+				.allowedClosedLoopError(ShooterConstants.kPosAllowedErr, slot0)
 				.outputRange(ShooterConstants.kPosMinOutput, ShooterConstants.kPosMaxOutput)
 				.positionWrappingEnabled(ShooterConstants.kTiltEncodeWrapping);
 		// tiltConfig.closedLoop.feedForward
-		// 		.kA(ShooterConstants.kPosFF);
-				// .kS(ShooterConstants.kPosS)
-				// .kV(ShooterConstants.kPosV)
-				// .kG(ShooterConstants.kPosG);
+		// .kA(ShooterConstants.kPosFF);
+		// .kS(ShooterConstants.kPosS)
+		// .kV(ShooterConstants.kPosV)
+		// .kG(ShooterConstants.kPosG);
 		// .kA(ShooterConstants.kPosA);
 		// tiltConfig.closedLoop.maxMotion
-		// 		.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-		// 		.cruiseVelocity(ShooterConstants.kPosMaxVel)
-		// 		.maxAcceleration(ShooterConstants.kPosMaxAccel)
-		// 		.allowedProfileError(ShooterConstants.kPosAllowedErr);
+		// .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+		// .cruiseVelocity(ShooterConstants.kPosMaxVel)
+		// .maxAcceleration(ShooterConstants.kPosMaxAccel)
+		// .allowedProfileError(ShooterConstants.kPosAllowedErr);
 
 		tilt.configure(tiltConfig,
 				com.revrobotics.ResetMode.kResetSafeParameters,
@@ -243,6 +278,8 @@ public class Shooter extends SubsystemBase {
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
 		cmdTab.add("Shoot Low", this.setShooter(ShooterSP.LOW))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
+		cmdTab.add("Tilt Stow", this.setTilt(TiltSP.STOW))
+				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
 		cmdTab.add("Tilt Hi", this.setTilt(TiltSP.HI))
 				.withProperties(Map.of("show_type", false, "maximize_button_space", false));
 		cmdTab.add("Tilt Med", this.setTilt(TiltSP.MED))
@@ -252,7 +289,7 @@ public class Shooter extends SubsystemBase {
 
 		// Initialize intake start positions
 		setShooterVel(ShooterSP.OFF);
-		setTiltPos(TiltSP.LOW);
+		setTiltPos(TiltSP.HI);
 
 		// Initialize simulation
 		if (Constants.currentMode == Constants.Mode.SIM) {
@@ -373,17 +410,31 @@ public class Shooter extends SubsystemBase {
 	// ==============================================================
 	@Override
 	public void periodic() {
+		if (lastTiltDblSP != sbTiltDblSP.get(0)) {
+			tiltSPDbl = sbTiltDblSP.get(0);
+			setTiltPos(tiltSPDbl);
+			lastTiltDblSP = tiltSPDbl;
+		}
+		if (lastShooterDblSP != sbShooterDblSP.get(0)) {
+			shooterSPDbl = sbShooterDblSP.get(0);
+			setShooterVel(shooterSPDbl);
+			lastShooterDblSP = shooterSPDbl;
+		}
+
 		sbShooterOnTgt.setBoolean(onShooterTarget());
 		sbShooterSP.setString(getShooterSPName());
 		sbShooterSPPct.setDouble(Library.SBFormat(getShooterSP(false)));
+		sbShooterDblSP.set(Library.SBFormat(shooterSPDbl));
 		sbShooterSPRPM.setDouble(Library.SBFormat(getShooterSP(true)));
 		sbShooterVelPct.setDouble(Library.SBFormat(getShooterVel(false)));
 		sbShooterVelRPM.setDouble(Library.SBFormat(getShooterVel(true)));
 
 		sbTiltOnTgt.setBoolean(onTiltTarget());
 		sbTiltSP.setString(getTiltSPName());
+		sbTiltDblSP.set(Library.SBFormat(tiltSPDbl));
 		double tiltTarget = tiltSpIsCustom ? tiltSPDbl : tiltSP.getPos();
 		sbTiltSPPos.setDouble(Library.SBFormat(tiltTarget));
+		sbTiltAppOut.setDouble(Library.SBFormat(tilt.getAppliedOutput()));
 		sbTiltPos.setDouble(Library.SBFormat(getTiltPos()));
 
 		// Gives you live visibility of what the solver wants to do,
@@ -541,7 +592,8 @@ public class Shooter extends SubsystemBase {
 	 */
 	public void setShooterVel(ShooterSP sp) {
 		setShooterSP(sp);
-		leftController.setSetpoint(sp.getVel(true), SparkBase.ControlType.kVelocity);
+		// leftController.setSetpoint(sp.getVel(true), SparkBase.ControlType.kVelocity);
+		leftController.setSetpoint(sp.getVel(true), SparkBase.ControlType.kMAXMotionVelocityControl);
 	}
 
 	/**
@@ -637,7 +689,7 @@ public class Shooter extends SubsystemBase {
 	public void setTiltPos(TiltSP sp) {
 		setTiltSP(sp);
 		// Validate enum value is within safe limits
-		double pos = Library.clamp(sp.getPos(), TiltSP.LOW.getPos(), TiltSP.HI.getPos());
+		double pos = Library.clamp(sp.getPos(), TiltSP.MIN.getPos(), TiltSP.MAX.getPos());
 		tiltController.setSetpoint(pos, SparkBase.ControlType.kPosition);
 	}
 
@@ -649,7 +701,7 @@ public class Shooter extends SubsystemBase {
 	 * @param sp The desired tilt angle in degrees
 	 */
 	public void setTiltPos(double sp) {
-		sp = Library.clamp(sp, TiltSP.LOW.getPos(), TiltSP.HI.getPos());
+		sp = Library.clamp(sp, TiltSP.MIN.getPos(), TiltSP.MAX.getPos());
 		setTiltSPDbl(sp);
 		tiltController.setSetpoint(sp, SparkBase.ControlType.kPosition);
 	}
