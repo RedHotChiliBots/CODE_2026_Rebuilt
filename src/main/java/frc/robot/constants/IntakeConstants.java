@@ -52,7 +52,7 @@ public final class IntakeConstants {
   public static final double kTiltPositionFactor = 360.0; // degrees per output rotation
   public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
-  public static final double kTiltZeroOffset = 0.7301405;
+  public static final double kTiltZeroOffset = 0.73108065;
   public static final boolean kTiltZeroCentered = true;
   public static final boolean kTiltMotorInverted = true;
   public static final boolean kTiltEncoderInverted = false;
@@ -67,8 +67,8 @@ public final class IntakeConstants {
   public static final double kTiltP = 0.08; // maxmotion 0.025;
   public static final double kTiltI = 0.0; // maxmotion 0.0
   public static final double kTiltD = 0.15; // maxmotion 0.0
-  public static final double kTiltMinOutput = -0.1; // -0.25;
-  public static final double kTiltMaxOutput = 0.1; // 0.25;
+  public static final double kTiltMinOutput = -0.3; // -0.25;
+  public static final double kTiltMaxOutput = 0.3; // 0.25;
 
   // Moderate (Balanced)
   // public static final double kTiltMaxVel = 120.0; // degrees/sec (~1.7 sec for

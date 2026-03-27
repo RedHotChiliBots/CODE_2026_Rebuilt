@@ -23,6 +23,7 @@ import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Feeder.FeederSP;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeSP;
+import frc.robot.subsystems.Intake.TiltSP;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.ShooterSP;
 import frc.robot.subsystems.Vision.VisionConstants;
@@ -104,7 +105,7 @@ public class RobotContainer {
 	private Intake intake = null;
 	private Feeder feeder = null;
 	private Shooter shooter = null;
-	private Climber climber = null;
+//	private Climber climber = null;
 	private Vision vision = null;
 	private Autos auton = null;
 
@@ -112,13 +113,13 @@ public class RobotContainer {
 		intake = new Intake();
 		feeder = new Feeder();
 		shooter = new Shooter(drivetrain, feeder);
-		climber = new Climber();
+//		climber = new Climber();
 		vision = new Vision(drivetrain::addVisionMeasurement,
 				new VisionIOPhotonVision(VisionConstants.camera0Name, VisionConstants.robotToCamera0),
 				new VisionIOPhotonVision(VisionConstants.camera1Name, VisionConstants.robotToCamera1),
 				new VisionIOPhotonVision(VisionConstants.camera2Name, VisionConstants.robotToCamera2),
 				new VisionIOPhotonVision(VisionConstants.camera3Name, VisionConstants.robotToCamera3));
-		auton = new Autos(this, drivetrain, intake, feeder, shooter, climber);
+		auton = new Autos(this, drivetrain, intake, feeder, shooter);	//, climber);
 
 		configureBindings();
 
@@ -138,7 +139,7 @@ public class RobotContainer {
 						.withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
 
 		// Track Hub when A button is held
-		driverController.leftBumper().toggleOnTrue(
+		driverController.rightBumper().toggleOnTrue(
 				new ParallelCommandGroup(
 						// shooter.setShooter(shooter.getAutoShoot()).andThen(
 						// shooter.setTilt(shooter.getAutoTilt())),
@@ -150,17 +151,15 @@ public class RobotContainer {
 								// Drive pointing to hub
 								.withTargetDirection(drivetrain.bearingToHub.minus(new Rotation2d(Math.PI))))));
 
-		// operatorController.x().onTrue(intake.setTilt(TiltSP.DEPLOY));
-
-		// operatorController.b().onTrue(intake.setTilt(TiltSP.STOW));
+		operatorController.x().onTrue(intake.setTilt(TiltSP.DEPLOY));
+		operatorController.b().onTrue(intake.setTilt(TiltSP.STOW));
 
 		operatorController.y().onTrue(intake.setIntake(IntakeSP.HI));
 		operatorController.a().onTrue(intake.setIntake(IntakeSP.OFF));
 
 		operatorController.leftBumper().onTrue(shooter.setShooter(ShooterSP.MED));
 		operatorController.x().onTrue(shooter.setShooter(ShooterSP.OFF));
-		// operatorController.left
-		// Bumper().onFalse(shooter.setShooter(ShooterSP.OFF));
+		// operatorController.leftBumper().onFalse(shooter.setShooter(ShooterSP.OFF));
 
 		operatorController.rightBumper().onTrue(feeder.setFeeder(FeederSP.HI));
 		operatorController.b().onTrue(feeder.setFeeder(FeederSP.OFF));

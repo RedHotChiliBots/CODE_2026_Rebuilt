@@ -59,8 +59,7 @@ public class Autos {
   // }
 
   public Autos(RobotContainer robotContainer, CommandSwerveDrivetrain drivetrain, Intake intake, Feeder feeder,
-      Shooter shooter,
-      Climber climber) {
+      Shooter shooter) { //, Climber climber) {
 
     System.out.println("+++++ Starting Autos Constructor +++++");
 
@@ -69,7 +68,7 @@ public class Autos {
     this.intake = intake;
     this.feeder = feeder;
     this.shooter = shooter;
-    this.climber = climber;
+//    this.climber = climber;
 
     // this.autonLeave = new AutonLeave(chassis, ladder, algae, coral, climber);
     // this.autonLeaveNScoreL1 = new AutonLeaveNScoreL1(robotContainer, chassis,
@@ -101,9 +100,9 @@ public class Autos {
     // NamedCommands.registerCommand("resetOdo", resetOdo);
     
     
-    NamedCommands.registerCommand("ClimberL1", climber.setClimber(Climber.ClimberSP.LVL1));
+//    NamedCommands.registerCommand("ClimberL1", climber.setClimber(Climber.ClimberSP.LVL1));
     
-    NamedCommands.registerCommand("ClimberStow", climber.setClimber(Climber.ClimberSP.STOW));
+//    NamedCommands.registerCommand("ClimberStow", climber.setClimber(Climber.ClimberSP.STOW));
 
     NamedCommands.registerCommand("ShooterOff", shooter.setShooter(Shooter.ShooterSP.OFF));
     NamedCommands.registerCommand("ShooterLow", shooter.setShooter(Shooter.ShooterSP.LOW));

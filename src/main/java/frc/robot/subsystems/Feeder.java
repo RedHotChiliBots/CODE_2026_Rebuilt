@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.constants.FeederConstants;
+import frc.robot.subsystems.Shooter.ShooterSP;
 import frc.robot.utils.Library;
 import frc.robot.utils.SparkMaxSimulation;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -125,7 +126,8 @@ public class Feeder extends SubsystemBase {
   // ==============================================================
   /**
    * Creates a new Feeder subsystem.
-   * Configures the feeder motor with PID control, current limits, and velocity conversion factors.
+   * Configures the feeder motor with PID control, current limits, and velocity
+   * conversion factors.
    * Initializes the fuel sensor and sets up Shuffleboard dashboard entries.
    * Configures simulation if running in simulation mode.
    */
@@ -137,7 +139,7 @@ public class Feeder extends SubsystemBase {
         .smartCurrentLimit(FeederConstants.kFeederCurrentLimit)
         .inverted(FeederConstants.kFeederMotorInverted);
     feederConfig.encoder
-//        .positionConversionFactor(FeederConstants.kFeederPositionFactor)
+        // .positionConversionFactor(FeederConstants.kFeederPositionFactor)
         .velocityConversionFactor(FeederConstants.kFeederVelocityFactor);
     feederConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -148,10 +150,10 @@ public class Feeder extends SubsystemBase {
     feederConfig.closedLoop.feedForward
         .kA(FeederConstants.kFeederVelFF);
     // feederConfig.closedLoop.maxMotion
-    //     .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-    //     .cruiseVelocity(FeederConstants.kFeederMaxVel)
-    //     .maxAcceleration(FeederConstants.kFeederMaxAccel)
-    //     .allowedProfileError(FeederConstants.kFeederAllowedErr);
+    // .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+    // .cruiseVelocity(FeederConstants.kFeederMaxVel)
+    // .maxAcceleration(FeederConstants.kFeederMaxAccel)
+    // .allowedProfileError(FeederConstants.kFeederAllowedErr);
 
     feeder.configure(
         feederConfig,
@@ -254,30 +256,38 @@ public class Feeder extends SubsystemBase {
   }
 
   /**
-   * Sets the feeder velocity to the specified setpoint and applies it to the motor controller.
+   * Sets the feeder velocity to the specified setpoint and applies it to the
+   * motor controller.
    * Uses MAXMotion velocity control for smooth acceleration profiles.
    *
    * @param sp The desired feeder speed setpoint
    */
   public void setFeederVel(FeederSP sp) {
     setFeederSP(sp);
-    feederController.setSetpoint(getFeederSP(true), SparkBase.ControlType.kVelocity);  // kMAXMotionVelocityControl);
+    if (sp == FeederSP.OFF) {
+      feeder.set(0.0);
+    } else {
+      feederController.setSetpoint(getFeederSP(true), SparkBase.ControlType.kVelocity); // kMAXMotionVelocityControl);
+    }
   }
 
   /**
    * Gets the current feeder motor velocity from the encoder.
    *
-   * @param rpm If true, returns velocity in RPM; if false, returns as percentage of max speed
+   * @param rpm If true, returns velocity in RPM; if false, returns as percentage
+   *            of max speed
    * @return The current motor velocity in the requested units
    */
   public double getFeederVel(boolean rpm) {
-    return rpm ? feederEncoder.getVelocity() : Library.rpmToPct(feederEncoder.getVelocity(), FeederConstants.kFeederMotorFreeSpeedRpm);
+    return rpm ? feederEncoder.getVelocity()
+        : Library.rpmToPct(feederEncoder.getVelocity(), FeederConstants.kFeederMotorFreeSpeedRpm);
   }
 
   /**
    * Checks if the feeder motor is at the target velocity.
    *
-   * @return True if the current velocity is within the allowed error of the setpoint, false otherwise
+   * @return True if the current velocity is within the allowed error of the
+   *         setpoint, false otherwise
    */
   public boolean onFeederTarget() {
     return Math.abs(getFeederVel(true) - getFeederSP(true)) < FeederConstants.kFeederAllowedErr;
@@ -306,7 +316,8 @@ public class Feeder extends SubsystemBase {
    * Determines if fuel (game piece) is available in the feeder.
    * Checks if the distance reading indicates a game piece is present.
    *
-   * @return True if fuel is detected within the valid range (≤21 inches or ≥30 inches), false otherwise
+   * @return True if fuel is detected within the valid range (≤21 inches or ≥30
+   *         inches), false otherwise
    */
   public boolean isFuelAvail() {
     return (getFuelDist() <= 21.0 || getFuelDist() >= 30.0);

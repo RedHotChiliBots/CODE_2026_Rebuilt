@@ -11,7 +11,6 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
@@ -19,7 +18,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.networktables.DoubleEntry;
@@ -98,7 +96,7 @@ public class Shooter extends SubsystemBase {
 	public enum TiltSP {
 		// min/max for clamping
 		MIN(0.0),
-		MAX(25.0),
+		MAX(35.0),
 
 		// sp values
 		STOW(30.0),
@@ -593,7 +591,11 @@ public class Shooter extends SubsystemBase {
 	public void setShooterVel(ShooterSP sp) {
 		setShooterSP(sp);
 		// leftController.setSetpoint(sp.getVel(true), SparkBase.ControlType.kVelocity);
-		leftController.setSetpoint(sp.getVel(true), SparkBase.ControlType.kMAXMotionVelocityControl);
+		if (sp == ShooterSP.OFF) {
+			leftShooter.set(0.0);
+		} else {
+			leftController.setSetpoint(sp.getVel(true), SparkBase.ControlType.kMAXMotionVelocityControl);
+		}
 	}
 
 	/**
@@ -605,7 +607,11 @@ public class Shooter extends SubsystemBase {
 	 */
 	public void setShooterVel(double sp) {
 		setShooterSPDbl(sp);
-		leftController.setSetpoint(sp, SparkBase.ControlType.kVelocity);
+		if (sp == 0.0) {
+			leftShooter.set(0.0);
+		} else {
+			leftController.setSetpoint(sp, SparkBase.ControlType.kMAXMotionVelocityControl);
+		}
 	}
 
 	/**
@@ -689,8 +695,8 @@ public class Shooter extends SubsystemBase {
 	public void setTiltPos(TiltSP sp) {
 		setTiltSP(sp);
 		// Validate enum value is within safe limits
-		double pos = Library.clamp(sp.getPos(), TiltSP.MIN.getPos(), TiltSP.MAX.getPos());
-		tiltController.setSetpoint(pos, SparkBase.ControlType.kPosition);
+//		double pos = Library.clamp(sp.getPos(), TiltSP.MIN.getPos(), TiltSP.MAX.getPos());
+		tiltController.setSetpoint(sp.getPos(), SparkBase.ControlType.kPosition);
 	}
 
 	/**
@@ -701,7 +707,7 @@ public class Shooter extends SubsystemBase {
 	 * @param sp The desired tilt angle in degrees
 	 */
 	public void setTiltPos(double sp) {
-		sp = Library.clamp(sp, TiltSP.MIN.getPos(), TiltSP.MAX.getPos());
+//		sp = Library.clamp(sp, TiltSP.MIN.getPos(), TiltSP.MAX.getPos());
 		setTiltSPDbl(sp);
 		tiltController.setSetpoint(sp, SparkBase.ControlType.kPosition);
 	}

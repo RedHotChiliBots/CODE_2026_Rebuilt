@@ -35,7 +35,7 @@ public final class ShooterConstants {
   // public static final boolean kRightEncodeWrapping = false;
   // public static final IdleMode kRightIdleMode = IdleMode.kCoast;
 
-  public static final double kP = 0.0002; // maxmotion 0.025;
+  public static final double kP = 0.002; // maxmotion 0.025;
   public static final double kI = 0.0; // maxmotion 0.0
   public static final double kD = 0.0; // maxmotion 0.0
   public static final double kVelFF = 1.0 / kShooterMotorFreeSpeedRpm;
@@ -43,11 +43,11 @@ public final class ShooterConstants {
   public static final double kMaxOutput = 1.0;
 
   // Moderate (Balanced)
-  // public static final double kMaxVel = 6000.0; // RPM (~88% of Vortex max)
-  // public static final double kMaxAccel = 15000.0; // maxmotion 0.0
-  public static final double kMaxVel = 2500.0; // RPM (~88% of Vortex max)
-  public static final double kMaxAccel = 500.0; // maxmotion 0.0
-  public static final double kAllowedErr = 75.0; // maxmotion 0.0
+  public static final double kMaxVel = 8000.0; // RPM (~88% of Vortex max)
+  public static final double kMaxAccel = 15000.0; // maxmotion 0.0
+  // public static final double kMaxVel = 2500.0; // RPM
+  // public static final double kMaxAccel = 500.0;
+  public static final double kAllowedErr = 75.0;
 
   // =========================== T I L T ======================
 
@@ -60,7 +60,7 @@ public final class ShooterConstants {
   public static final double kTiltPositionFactor = 360.0; // degrees per output rotation
   public static final double kTiltVelocityFactor = kTiltPositionFactor / 60.0; // degrees per second
 
-  public static final double kTiltZeroOffset = 0.8066746;
+  public static final double kTiltZeroOffset = 0.8331826;
   public static final boolean kTiltZeroCentered = true;
   public static final boolean kTiltMotorInverted = false;
   public static final boolean kTiltEncoderInverted = true;
@@ -77,7 +77,7 @@ public final class ShooterConstants {
   // Moderate (Balanced)
   // public static final double kPosMaxVel = 80.0; //90.0; // degrees/sec (~1.1 sec for 40° travel)
   // public static final double kPosMaxAccel = 150.0; //180.0; // degrees/sec² (0.5 sec to max speed)
-  public static final double kPosAllowedErr = 0.1; // 0.5; // degrees
+  public static final double kPosAllowedErr = 0.5; // 0.5; // degrees
 
 
   public static final int kLeftCurrentLimit = 50; // amps

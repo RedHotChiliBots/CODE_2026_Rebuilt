@@ -21,12 +21,10 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.constants.IntakeConstants;
+import frc.robot.subsystems.Shooter.ShooterSP;
 import frc.robot.utils.Library;
 import frc.robot.utils.SparkMaxSimulation;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -81,8 +79,8 @@ public class Intake extends SubsystemBase {
 
   // The Tilt SP is in degrees
   public enum TiltSP {
-    STOW(90.0),
-    DEPLOY(0.3);
+    STOW(82.6),
+    DEPLOY(0.0);
 
     private double pos;
 
@@ -97,8 +95,8 @@ public class Intake extends SubsystemBase {
 
   // The Tilt SP is in degrees
   public enum SpinSpd {
-    STOW(0.1),
-    DEPLOY(-0.1),
+    STOW(0.5),
+    DEPLOY(-0.3),
     STOP(0.0);
 
     private double spd;
@@ -114,7 +112,7 @@ public class Intake extends SubsystemBase {
 
   // Define motor setpoints
   private IntakeSP intakeSP = IntakeSP.OFF;
-  private TiltSP tiltSP = TiltSP.DEPLOY;
+  private TiltSP tiltSP = TiltSP.STOW;
 
   // ==============================================================
   // Initialize Dashboard entries
@@ -225,7 +223,7 @@ public class Intake extends SubsystemBase {
 
     // Initialize intake start positions
     setIntakeVel(IntakeSP.OFF);
-    setTiltPos(TiltSP.DEPLOY);
+    setTiltPos(TiltSP.STOW);
 
     // Initialize simulation
     if (Constants.currentMode == Constants.Mode.SIM) {
@@ -274,12 +272,12 @@ public class Intake extends SubsystemBase {
    * @return A command that sets the tilt position when executed.
    */
   public Command setTilt(TiltSP sp) {
-    return Commands.parallel(
+    return Commands.sequence(
         runOnce(() -> this.setTiltPos(sp)),
-        runOnce(() -> this.setIntakeSpin(sp)).andThen(
-          Commands.waitSeconds(0.25).andThen(
-          Commands.waitUntil(() -> onTiltTarget())).andThen(
-              () -> this.setIntakeSpin(0.0))));
+        runOnce(() -> this.setIntakeSpin(sp)),
+        Commands.waitSeconds(0.125),
+        Commands.waitUntil(() -> onTiltTarget()),
+        runOnce(() -> this.setIntakeSpin(0.0)));
   }
 
   // ==============================================================
@@ -370,7 +368,11 @@ public class Intake extends SubsystemBase {
    */
   public void setIntakeVel(IntakeSP sp) {
     setIntakeSP(sp);
-    intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kVelocity); // kMAXMotionVelocityControl);
+    if (sp == IntakeSP.OFF) {
+      intake.set(0.0);
+    } else {
+      intakeController.setSetpoint(getIntakeSP(true), SparkBase.ControlType.kVelocity); // kMAXMotionVelocityControl);
+    }
   }
 
   /**
