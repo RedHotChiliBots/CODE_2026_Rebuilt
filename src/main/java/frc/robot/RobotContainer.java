@@ -157,12 +157,12 @@ public class RobotContainer {
 		operatorController.y().onTrue(intake.setIntake(IntakeSP.HI));
 		operatorController.a().onTrue(intake.setIntake(IntakeSP.OFF));
 
-		operatorController.leftBumper().onTrue(shooter.setShooter(ShooterSP.MED));
-		operatorController.x().onTrue(shooter.setShooter(ShooterSP.OFF));
+		operatorController.leftBumper().whileTrue(shooter.setShooter(ShooterSP.MED));
+		// operatorController.x().onTrue(shooter.setShooter(ShooterSP.OFF));
 		// operatorController.leftBumper().onFalse(shooter.setShooter(ShooterSP.OFF));
 
-		operatorController.rightBumper().onTrue(feeder.setFeeder(FeederSP.HI));
-		operatorController.b().onTrue(feeder.setFeeder(FeederSP.OFF));
+		operatorController.rightBumper().whileTrue(feeder.setFeeder(FeederSP.HI));
+		// operatorController.b().onTrue(feeder.setFeeder(FeederSP.OFF));
 		// operatorController.rightBumper().onFalse(feeder.setFeeder(FeederSP.OFF));
 
 		// Idle while the robot is disabled. This ensures the configured

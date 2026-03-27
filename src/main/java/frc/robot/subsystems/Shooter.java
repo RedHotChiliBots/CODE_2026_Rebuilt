@@ -34,9 +34,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.constants.ShooterConstants;
+import frc.robot.utils.DistanceLookup;
 import frc.robot.utils.Library;
 import frc.robot.utils.ShooterBallistics;
 import frc.robot.utils.SparkMaxSimulation;
+import frc.robot.utils.DistanceLookup.LookupResult;
 import edu.wpi.first.math.system.plant.DCMotor;
 
 public class Shooter extends SubsystemBase {
@@ -66,6 +68,8 @@ public class Shooter extends SubsystemBase {
 	// Simulation objects
 	private SparkMaxSimulation leftShooterSim;
 	private SparkMaxSimulation tiltSim;
+
+	private DistanceLookup distanceLookup = new DistanceLookup();
 
 	// ==============================================================
 	// Define motor vel and pos enums
@@ -337,7 +341,15 @@ public class Shooter extends SubsystemBase {
 	public Command setShooter(double sp) {
 		return runOnce(() -> this.setShooterVel(sp));
 	}
-
+	/**
+	 * Creates a command to set the shooter velocity to a custom RPM value.
+	 *
+	 * @param sp The desired shooter velocity in RPM
+	 * @return A command that sets the shooter velocity once
+	 */
+	public Command setShooter() {
+		return runOnce(() -> this.setShooterDist(10.0));
+	}
 	/**
 	 * Creates a command to set the tilt position to a preset setpoint.
 	 *
@@ -599,6 +611,22 @@ public class Shooter extends SubsystemBase {
 	}
 
 	/**
+	 * Sets the shooter velocity and tilt based on dist to hub.
+	 * Uses MAXMotion velocity control for smooth acceleration.
+	 *
+	 * @param dist The distance to the target hub
+	 */
+	public void setShooterDist(double dist) {
+		LookupResult result = distanceLookup.lookup(dist);
+		if (result.getRpm() == 0.0) {
+			leftShooter.set(0.0);
+		} else {
+			setShooterSPDbl(result.getRpm());
+			setTiltSPDbl(result.getAngle());
+		}
+	}
+
+	/**
 	 * Sets the shooter velocity to a custom RPM value and commands the motor
 	 * controller.
 	 * Uses MAXMotion velocity control for smooth acceleration.
@@ -695,7 +723,8 @@ public class Shooter extends SubsystemBase {
 	public void setTiltPos(TiltSP sp) {
 		setTiltSP(sp);
 		// Validate enum value is within safe limits
-//		double pos = Library.clamp(sp.getPos(), TiltSP.MIN.getPos(), TiltSP.MAX.getPos());
+		// double pos = Library.clamp(sp.getPos(), TiltSP.MIN.getPos(),
+		// TiltSP.MAX.getPos());
 		tiltController.setSetpoint(sp.getPos(), SparkBase.ControlType.kPosition);
 	}
 
@@ -707,7 +736,7 @@ public class Shooter extends SubsystemBase {
 	 * @param sp The desired tilt angle in degrees
 	 */
 	public void setTiltPos(double sp) {
-//		sp = Library.clamp(sp, TiltSP.MIN.getPos(), TiltSP.MAX.getPos());
+		// sp = Library.clamp(sp, TiltSP.MIN.getPos(), TiltSP.MAX.getPos());
 		setTiltSPDbl(sp);
 		tiltController.setSetpoint(sp, SparkBase.ControlType.kPosition);
 	}
